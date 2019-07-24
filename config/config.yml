@@ -1,0 +1,45 @@
+# server
+ser:
+  Port: 8999
+  WsPort: 7999
+#  Cors: "*"
+  Cors: "*"
+  APIPrefix: ""
+  LogDir: ./log
+# db
+db:
+  AuthSource: webtest
+  Username: webtest
+  Password: zyhuatest
+  Host: 118.24.103.174
+  Port: 3306
+# redis
+redis:
+  Password: zyhua1122
+  Host: 118.24.103.174
+  Port: 6300
+  PoolSize: 20
+# token验证
+jwt:
+  Secret: kumo
+  OverTime: 10800000 # token过期时间
+  CacheTime: 3600000
+# 用户设置
+user:
+  Salt: kumo
+  Guest: guest
+  DefAvatar: ""
+  CodeOverdue: 600
+# 上传
+upload:
+  MaxSize: 1 # 最大上传大小 单位mb
+  ArticleDir: /upload/article
+  ProfileDir: /upload/profile
+  Addr: 127.0.0.1:8080
+# email
+email:
+  From: zy.hua1122@qq.com
+  AuthCode: afyehpitqgmvbecc
+  Host: smtp.qq.com
+  Port: 25
+
