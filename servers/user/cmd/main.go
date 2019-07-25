@@ -2,9 +2,10 @@ package main
 
 import (
 	"context"
-	"github.com/micro/go-micro"
 	"log"
 	"time"
+
+	"github.com/micro/go-micro"
 
 	user "github.com/Zhan9Yunhua/blog-svr/servers/user/proto/user"
 )
@@ -19,7 +20,7 @@ func (s *Say) Hello(ctx context.Context, req *user.Request, rsp *user.Response) 
 
 func main() {
 	service := micro.NewService(
-		micro.Name("go.micro.srv.greeter"),
+		micro.Name("go.micro.greeter"),
 		micro.RegisterTTL(time.Second*30),
 		micro.RegisterInterval(time.Second*10),
 	)

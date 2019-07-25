@@ -1,16 +1,21 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/Zhan9Yunhua/blog-svr/config"
+	"github.com/Zhan9Yunhua/blog-svr/utils"
+	"github.com/gin-gonic/gin"
 )
 
-func Route(e *gin.Engine) {
-	api := e.Group(config.SvrCfg.APIPrefix)
+func NewRoute(e *gin.Engine) {
+	gp := e.Group(config.SvrCfg.APIPrefix)
 
-	user.Inject(api)
+	injectRouter(gp)
 
 	e.NoRoute(func(ctx *gin.Context) {
-		common.ErrRes(ctx, "not found")
+		utils.ErrRes(ctx, "not found")
 	})
+}
+
+func injectRouter(group *gin.RouterGroup) {
+	InjectUserRouter(group)
 }

@@ -1,17 +1,33 @@
 package router
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+
+	userPb "github.com/Zhan9Yunhua/blog-svr/servers/user/proto/user"
+	"github.com/micro/go-micro/client"
+)
+
+const (
+	userPrefix = "user"
+)
+
+var (
+	userCl userPb.SayService
+)
+
+
+func InjectUserRouter(router *gin.RouterGroup) {
+	userCl = userPb.NewSayService("go.micro.greeter", client.DefaultClient)
+	gp := router.Group(userPrefix)
+
+	user := new(UserRouter)
+
+	gp.POST("/register", user.register)
+}
 
 type UserRouter struct {
-	Prefix string
 }
 
-func (user *UserRouter)Inject(route *gin.RouterGroup) {
-	gp := route.Group(user.Prefix)
-
-	gp.POST("/signin", user.signin)
-}
-
-func (user *UserRouter)signin(ctx *gin.Context)  {
+func (user *UserRouter) register(ctx *gin.Context) {
 
 }
