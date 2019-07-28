@@ -1,15 +1,22 @@
 syntax = "proto3";
 
-package go.micro.greeter;
+package go.micro.api.user;
 
-service Say {
-    rpc Hello(Request) returns (Response) {}
+import "github.com/micro/go-api/proto/api.proto";
+
+service User {
+    rpc Login(go.api.Request) returns (go.api.Response) {}
+    rpc Register(go.api.Request) returns (go.api.Response) {}
 }
 
-message Request {
-    string name = 1;
+message Login {
+    string username = 1;
+    string password = 2;
 }
 
-message Response {
-    string msg = 1;
+message Register {
+    string username = 1;
+    string password = 2;
+    string code= 3;
 }
+

@@ -1,38 +1,33 @@
 package main
 
 import (
-	"context"
-	"log"
 	"time"
 
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/api"
+	"github.com/micro/go-micro/server"
 
-	user "github.com/Zhan9Yunhua/blog-svr/servers/user/proto/user"
+	ha "github.com/micro/go-api/handler/http"
 )
-
-type Say struct{}
-
-func (s *Say) Hello(ctx context.Context, req *user.Request, rsp *user.Response) error {
-	log.Print("Received Say.Hello request")
-	rsp.Msg = "Hello " + req.Name
-	return nil
-}
 
 func main() {
 	service := micro.NewService(
-		micro.Name("go.micro.greeter"),
+		micro.Name("go.micro.api.user"),
+		micro.Version("latest"),
 		micro.RegisterTTL(time.Second*30),
-		micro.RegisterInterval(time.Second*10),
+		micro.RegisterInterval(time.Second*15),
 	)
 
-	// optionally setup command line usage
-	service.Init()
+	service.Server().Init(
+		server.Wait(nil),
+	)
 
-	// Register Handlers
-	user.RegisterSayHandler(service.Server(), new(Say))
-
-	// Run server
-	if err := service.Run(); err != nil {
-		log.Fatal(err)
-	}
+	// Register Handler
+	example.RegisterExampleHandler(service.Server(), new(handler.Example),
+		api.WithEndpoint(&api.Endpoint{
+			Name: "User.Register",
+			Path: []string{"/user/register"},
+			Method: []string{"POST"},
+			Handler: ha.Handler,
+		}))
 }
