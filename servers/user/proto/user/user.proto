@@ -2,21 +2,17 @@ syntax = "proto3";
 
 package go.micro.api.user;
 
-import "github.com/micro/go-api/proto/api.proto";
-
 service User {
-    rpc Login(go.api.Request) returns (go.api.Response) {}
-    rpc Register(go.api.Request) returns (go.api.Response) {}
+    rpc Login (LoginRequest) returns (LoginResponse) {
+    }
 }
 
-message Login {
+message LoginRequest {
     string username = 1;
     string password = 2;
 }
 
-message Register {
-    string username = 1;
-    string password = 2;
-    string code= 3;
+message LoginResponse {
+    string code = 1;
+    string msg = 2;
 }
-
