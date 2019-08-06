@@ -2,11 +2,16 @@ package main
 
 import (
 	"context"
-	"github.com/micro/go-micro"
 	"log"
 
+	"github.com/micro/go-micro"
+
 	user "github.com/Zhan9Yunhua/blog-svr/servers/user/proto/user"
-	"github.com/micro/go-micro/api"
+	// "github.com/micro/go-micro/api"
+
+
+	"github.com/micro/go-api"
+	proto "github.com/micro/go-api/proto"
 	rapi "github.com/micro/go-micro/api/handler/api"
 
 	apip "github.com/micro/go-micro/api/proto"
@@ -31,9 +36,9 @@ func main() {
 
 	user.RegisterUserHandler(service.Server(), new(Say), api.WithEndpoint(
 		&api.Endpoint{
-			Name:"Aa.Login",
-			Path: []string{"/aa"},
-			Method: []string{"GET"},
+			Name:    "Aa.Login",
+			Path:    []string{"/aa"},
+			Method:  []string{"GET"},
 			Handler: rapi.Handler,
 		},
 	))
@@ -48,7 +53,7 @@ func main() {
 type Say struct {
 }
 
-func (s *Say) Login(ctx context.Context, req *apip.Request, rsp *apip.Response) error {
+func (s *Say) Login(ctx context.Context, req *proto.Request, rsp *proto.Response) error {
 	log.Print("Received Say.Hello API request")
 	log.Println(req.Method)
 
@@ -56,7 +61,6 @@ func (s *Say) Login(ctx context.Context, req *apip.Request, rsp *apip.Response) 
 	// 	"message": "ok",
 	// 	"method": req.Method,
 	// })
-
 
 	return nil
 }

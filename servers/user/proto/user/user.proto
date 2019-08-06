@@ -2,8 +2,10 @@ syntax = "proto3";
 
 package go.micro.api.user;
 
+import "github.com/micro/go-api/proto/api.proto";
+
 service User {
-    rpc Login (LoginRequest) returns (LoginResponse) {
+    rpc Login (go.api.Request) returns (go.api.Response) {
     }
 }
 
