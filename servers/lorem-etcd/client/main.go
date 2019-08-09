@@ -50,10 +50,10 @@ func main() {
 	// 	advertisePort = os.Getenv("SERVER_PORT")
 	// )
 	var (
-		etcdURL       = "127.0.0.1"
-		etcdPrefix    = os.Getenv("ETCD_PREFIX")
-		advertiseAddr = os.Getenv("SERVER_ADDR")
-		advertisePort = os.Getenv("SERVER_PORT")
+		etcdURL       = "127.0.0.1:2379"
+		etcdPrefix    = "/test/"
+		advertiseAddr = "127.0.0.1"
+		advertisePort = "8999"
 	)
 
 	// Logging domain.
@@ -95,7 +95,7 @@ func main() {
 	// POST /sd-lorem
 	// Payload: {"requestType":"word", "min":10, "max":10}
 	r := mux.NewRouter()
-	r.Methods("POST").Path("/sd-lorem").Handler(httptransport.NewServer(
+	r.Methods("GET").Path("/sd-lorem").Handler(httptransport.NewServer(
 		loremEndpoint,
 		lorem_etcd.DecodeLoremClientRequest,
 		lorem_etcd.EncodeResponse,

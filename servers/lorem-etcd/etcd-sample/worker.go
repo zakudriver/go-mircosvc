@@ -49,9 +49,10 @@ func (w *Worker) HeartBeat() {
 		value, _ := json.Marshal(info)
 
 		resp, err := w.etcdClient.Grant(context.TODO(), TTL)
-		if err != nil {
+		if err != nil{
 			log.Fatal(err)
 		}
+
 		_, err = w.etcdClient.Put(context.Background(), key, string(value), clientv3.WithLease(resp.ID))
 		if err != nil {
 			log.Println("Error update workerInfo:", err)

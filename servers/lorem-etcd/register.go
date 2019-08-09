@@ -13,8 +13,8 @@ import (
 func ConnectEtcd(etcdURL string) (client sdetcdv3.Client, err error) {
 	//etcd的连接参数
 	options := sdetcdv3.ClientOptions{
-		DialTimeout:   time.Second * 3,
-		DialKeepAlive: time.Second * 3,
+		DialTimeout:   time.Second * 30,
+		DialKeepAlive: time.Second * 30,
 	}
 	ctx := context.Background()
 	//创建etcd连接

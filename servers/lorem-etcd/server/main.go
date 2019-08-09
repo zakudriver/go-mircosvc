@@ -3,19 +3,24 @@ package main
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"os"
-
 	lorem_etcd "github.com/Zhan9Yunhua/blog-svr/servers/lorem-etcd"
+	"net/http"
 )
 
 func main() {
+	// var (
+	// 	// 由于consul服务运行在docker或compose, 所以这两个地址一定要正确.
+	// 	etcdURL       = os.Getenv("ETCD_URL")
+	// 	etcdPrefix    = os.Getenv("ETCD_PREFIX")
+	// 	advertiseAddr = os.Getenv("SERVER_ADDR")
+	// 	advertisePort = os.Getenv("SERVER_PORT")
+	// )
+
 	var (
-		// 由于consul服务运行在docker或compose, 所以这两个地址一定要正确.
-		etcdURL       = os.Getenv("ETCD_URL")
-		etcdPrefix    = os.Getenv("ETCD_PREFIX")
-		advertiseAddr = os.Getenv("SERVER_ADDR")
-		advertisePort = os.Getenv("SERVER_PORT")
+		etcdURL       = "127.0.0.1:2379"
+		etcdPrefix    = "/test/"
+		advertiseAddr = "127.0.0.1"
+		advertisePort = "7999"
 	)
 
 	var svc lorem_etcd.Service
