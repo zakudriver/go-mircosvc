@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	defConfFile = "./config.yml"
+	defConfFile = "./gateway/config.yml"
 )
 
 type config struct {
@@ -25,7 +25,7 @@ type config struct {
 var (
 	confFile string
 	conf     map[string]string
-	Config   config
+	c        =new(config)
 )
 
 func init() {
@@ -38,7 +38,7 @@ func init() {
 		logger.Fatalln(err)
 	}
 
-	if err := handleConf(&Config); err != nil {
+	if err := handleConf(c); err != nil {
 		logger.Fatalln(err)
 	}
 }
@@ -60,11 +60,15 @@ func initConfFile() error {
 	return yaml.Unmarshal(b, &conf)
 }
 
-func handleConf(target interface{}) error {
-	 c := map[interface{}]interface{}{}
+func handleConf(target *config) error {
+	c := map[interface{}]interface{}{}
 	for k, v := range conf {
 		c[k] = v
 	}
 
 	return utils.JSON2Struct(c, target)
+}
+
+func GetConfig() *config {
+	return c
 }

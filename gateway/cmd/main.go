@@ -2,9 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/Zhan9Yunhua/blog-svr/gateway/config"
+
+	_ "github.com/Zhan9Yunhua/blog-svr/gateway/config"
+	"github.com/Zhan9Yunhua/blog-svr/gateway/logger"
+	lg "github.com/Zhan9Yunhua/logger"
 )
 
 func main() {
-	fmt.Println(config.Config)
+	logger, err := logger.NewLogger()
+	if err != nil {
+		lg.Fatalln(err)
+	}
+	fmt.Println(logger)
 }

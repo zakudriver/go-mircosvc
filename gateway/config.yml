@@ -1,4 +1,4 @@
-LogPath: log/access.log
+LogPath: ./log/access.log
 JwtAuthSecret: zyhua
 PidPath: pid
 ServerPort: :4001
