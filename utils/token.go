@@ -1,12 +1,10 @@
 package utils
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
-	"github.com/Zhan9Yunhua/blog-svr/config"
-	"github.com/Zhan9Yunhua/blog-svr/db/redis"
+	// "github.com/Zhan9Yunhua/blog-svr/db/redis"
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -36,13 +34,13 @@ func NewToken(a interface{}) *Token {
 }
 
 // 生成token
-func (t *Token) CreateValue() (string, error) {
+func (t *Token) CreateValue(secret string) (string, error) {
 	if t.Value != "" {
 		return t.Value, nil
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims(t.Claims))
 
-	value, err := token.SignedString([]byte(config.JwtCfg.Secret))
+	value, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return "", err
 	}
@@ -52,28 +50,28 @@ func (t *Token) CreateValue() (string, error) {
 }
 
 // 保存token对象到redis , config.JwtCfg.OverTime
-func (t *Token) Save(uid int, time int) error {
-	rc := redis.RedisConn()
-	defer rc.Close()
-
-	bys, err := json.Marshal(t)
-	if err != nil {
-		return err
-	}
-
-	if _, err := rc.Do("SET", uid, bys, "EX", time); err != nil {
-		return err
-	}
-	return nil
-}
+// func (t *Token) Save(uid int, time int) error {
+// 	rc := redis.RedisConn()
+// 	defer rc.Close()
+//
+// 	bys, err := json.Marshal(t)
+// 	if err != nil {
+// 		return err
+// 	}
+//
+// 	if _, err := rc.Do("SET", uid, bys, "EX", time); err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
 
 // 解析token
-func (t *Token) ParseToken() (map[string]interface{}, error) {
+func (t *Token) ParseToken(secret string) (map[string]interface{}, error) {
 	token, err := jwt.Parse(t.Value, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(config.JwtCfg.Secret), nil
+		return []byte(secret), nil
 	})
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		return claims, nil
