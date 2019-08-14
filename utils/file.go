@@ -1,9 +1,10 @@
 package utils
 
 import (
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"os"
 	"path/filepath"
-	"regexp"
 )
 
 func IsExist(path string) bool {
@@ -17,15 +18,12 @@ func IsExist(path string) bool {
 	return false
 }
 
-// 安全打开文件。 没有目标文件就创建
-func SafeOpenFile(path string, flag int, mode os.FileMode) (*os.File, error) {
-	if !IsExist(path) {
-		r, _ := regexp.Compile(`/(\w*)\.(\w*)$`)
-		rp := r.ReplaceAllString(path, "")
-		if err := os.MkdirAll(rp, os.ModePerm); err != nil {
-			return nil, err
-		}
+func ReadYmlFile(filePath string, out interface{}) error {
+	b, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return err
 	}
 
-	return os.OpenFile(path, flag, mode)
+	return yaml.Unmarshal(b, out)
 }
+

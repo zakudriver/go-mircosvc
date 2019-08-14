@@ -3,9 +3,8 @@ package config
 import (
 	"flag"
 	"github.com/Zhan9Yunhua/blog-svr/utils"
-	"path/filepath"
-
 	"github.com/Zhan9Yunhua/logger"
+	"path/filepath"
 )
 
 func init() {
@@ -15,7 +14,7 @@ func init() {
 }
 
 const (
-	DefConfFile = "./gateway/config.yml"
+	DefConfFile = "./user/config.yml"
 )
 
 type config struct {
@@ -23,12 +22,17 @@ type config struct {
 	JwtAuthSecret string
 	PidPath       string
 	ServerPort    string
-	EtcdAddr      string
+
+	DBIP       string
+	DBPort     int
+	DBUsername string
+	DBPassword string
+	DBName     string
 }
 
 var (
 	confFile string
-	conf     map[string]string
+	conf     map[string]interface{}
 	c        = new(config)
 )
 
@@ -37,7 +41,7 @@ func GetConfig() *config {
 }
 
 func handleConf() error {
-	logger.Infoln("GATEWAY config init")
+	logger.Infoln("USER SERVER config init")
 	flag.StringVar(&confFile, "cf", "", "config file path")
 
 	flag.Parse()

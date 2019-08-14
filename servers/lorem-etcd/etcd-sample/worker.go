@@ -16,7 +16,7 @@ type Worker struct {
 	etcdClient *clientv3.Client
 }
 
-// workerInfo is the service register information to etcd
+// workerInfo is the server register information to etcd
 type WorkerInfo struct {
 	Name string
 	IP   string

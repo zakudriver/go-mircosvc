@@ -2,3 +2,4 @@ LogPath: ./log/access.log
 JwtAuthSecret: zyhua
 PidPath: pid
 ServerPort: :4001
+EtcdAddr: 127.0.0.1:2379

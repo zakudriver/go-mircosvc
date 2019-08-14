@@ -2,13 +2,13 @@ package logger
 
 import (
 	"fmt"
+	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
+	"github.com/go-kit/kit/log"
 	"io"
 	"os"
 	"path/filepath"
 
-	"github.com/Zhan9Yunhua/blog-svr/gateway/config"
 	lg "github.com/Zhan9Yunhua/logger"
-	"github.com/go-kit/kit/log"
 )
 
 func NewLogger() log.Logger {
