@@ -2,9 +2,10 @@ package config
 
 import (
 	"flag"
+	"path/filepath"
+
 	"github.com/Zhan9Yunhua/blog-svr/utils"
 	"github.com/Zhan9Yunhua/logger"
-	"path/filepath"
 )
 
 func init() {
@@ -22,6 +23,7 @@ type config struct {
 	JwtAuthSecret string
 	PidPath       string
 	ServerPort    string
+	EtcdAddr      string
 
 	DBIP       string
 	DBPort     int

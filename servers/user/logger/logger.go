@@ -1,12 +1,12 @@
 package logger
 
 import (
-	"fmt"
-	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
-	"github.com/go-kit/kit/log"
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
+	"github.com/go-kit/kit/log"
 
 	lg "github.com/Zhan9Yunhua/logger"
 )
@@ -27,7 +27,6 @@ func handleLogger() (log.Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(path)
 
 	logfile, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
