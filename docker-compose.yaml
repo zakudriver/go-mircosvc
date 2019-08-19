@@ -1,4 +1,4 @@
-# services 定义容器列表
+# service 定义容器列表
 services:
   consignment-cli:
     build: ./consignment-cli
