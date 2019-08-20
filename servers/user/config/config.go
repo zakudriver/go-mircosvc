@@ -15,7 +15,7 @@ func init() {
 }
 
 const (
-	DefConfFile = "./user/config.yml"
+	DefConfFile = "servers/user/config.yml"
 )
 
 type config struct {

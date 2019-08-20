@@ -32,7 +32,7 @@ var (
 )
 
 func InstrumentingMiddleware() service.ServiceMiddleware {
-	return func(next services.UcenterServiceInterface) services.UcenterServiceInterface {
+	return func(next service.UcenterServiceInterface) service.UcenterServiceInterface {
 		return instrumentingMiddleware{requestCount, requestLatency, countResult, next}
 	}
 }
@@ -41,7 +41,7 @@ type instrumentingMiddleware struct {
 	requestCount   metrics.Counter
 	requestLatency metrics.Histogram
 	countResult    metrics.Histogram
-	services.UcenterServiceInterface
+	service.UcenterServiceInterface
 }
 
 func (mw instrumentingMiddleware) GetUser(s string) (output string, err error) {

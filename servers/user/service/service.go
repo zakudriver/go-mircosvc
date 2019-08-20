@@ -1,8 +1,9 @@
 package service
 
 import (
-	"strings"
 	"errors"
+	"fmt"
+	"strings"
 )
 
 type UcenterServiceInterface interface {
@@ -12,6 +13,7 @@ type UcenterServiceInterface interface {
 type UcenterService struct{}
 
 func (UcenterService) GetUser(s string) (string, error) {
+	fmt.Printf("query:%s", s)
 	if s == "" {
 		return "", ErrEmpty
 	}

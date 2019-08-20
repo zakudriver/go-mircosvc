@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
+	"github.com/Zhan9Yunhua/blog-svr/servers/user/server"
 	"net/http"
 
 	_ "github.com/Zhan9Yunhua/blog-svr/servers/user/config"
@@ -23,5 +25,7 @@ func main() {
 	ucenterSvc = middleware.InstrumentingMiddleware()(ucenterSvc)
 
 	mux := http.NewServeMux()
-	mux.Handle("/svc/ucenter/v1/", service.MakeHandler(ucenterSvc, httpLogger))
+	mux.Handle("/svc/user/v1/", service.MakeHandler(ucenterSvc, lg))
+
+	server.RunServer(mux,config.GetConfig().ServerPort)
 }

@@ -17,7 +17,6 @@ import (
 	"strings"
 )
 
-
 func HandleDecodeRequest(method string) kithttp.DecodeRequestFunc {
 	if method == "GET" {
 		return DecodeGetRequest
@@ -82,9 +81,10 @@ func EncodeJSONResponse(_ context.Context, w http.ResponseWriter, response inter
 }
 
 // 内部服务到客户端：解码Get响应
-func DecodeGetResponse(ctx context.Context, resp *http.Response) (interface{}, error) {
+func DecodeGetResponse(_ context.Context, resp *http.Response) (interface{}, error) {
 	var commonResponse commonRes
 	var outputResponse outputRes
+
 	if err := json.NewDecoder(resp.Body).Decode(&commonResponse); err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ type commonUrlReq struct {
 }
 
 type commonRes struct {
-	Code int                    `json:"code"`
+	Code int                    `json:"code,string"`
 	Msg  string                 `json:"msg"`
 	Data map[string]interface{} `json:"data"`
 	Err  string                 `json:"err,omitempty"`

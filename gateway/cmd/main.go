@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/Zhan9Yunhua/blog-svr/gateway/config"
 	"github.com/Zhan9Yunhua/blog-svr/gateway/etcd"
 	"github.com/Zhan9Yunhua/blog-svr/gateway/logger"
@@ -14,12 +13,10 @@ func main() {
 
 	etcdClient := etcd.NewEtcd()
 
-	fmt.Println(lg, etcdClient)
-
 	r := router.NewRouter(lg)
 	{
 		r.Service("/svc/user", etcdClient)
-		r.Get("/svc/user")
+		r.Get("/svc/user/v1/user" )
 	}
 
 	server.RunServer(config.GetConfig().ServerPort, r)
