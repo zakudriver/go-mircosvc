@@ -24,8 +24,10 @@ func main() {
 	ucenterSvc = service.UcenterService{}
 	ucenterSvc = middleware.InstrumentingMiddleware()(ucenterSvc)
 
-	mux := http.NewServeMux()
-	mux.Handle("/svc/user/v1/", service.MakeHandler(ucenterSvc, lg))
+	conf := config.GetConfig()
 
-	server.RunServer(mux,config.GetConfig().ServerAddr)
+	mux := http.NewServeMux()
+	mux.Handle(conf.Prefix+"/", service.MakeHandler(ucenterSvc, lg))
+
+	server.RunServer(mux, conf.ServerAddr)
 }

@@ -52,7 +52,7 @@ func handleEtcd() (etcdv3.Client, error) {
 func Register(etcdClient etcdv3.Client, logger log.Logger) *etcdv3.Registrar {
 	conf := config.GetConfig()
 
-	prefix := "/svc/user/"        // known at compile time
+	prefix := conf.Prefix        // known at compile time
 	instance := conf.ServerAddr     // taken from runtime or platform, somehow
 	key := prefix + instance      // should be globally unique
 	value := "http://" + instance // based on our transport

@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/Zhan9Yunhua/logger"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/sd"
@@ -45,8 +46,7 @@ func SvcFactory(method string, path string) sd.Factory {
 
 		if method == "GET" {
 			enc, dec = EncodeGetRequest, DecodeGetResponse
-		}
-		if method == "POST" {
+		} else {
 			enc, dec = EncodeJsonRequest, DecodeGetResponse
 		}
 
@@ -56,14 +56,19 @@ func SvcFactory(method string, path string) sd.Factory {
 
 // 客户端到内部服务：转换Get请求
 func EncodeGetRequest(_ context.Context, req *http.Request, request interface{}) error {
-	// data := request.(commonUrlReq)
-	// req.URL.Path = strings.Replace(req.URL.Path, "{param}", data.Param, -1)
+	fmt.Printf("%+v\n", request)
+	data, ok := request.(commonUrlReq)
+	fmt.Println(ok)
+	if ok {
+		req.URL.Path = strings.Replace(req.URL.Path, "{param}", data.Param, -1)
+	}
 
 	return nil
 }
 
 // 客户端到内部服务：转换Json请求
 func EncodeJsonRequest(_ context.Context, req *http.Request, request interface{}) error {
+
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(request); err != nil {
 		return err

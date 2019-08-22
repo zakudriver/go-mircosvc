@@ -2,13 +2,14 @@ package service
 
 import (
 	"context"
-	"net/http"
 	"encoding/json"
-	kithttp "github.com/go-kit/kit/transport/http"
-	kitlog "github.com/go-kit/kit/log"
-	"github.com/gorilla/mux"
 	"errors"
 	"fmt"
+	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
+	kitlog "github.com/go-kit/kit/log"
+	kithttp "github.com/go-kit/kit/transport/http"
+	"github.com/gorilla/mux"
+	"net/http"
 )
 
 func decodeGetuserRequest(_ context.Context, r *http.Request) (interface{}, error) {
@@ -41,8 +42,9 @@ func MakeHandler(bs UcenterServiceInterface, logger kitlog.Logger) http.Handler 
 
 	r := mux.NewRouter()
 
+	conf := config.GetConfig()
 	// 接口路由
-	r.Handle("/svc/user/v1/user", getUserHandler).Methods("GET")
+	r.Handle(conf.Prefix+"/login", getUserHandler).Methods("GET")
 
 	return r
 }
@@ -50,20 +52,20 @@ func MakeHandler(bs UcenterServiceInterface, logger kitlog.Logger) http.Handler 
 // encode errors from business-logic
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	//switch err {
-	//	case ErrUnknown:
-	//		w.WriteHeader(http.StatusNotFound)
-	//	case ErrInvalidArgument:
-	//		w.WriteHeader(http.StatusBadRequest)
-	//	default:
-	//		w.WriteHeader(http.StatusInternalServerError)
-	//}
+	// switch err {
+	// 	case ErrUnknown:
+	// 		w.WriteHeader(http.StatusNotFound)
+	// 	case ErrInvalidArgument:
+	// 		w.WriteHeader(http.StatusBadRequest)
+	// 	default:
+	// 		w.WriteHeader(http.StatusInternalServerError)
+	// }
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"code": http.StatusNotFound,
-		"msg": "from ucenter error: " + err.Error(),
+		"msg":  "from ucenter error: " + err.Error(),
 	})
 }
 
-//var ErrUnknown = errors.New("unknown cargo")
-//var ErrInvalidArgument = errors.New("error argument")
+// var ErrUnknown = errors.New("unknown cargo")
+// var ErrInvalidArgument = errors.New("error argument")
 var errBadRoute = errors.New("error argument")

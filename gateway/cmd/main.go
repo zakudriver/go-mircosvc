@@ -16,7 +16,7 @@ func main() {
 	r := router.NewRouter(lg)
 	{
 		r.Service("/svc/user", etcdClient)
-		r.Get("/svc/user/v1/user" )
+		r.Post("/svc/user/login/{param}" )
 	}
 
 	server.RunServer(config.GetConfig().ServerPort, r)

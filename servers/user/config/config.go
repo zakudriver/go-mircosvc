@@ -24,7 +24,7 @@ type config struct {
 	PidPath       string
 	ServerAddr    string
 	EtcdAddr      string
-	BaseURL       string
+	Prefix       string
 
 	DBIP       string
 	DBPort     int
