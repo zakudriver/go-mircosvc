@@ -1,8 +1,9 @@
 LogPath: ./log/access.log
 JwtAuthSecret: zyhua
 PidPath: pid
-ServerPort: :4002
+ServerAddr: 127.0.0.1:4002
 EtcdAddr: 127.0.0.1:2379
+BaseURL: /svc/user
 
 DBIP: 127.0.0.1
 DBPort: 2333

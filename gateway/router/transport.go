@@ -9,7 +9,6 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/sd"
 	kithttp "github.com/go-kit/kit/transport/http"
-	"github.com/gorilla/mux"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -57,8 +56,8 @@ func SvcFactory(method string, path string) sd.Factory {
 
 // 客户端到内部服务：转换Get请求
 func EncodeGetRequest(_ context.Context, req *http.Request, request interface{}) error {
-	data := request.(commonUrlReq)
-	req.URL.Path = strings.Replace(req.URL.Path, "{param}", data.Param, -1)
+	// data := request.(commonUrlReq)
+	// req.URL.Path = strings.Replace(req.URL.Path, "{param}", data.Param, -1)
 
 	return nil
 }
@@ -82,35 +81,37 @@ func EncodeJSONResponse(_ context.Context, w http.ResponseWriter, response inter
 
 // 内部服务到客户端：解码Get响应
 func DecodeGetResponse(_ context.Context, resp *http.Response) (interface{}, error) {
-	var commonResponse commonRes
-	var outputResponse outputRes
-
-	if err := json.NewDecoder(resp.Body).Decode(&commonResponse); err != nil {
-		return nil, err
-	}
-	if commonResponse.Err != "" {
-		outputResponse.Msg = commonResponse.Err
-		outputResponse.Code = 500
-		outputResponse.Data = map[string]interface{}{}
-	} else {
-		outputResponse.Msg = commonResponse.Msg
-		outputResponse.Code = commonResponse.Code
-		outputResponse.Data = commonResponse.Data
-	}
-	return outputResponse, nil
+	// var commonResponse commonRes
+	// var outputResponse outputRes
+	//
+	// if err := json.NewDecoder(resp.Body).Decode(&commonResponse); err != nil {
+	// 	return nil, err
+	// }
+	// if commonResponse.Err != "" {
+	// 	outputResponse.Msg = commonResponse.Err
+	// 	outputResponse.Code = 500
+	// 	outputResponse.Data = map[string]interface{}{}
+	// } else {
+	// 	outputResponse.Msg = commonResponse.Msg
+	// 	outputResponse.Code = commonResponse.Code
+	// 	outputResponse.Data = commonResponse.Data
+	// }
+	// return outputResponse, nil
+	return nil, nil
 }
 
 // 内部服务到客户端：解码Get请求
 func DecodeGetRequest(ctx context.Context, req *http.Request) (interface{}, error) {
-	vars := mux.Vars(req)
-	param, err := vars["param"]
-
-	if !err {
-		return nil, errBadRoute
-	}
-	var getReq commonUrlReq
-	getReq.Param = param
-	return getReq, nil
+	// vars := mux.Vars(req)
+	// param, err := vars["param"]
+	//
+	// if !err {
+	// 	return nil, errBadRoute
+	// }
+	// var getReq commonUrlReq
+	// getReq.Param = param
+	// return getReq, nil
+	return nil, nil
 }
 
 // 内部服务到客户端：解码Json请求

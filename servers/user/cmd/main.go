@@ -27,5 +27,5 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/svc/user/v1/", service.MakeHandler(ucenterSvc, lg))
 
-	server.RunServer(mux,config.GetConfig().ServerPort)
+	server.RunServer(mux,config.GetConfig().ServerAddr)
 }

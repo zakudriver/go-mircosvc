@@ -22,8 +22,9 @@ type config struct {
 	LogPath       string
 	JwtAuthSecret string
 	PidPath       string
-	ServerPort    string
+	ServerAddr    string
 	EtcdAddr      string
+	BaseURL       string
 
 	DBIP       string
 	DBPort     int

@@ -42,7 +42,7 @@ func MakeHandler(bs UcenterServiceInterface, logger kitlog.Logger) http.Handler 
 	r := mux.NewRouter()
 
 	// 接口路由
-	r.Handle("/svc/user/v1/user/{UID}", getUserHandler).Methods("GET")
+	r.Handle("/svc/user/v1/user", getUserHandler).Methods("GET")
 
 	return r
 }
