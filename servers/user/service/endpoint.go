@@ -6,8 +6,8 @@ import (
 	"github.com/go-kit/kit/endpoint"
 )
 
-type getuserRequest struct {
-	UID string `json:"s"`
+type loginRequest struct {
+	Username string `json:"username"`
 }
 
 type commonResponse struct {
@@ -18,13 +18,13 @@ type commonResponse struct {
 }
 
 func makeGetUserEndpoint(s UcenterServiceInterface) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(getuserRequest)
-		name, err := s.GetUser(req.UID)
+	return func(_ context.Context, request interface{}) (interface{}, error) {
+		req := request.(loginRequest)
+		name, err := s.GetUser(req.Username)
 		data := map[string]interface{}{
 			"user": name,
 		}
-		var errmsg string
+		errmsg := ""
 		if err != nil {
 			errmsg = err.Error()
 		} else {

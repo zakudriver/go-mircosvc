@@ -5,21 +5,22 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
 	kitlog "github.com/go-kit/kit/log"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
-	"net/http"
 )
 
-func decodeGetuserRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeLoginRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
-	id, ok := vars["UID"]
+	value, ok := vars["Username"]
 	if !ok {
 		return nil, errBadRoute
 	}
-	fmt.Println("request: ", id)
-	return getuserRequest{UID: id}, nil
+	fmt.Println("request: ", value)
+	return loginRequest{Username: value}, nil
 }
 
 func encodeResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
@@ -35,7 +36,7 @@ func MakeHandler(bs UcenterServiceInterface, logger kitlog.Logger) http.Handler 
 
 	getUserHandler := kithttp.NewServer(
 		makeGetUserEndpoint(bs),
-		decodeGetuserRequest,
+		decodeLoginRequest,
 		encodeResponse,
 		opts...,
 	)
@@ -44,7 +45,7 @@ func MakeHandler(bs UcenterServiceInterface, logger kitlog.Logger) http.Handler 
 
 	conf := config.GetConfig()
 	// 接口路由
-	r.Handle(conf.Prefix+"/login", getUserHandler).Methods("GET")
+	r.Handle(conf.Prefix+"/login", getUserHandler).Methods("POST")
 
 	return r
 }
