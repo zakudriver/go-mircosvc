@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"github.com/Zhan9Yunhua/blog-svr/common"
 	"net/http"
 
 	"github.com/Zhan9Yunhua/logger"
@@ -9,23 +10,23 @@ import (
 )
 
 func ErrRes(ctx *gin.Context, a ...interface{}) {
-	ctx.JSON(http.StatusOK, resHandler(append(a, Error)))
+	ctx.JSON(http.StatusOK, resHandler(append(a, common.Error)))
 	ctx.Abort()
 }
 
 func SerErrRes(ctx *gin.Context, a ...interface{}) {
-	ctx.JSON(http.StatusOK, resHandler(append(a, SerError)))
+	ctx.JSON(http.StatusOK, resHandler(append(a, common.SerError)))
 	ctx.Abort()
 }
 
 func OkRes(ctx *gin.Context, a ...interface{}) {
-	ctx.JSON(http.StatusOK, resHandler(append(a, OK)))
+	ctx.JSON(http.StatusOK, resHandler(append(a, common.OK)))
 	ctx.Abort()
 }
 
 func resHandler(a []interface{}) (res gin.H) {
 	var err error
-	var code Status
+	var code common.Status
 	var msg string
 	var data gin.H
 
@@ -33,7 +34,7 @@ func resHandler(a []interface{}) (res gin.H) {
 		switch t := v.(type) {
 		case error:
 			err = t
-		case Status:
+		case common.Status:
 			code = t
 		case string:
 			msg = t
@@ -42,7 +43,7 @@ func resHandler(a []interface{}) (res gin.H) {
 		}
 	}
 
-	if code > OK {
+	if code > common.OK {
 		if err == nil {
 			logger.Infof(">> msg: %s.\n", msg)
 		} else {

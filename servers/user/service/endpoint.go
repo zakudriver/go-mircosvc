@@ -2,22 +2,13 @@ package service
 
 import (
 	"context"
-
+	"fmt"
+	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/go-kit/kit/endpoint"
 )
 
-type loginRequest struct {
-	Username string `json:"username"`
-}
 
-type commonResponse struct {
-	Code int                    `json:"code"`
-	Msg  string                 `json:"msg"`
-	Data map[string]interface{} `json:"data"`
-	Err  string                 `json:"err,omitempty"`
-}
-
-func makeGetUserEndpoint(s UcenterServiceInterface) endpoint.Endpoint {
+func makeLoginEndpoint(s UserServicer) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		req := request.(loginRequest)
 		name, err := s.GetUser(req.Username)
@@ -30,6 +21,30 @@ func makeGetUserEndpoint(s UcenterServiceInterface) endpoint.Endpoint {
 		} else {
 			errmsg = ""
 		}
-		return commonResponse{Code: 0, Msg: "ok", Data: data, Err: errmsg}, nil
+
+		return common.InnerResponse{Code: 0, Msg: "ok", Data: data, Err: errmsg}, nil
+	}
+}
+
+type getUserRequest struct {
+	UID string `json:"s"`
+}
+
+func makeGetUserEndpoint(s UcenterServiceInterface) endpoint.Endpoint {
+	return func(_ context.Context, request interface{}) (interface{}, error) {
+		req := request.(getUserRequest)
+		name, err := s.GetUser(req.UID)
+		data := map[string]interface{}{
+			"id": name,
+		}
+		errmsg := ""
+		if err != nil {
+			errmsg = err.Error()
+		} else {
+			errmsg = ""
+		}
+
+		fmt.Println(req)
+		return common.InnerResponse{Code: 0, Msg: "ok", Data: data, Err: errmsg}, nil
 	}
 }

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
+	"github.com/Zhan9Yunhua/blog-svr/common"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -17,7 +17,7 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 )
 
-func SvcFactory(method string, path string) sd.Factory {
+func svcFactory(method string, path string) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		if !strings.HasPrefix(instance, "http") {
 			instance = "http://" + instance
@@ -37,9 +37,9 @@ func SvcFactory(method string, path string) sd.Factory {
 		method = strings.ToUpper(method)
 
 		if method == "GET" {
-			enc, dec = EncodeGetRequest, DecodeGetResponse
+			enc, dec = encodeGetRequest, decodeResponse
 		} else {
-			enc, dec = EncodeJsonRequest, DecodeGetResponse
+			enc, dec = encodeJsonRequest, decodeResponse
 		}
 
 		return kithttp.NewClient(method, tgt, enc, dec).Endpoint(), nil, nil
@@ -47,9 +47,8 @@ func SvcFactory(method string, path string) sd.Factory {
 }
 
 // 客户端到内部服务：转换Get请求
-func EncodeGetRequest(_ context.Context, req *http.Request, request interface{}) error {
-	data, ok := request.(commonUrlReq)
-	fmt.Printf("%+v\n", data)
+func encodeGetRequest(_ context.Context, req *http.Request, request interface{}) error {
+	data, ok := request.(common.RequestUrlParams)
 	if ok {
 		req.URL.Path = strings.Replace(req.URL.Path, "{param}", data.Param, -1)
 	}
@@ -58,10 +57,10 @@ func EncodeGetRequest(_ context.Context, req *http.Request, request interface{})
 }
 
 // 客户端到内部服务：转换Json请求
-func EncodeJsonRequest(_ context.Context, req *http.Request, request interface{}) error {
-	fmt.Println("EncodeJsonRequest")
+func encodeJsonRequest(_ context.Context, req *http.Request, request interface{}) error {
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(request); err != nil {
+		logger.Debugln(err.Error())
 		return err
 	}
 	req.Body = ioutil.NopCloser(&buf)
@@ -69,24 +68,22 @@ func EncodeJsonRequest(_ context.Context, req *http.Request, request interface{}
 	return nil
 }
 
-// 内部服务到客户端：解码Get响应
-func DecodeGetResponse(_ context.Context, resp *http.Response) (interface{}, error) {
-	fmt.Println("DecodeGetResponse")
-	// var commonResponse commonRes
-	// var outputResponse outputRes
-	//
-	// if err := json.NewDecoder(resp.Body).Decode(&commonResponse); err != nil {
-	// 	return nil, err
-	// }
-	// if commonResponse.Err != "" {
-	// 	outputResponse.Msg = commonResponse.Err
-	// 	outputResponse.Code = 500
-	// 	outputResponse.Data = map[string]interface{}{}
-	// } else {
-	// 	outputResponse.Msg = commonResponse.Msg
-	// 	outputResponse.Code = commonResponse.Code
-	// 	outputResponse.Data = commonResponse.Data
-	// }
-	// return outputResponse, nil
-	return resp, nil
+// 内部 -> 外部响应
+func decodeResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	var innerResponse common.InnerResponse
+	var outputResponse common.OutputResponse
+
+	if err := json.NewDecoder(r.Body).Decode(&innerResponse); err != nil {
+		return nil, err
+	}
+	if innerResponse.Err == "" {
+		outputResponse.Msg = innerResponse.Msg
+		outputResponse.Code = innerResponse.Code
+		outputResponse.Data = innerResponse.Data
+	} else {
+		outputResponse.Msg = innerResponse.Err
+		outputResponse.Code = common.Error
+		outputResponse.Data = nil
+	}
+	return outputResponse, nil
 }

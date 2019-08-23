@@ -2,18 +2,22 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 )
 
-type UcenterServiceInterface interface {
+type UserServicer interface {
+	Login(loginRequest)
 	GetUser(string) (string, error)
 }
 
-type UcenterService struct{}
+type loginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
 
-func (UcenterService) GetUser(s string) (string, error) {
-	fmt.Printf("query:%s", s)
+type UserService struct{}
+
+func (UserService) GetUser(s string) (string, error) {
 	if s == "" {
 		return "", ErrEmpty
 	}
@@ -22,4 +26,4 @@ func (UcenterService) GetUser(s string) (string, error) {
 
 var ErrEmpty = errors.New("empty input")
 
-type ServiceMiddleware func(UcenterServiceInterface) UcenterServiceInterface
+type ServiceMiddleware func(UserServicer) UserServicer

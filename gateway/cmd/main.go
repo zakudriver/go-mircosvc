@@ -17,6 +17,7 @@ func main() {
 	{
 		r.Service("/svc/user", etcdClient)
 		r.Post("/svc/user/login" )
+		r.Get("/svc/user/{param}" )
 	}
 
 	server.RunServer(config.GetConfig().ServerPort, r)

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
@@ -14,29 +13,42 @@ import (
 )
 
 func decodeLoginRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var request loginRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return nil, err
+	}
+	return request, nil
+}
+
+func decodeGetUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
-	value, ok := vars["Username"]
+	value, ok := vars["UID"]
 	if !ok {
 		return nil, errBadRoute
 	}
-	fmt.Println("request: ", value)
-	return loginRequest{Username: value}, nil
+	return getUserRequest{UID: value}, nil
 }
 
 func encodeResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
 	return json.NewEncoder(w).Encode(response)
 }
 
-// MakeHandler returns a handler for the booking service.
-func MakeHandler(bs UcenterServiceInterface, logger kitlog.Logger) http.Handler {
+func MakeHandler(bs UserServicer, logger kitlog.Logger) http.Handler {
 	opts := []kithttp.ServerOption{
 		kithttp.ServerErrorLogger(logger),
 		kithttp.ServerErrorEncoder(encodeError),
 	}
 
+	loginHandler := kithttp.NewServer(
+		makeLoginEndpoint(bs),
+		decodeLoginRequest,
+		encodeResponse,
+		opts...,
+	)
+
 	getUserHandler := kithttp.NewServer(
 		makeGetUserEndpoint(bs),
-		decodeLoginRequest,
+		decodeGetUserRequest,
 		encodeResponse,
 		opts...,
 	)
@@ -45,7 +57,8 @@ func MakeHandler(bs UcenterServiceInterface, logger kitlog.Logger) http.Handler 
 
 	conf := config.GetConfig()
 	// 接口路由
-	r.Handle(conf.Prefix+"/login", getUserHandler).Methods("POST")
+	r.Handle(conf.Prefix+"/login", loginHandler).Methods("POST")
+	r.Handle(conf.Prefix+"/{UID}", getUserHandler).Methods("GET")
 
 	return r
 }

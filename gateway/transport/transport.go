@@ -3,8 +3,9 @@ package transport
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"github.com/Zhan9Yunhua/blog-svr/common"
+	"github.com/gorilla/mux"
 	"net/http"
 	"time"
 
@@ -16,11 +17,9 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 )
 
-
-
 func MakeHandler(logger log.Logger, ins *etcdv3.Instancer, method string, path string,
 	middlewares ...endpoint.Middleware) *kithttp.Server {
-	factory := SvcFactory(method, path)
+	factory := svcFactory(method, path)
 
 	endpointer := sd.NewEndpointer(ins, factory, logger)
 	balancer := lb.NewRoundRobin(endpointer)
@@ -35,74 +34,44 @@ func MakeHandler(logger log.Logger, ins *etcdv3.Instancer, method string, path s
 		kithttp.ServerErrorEncoder(encodeError),
 	}
 
-	decode := handleDecodeRequest(method)
-	return kithttp.NewServer(retry, decode, EncodeJsonResponse, opts...)
-}
-
-
-func handleDecodeRequest(method string) kithttp.DecodeRequestFunc {
+	var decode kithttp.DecodeRequestFunc
 	if method == "GET" {
-		return DecodeGetRequest
+		decode = decodeGetRequest
+	} else {
+		decode = decodeJsonRequest
 	}
-	return DecodeJsonRequest
 
+	return kithttp.NewServer(retry, decode, encodeJsonResponse, opts...)
 }
 
-
-// 客户端到内部服务：转换Json响应
-func EncodeJsonResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
+func encodeJsonResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	return json.NewEncoder(w).Encode(response)
 }
 
+// 内部 -> 外部：解码get参数
+func decodeGetRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	vars := mux.Vars(r)
+	value, err := vars["param"]
+	if !err {
+		return nil, common.RouteError
+	}
 
-// 内部服务到客户端：解码Get请求
-func DecodeGetRequest(ctx context.Context, req *http.Request) (interface{}, error) {
-	fmt.Println("DecodeGetRequest")
-	// vars := mux.Vars(req)
-	// param, err := vars["param"]
-	//
-	// if !err {
-	// 	return nil, errBadRoute
-	// }
-	// var getReq commonUrlReq
-	// getReq.Param = param
-	// return getReq, nil
-	return nil, nil
+	var  param common.RequestUrlParams
+	param.Param = value
+	return param, nil
 }
 
-// 内部服务到客户端：解码Json请求
-func DecodeJsonRequest(ctx context.Context, req *http.Request) (interface{}, error) {
-	fmt.Println("DecodeJsonRequest")
-	var request commonJsonReq
-	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+// 内部 -> 外部 解析请求参数
+func decodeJsonRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var request common.RequestBodyParams
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		fmt.Println(err.Error())
 		return nil, err
 	}
-	return req, nil
-}
 
-type commonJsonReq struct {
-	Param map[string]interface{} `json:"param"`
+	return request, nil
 }
-
-type commonUrlReq struct {
-	Param string `json:"param"`
-}
-
-type commonRes struct {
-	Code int                    `json:"code,string"`
-	Msg  string                 `json:"msg"`
-	Data map[string]interface{} `json:"data"`
-	Err  string                 `json:"err,omitempty"`
-}
-type outputRes struct {
-	Code int                    `json:"code"`
-	Msg  string                 `json:"msg"`
-	Data map[string]interface{} `json:"data"`
-}
-
-// 错误码
-var errBadRoute = errors.New("10010 错误的路由参数")
 
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

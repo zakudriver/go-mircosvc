@@ -1,8 +1,10 @@
-package utils
+package common
+
+import "errors"
 
 type (
-	Status  = int32
-	Event   = string
+	Status = int32
+	Event = string
 	Literal = string
 )
 
@@ -18,4 +20,8 @@ const (
 	// CodeExpiration = 10 * 60
 
 	IdKey Literal = "userId"
+)
+
+var (
+	RouteError = errors.New("错误的路由参数")
 )
