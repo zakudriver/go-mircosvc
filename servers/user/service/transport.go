@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
-	"errors"
+	"github.com/Zhan9Yunhua/blog-svr/common"
 	"net/http"
 
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
@@ -11,27 +11,6 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 )
-
-func decodeLoginRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var request loginRequest
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return nil, err
-	}
-	return request, nil
-}
-
-func decodeGetUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	vars := mux.Vars(r)
-	value, ok := vars["UID"]
-	if !ok {
-		return nil, errBadRoute
-	}
-	return getUserRequest{UID: value}, nil
-}
-
-func encodeResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
-	return json.NewEncoder(w).Encode(response)
-}
 
 func MakeHandler(bs UserServicer, logger kitlog.Logger) http.Handler {
 	opts := []kithttp.ServerOption{
@@ -63,7 +42,27 @@ func MakeHandler(bs UserServicer, logger kitlog.Logger) http.Handler {
 	return r
 }
 
-// encode errors from business-logic
+func decodeLoginRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var request loginRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return nil, err
+	}
+	return request, nil
+}
+
+func decodeGetUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	vars := mux.Vars(r)
+	value, ok := vars["UID"]
+	if !ok {
+		return nil, common.ErrRouteArgs
+	}
+	return getUserRequest{UID: value}, nil
+}
+
+func encodeResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
+	return json.NewEncoder(w).Encode(response)
+}
+
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	// switch err {
@@ -76,10 +75,7 @@ func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	// }
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"code": http.StatusNotFound,
-		"msg":  "from ucenter error: " + err.Error(),
+		"msg":  "from user error: " + err.Error(),
 	})
 }
 
-// var ErrUnknown = errors.New("unknown cargo")
-// var ErrInvalidArgument = errors.New("error argument")
-var errBadRoute = errors.New("error argument")

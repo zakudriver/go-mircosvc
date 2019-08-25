@@ -9,6 +9,8 @@ import (
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/service"
 )
 
+type ServiceMiddleware func(servicer service.UserServicer) service.UserServicer
+
 var (
 	fieldKeys    = []string{"method", "error"}
 	requestCount = kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
@@ -31,8 +33,8 @@ var (
 	}, []string{}) // no fields here
 )
 
-func InstrumentingMiddleware() service.ServiceMiddleware {
-	return func(next service.UcenterServiceInterface) service.UcenterServiceInterface {
+func InstrumentingMiddleware() ServiceMiddleware {
+	return func(next service.UserServicer) service.UserServicer {
 		return instrumentingMiddleware{requestCount, requestLatency, countResult, next}
 	}
 }
@@ -41,7 +43,7 @@ type instrumentingMiddleware struct {
 	requestCount   metrics.Counter
 	requestLatency metrics.Histogram
 	countResult    metrics.Histogram
-	service.UcenterServiceInterface
+	service.UserServicer
 }
 
 func (mw instrumentingMiddleware) GetUser(s string) (output string, err error) {
@@ -51,6 +53,6 @@ func (mw instrumentingMiddleware) GetUser(s string) (output string, err error) {
 		mw.requestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	output, err = mw.UcenterServiceInterface.GetUser(s)
+	output, err = mw.UserServicer.GetUser(s)
 	return
 }

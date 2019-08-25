@@ -1,29 +1,26 @@
 package service
 
 import (
-	"errors"
+	"github.com/Zhan9Yunhua/blog-svr/common"
 	"strings"
 )
 
 type UserServicer interface {
-	Login(loginRequest)
+	Login(loginRequest) (string, error)
 	GetUser(string) (string, error)
-}
-
-type loginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
 }
 
 type UserService struct{}
 
+
 func (UserService) GetUser(s string) (string, error) {
 	if s == "" {
-		return "", ErrEmpty
+		return "", common.ErrEmpty
 	}
 	return strings.ToUpper(s), nil
 }
 
-var ErrEmpty = errors.New("empty input")
 
-type ServiceMiddleware func(UserServicer) UserServicer
+func (UserService) Login(params loginRequest) (string, error) {
+	return "", nil
+}

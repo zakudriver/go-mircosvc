@@ -1,7 +1,5 @@
 package common
 
-import "errors"
-
 type (
 	Status = int32
 	Event = string
@@ -22,6 +20,3 @@ const (
 	IdKey Literal = "userId"
 )
 
-var (
-	RouteError = errors.New("错误的路由参数")
-)

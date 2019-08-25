@@ -54,7 +54,7 @@ func decodeGetRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
 	value, err := vars["param"]
 	if !err {
-		return nil, common.RouteError
+		return nil, common.ErrRouteArgs
 	}
 
 	var  param common.RequestUrlParams
