@@ -20,8 +20,8 @@ func main() {
 	register := etcd.Register(etcdClient, lg)
 	defer register.Deregister()
 
-	var ucenterSvc service.UcenterServiceInterface
-	ucenterSvc = service.UcenterService{}
+	var ucenterSvc service.UserServicer
+	ucenterSvc = service.UserService{}
 	ucenterSvc = middleware.InstrumentingMiddleware()(ucenterSvc)
 
 	conf := config.GetConfig()

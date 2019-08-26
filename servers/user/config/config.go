@@ -4,6 +4,7 @@ import (
 	"flag"
 	"path/filepath"
 
+	"github.com/Zhan9Yunhua/blog-svr/db"
 	"github.com/Zhan9Yunhua/blog-svr/utils"
 	"github.com/Zhan9Yunhua/logger"
 )
@@ -24,13 +25,9 @@ type config struct {
 	PidPath       string
 	ServerAddr    string
 	EtcdAddr      string
-	Prefix       string
+	Prefix        string
 
-	DBIP       string
-	DBPort     int
-	DBUsername string
-	DBPassword string
-	DBName     string
+	Mysql db.MysqlConf
 }
 
 var (
@@ -63,14 +60,14 @@ func handleConf() error {
 		return err
 	}
 
-	if err := confMap2Stut(c); err != nil {
+	if err := map2Stut(c); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func confMap2Stut(target *config) error {
+func map2Stut(target *config) error {
 	cc := map[interface{}]interface{}{}
 	for k, v := range conf {
 		cc[k] = v

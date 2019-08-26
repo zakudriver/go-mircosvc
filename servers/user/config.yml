@@ -5,8 +5,9 @@ ServerAddr: 127.0.0.1:4002
 EtcdAddr: 127.0.0.1:2379
 Prefix: /svc/user
 
-DBIP: 127.0.0.1
-DBPort: 2333
-DBUsername: webtest
-DBPassword: zyhuatest
-DBName: user
+Mysql:
+  Username: webtest
+  Password: zyhuatest
+  Host: 127.0.0.1
+  Port: 2333
+  AuthSource: user

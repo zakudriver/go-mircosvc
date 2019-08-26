@@ -56,14 +56,14 @@ func handleConf() error {
 		return err
 	}
 
-	if err := confMap2Stut(c); err != nil {
+	if err := map2Stut(c); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func confMap2Stut(target *config) error {
+func map2Stut(target *config) error {
 	cc := map[interface{}]interface{}{}
 	for k, v := range conf {
 		cc[k] = v
