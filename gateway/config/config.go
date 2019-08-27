@@ -19,16 +19,16 @@ const (
 )
 
 type config struct {
-	LogPath       string
-	JwtAuthSecret string
-	PidPath       string
-	ServerPort    string
-	EtcdAddr      string
+	LogPath       string `yaml:"LogPath"`
+	JwtAuthSecret string `yaml:"JwtAuthSecret"`
+	PidPath       string `yaml:"PidPath"`
+	ServerHost    string `yaml:"ServerHost"`
+	ServerPort    string `yaml:"ServerPort"`
+	EtcdAddr      string `yaml:"EtcdAddr"`
 }
 
 var (
 	confFile string
-	conf     map[string]string
 	c        = new(config)
 )
 
@@ -52,22 +52,10 @@ func handleConf() error {
 		return err
 	}
 
-	if err := utils.ReadYmlFile(cf, &conf); err != nil {
-		return err
-	}
-
-	if err := map2Stut(c); err != nil {
+	if err := utils.ReadYmlFile(cf, &c); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func map2Stut(target *config) error {
-	cc := map[interface{}]interface{}{}
-	for k, v := range conf {
-		cc[k] = v
-	}
-
-	return utils.JSON2Struct(cc, target)
-}

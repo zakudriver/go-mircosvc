@@ -9,11 +9,11 @@ import (
 )
 
 type MysqlConf struct {
-	Username   string
-	Password   string
-	Host       int
-	Port       string
-	AuthSource string
+	Username   string `yaml:"Username"`
+	Password   string `yaml:"Password"`
+	Host       string `yaml:"Host"`
+	Port       int    `yaml:"Port"`
+	AuthSource string `yaml:"AuthSource"`
 }
 
 var mdb *sql.DB

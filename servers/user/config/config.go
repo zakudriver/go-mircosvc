@@ -20,19 +20,17 @@ const (
 )
 
 type config struct {
-	LogPath       string
-	JwtAuthSecret string
-	PidPath       string
-	ServerAddr    string
-	EtcdAddr      string
-	Prefix        string
-
-	Mysql db.MysqlConf
+	LogPath       string       `yaml:"LogPath"`
+	JwtAuthSecret string       `yaml:"JwtAuthSecret"`
+	PidPath       string       `yaml:"PidPath"`
+	ServerAddr    string       `yaml:"ServerAddr"`
+	EtcdAddr      string       `yaml:"EtcdAddr"`
+	Prefix        string       `yaml:"Prefix"`
+	Mysql         db.MysqlConf `yaml:"Mysql"`
 }
 
 var (
 	confFile string
-	conf     map[string]interface{}
 	c        = new(config)
 )
 
@@ -56,22 +54,9 @@ func handleConf() error {
 		return err
 	}
 
-	if err := utils.ReadYmlFile(cf, &conf); err != nil {
-		return err
-	}
-
-	if err := map2Stut(c); err != nil {
+	if err := utils.ReadYmlFile(cf, &c); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func map2Stut(target *config) error {
-	cc := map[interface{}]interface{}{}
-	for k, v := range conf {
-		cc[k] = v
-	}
-
-	return utils.JSON2Struct(cc, target)
 }
