@@ -21,6 +21,7 @@ clean:
 	rm -f ./gateway/build/$(BINARY_NAME)
 	rm -f ./gateway/build/$(BINARY_UNIX)
 	rm -f ./servers/user/build/$(BINARY_NAME)
+	rm -f ./servers/user/build/$(BINARY_UNIX)
 
 run:
 	$(GOBUILD) -o ./gateway/build/$(BINARY_NAME) -v ./gateway/cmd/gateway
