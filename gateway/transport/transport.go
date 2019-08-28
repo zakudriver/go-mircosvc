@@ -25,8 +25,8 @@ func MakeHandler(logger log.Logger, ins *etcdv3.Instancer, method string, path s
 	balancer := lb.NewRoundRobin(endpointer)
 	retry := lb.Retry(3, 3*time.Second, balancer)
 
-	for _, middleware := range middlewares {
-		retry = middleware(retry)
+	for _, m := range middlewares {
+		retry = m(retry)
 	}
 
 	opts := []kithttp.ServerOption{
@@ -52,13 +52,18 @@ func encodeJsonResponse(_ context.Context, w http.ResponseWriter, response inter
 // 内部 -> 外部：解码get参数
 func decodeGetRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
+	if len(vars) == 0 {
+		return nil, nil
+	}
+
 	value, err := vars["param"]
 	if !err {
 		return nil, common.ErrRouteArgs
 	}
 
-	var  param common.RequestUrlParams
+	var param common.RequestUrlParams
 	param.Param = value
+
 	return param, nil
 }
 
