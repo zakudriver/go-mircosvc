@@ -32,6 +32,19 @@ func (r *Router) Post(path string, middlewares ...endpoint.Middleware) {
 		r.EtcdIns,
 		"POST",
 		path,
+		false,
+		middlewares...,
+	))
+}
+
+
+func (r *Router) JwtPost(path string, middlewares ...endpoint.Middleware) {
+	r.R.Handle(path, transport.MakeHandler(
+		r.Logger,
+		r.EtcdIns,
+		"POST",
+		path,
+		true,
 		middlewares...,
 	))
 }
@@ -42,6 +55,7 @@ func (r *Router) Get(path string, middlewares ...endpoint.Middleware) {
 		r.EtcdIns,
 		"GET",
 		path,
+		false,
 		middlewares...,
 	))
 }

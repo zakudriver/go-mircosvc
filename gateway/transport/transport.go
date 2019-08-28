@@ -4,11 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Zhan9Yunhua/blog-svr/common"
-	"github.com/gorilla/mux"
 	"net/http"
 	"time"
 
+	"github.com/Zhan9Yunhua/blog-svr/common"
+	"github.com/gorilla/mux"
+
+	"github.com/go-kit/kit/auth/jwt"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/sd"
@@ -17,7 +19,7 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 )
 
-func MakeHandler(logger log.Logger, ins *etcdv3.Instancer, method string, path string,
+func MakeHandler(logger log.Logger, ins *etcdv3.Instancer, method string, path string, isJwt bool,
 	middlewares ...endpoint.Middleware) *kithttp.Server {
 	factory := svcFactory(method, path)
 
@@ -32,6 +34,10 @@ func MakeHandler(logger log.Logger, ins *etcdv3.Instancer, method string, path s
 	opts := []kithttp.ServerOption{
 		kithttp.ServerErrorLogger(logger),
 		kithttp.ServerErrorEncoder(encodeError),
+	}
+
+	if isJwt {
+		opts = append(opts, kithttp.ServerBefore(jwt.HTTPToContext()))
 	}
 
 	var decode kithttp.DecodeRequestFunc
