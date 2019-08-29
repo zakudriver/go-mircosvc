@@ -3,10 +3,11 @@ package session
 import (
 	"encoding/json"
 	"errors"
-	"github.com/Zhan9Yunhua/blog-svr/common"
-	"github.com/gomodule/redigo/redis"
 	"sync"
 	"time"
+
+	"github.com/Zhan9Yunhua/blog-svr/common"
+	"github.com/gomodule/redigo/redis"
 )
 
 type Sessioner interface {
@@ -60,10 +61,10 @@ func (s *Session) GetName() string {
 
 type Storager interface {
 	// SessionInit(sid string) (Session, error)
-	SetSession(session Session) error
-	ReadSession(name string) (Session, error)
+	SetSession(session *Session) error
+	ReadSession(name string) (*Session, error)
 	DestroySession(name string) error
-	GCSession(maxLifeTime int64)
+	// GCSession(maxLifeTime int64)
 }
 
 func NewStorager(pool *redis.Pool) *Storage {
@@ -89,6 +90,41 @@ func (st *Storage) SetSession(session *Session) error {
 		return err
 	}
 	if _, err := conn.Do("SET", session.Name, string(jsonStr), string(session.MaxAge)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (st *Storage) ReadSession(name string) (*Session, error) {
+	st.lock.Lock()
+	defer st.lock.Unlock()
+
+	conn := st.pool.Get()
+	defer conn.Close()
+
+	r, err := redis.Bytes(conn.Do("GET", name))
+	if err != nil {
+		return nil, err
+	}
+
+	se := new(Session)
+	if err := json.Unmarshal(r, se); err != nil {
+		return nil, err
+	}
+
+	return se, nil
+}
+
+func (st *Storage) DestroySession(name string) error {
+	st.lock.Lock()
+	st.lock.Unlock()
+
+	conn := st.pool.Get()
+	defer conn.Close()
+
+	_, err := conn.Do("DEL", name)
+	if err != nil {
 		return err
 	}
 
