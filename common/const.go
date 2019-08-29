@@ -1,5 +1,7 @@
 package common
 
+import "time"
+
 type (
 	Status = int32
 	Event = string
@@ -18,5 +20,9 @@ const (
 	// CodeExpiration = 10 * 60
 
 	IdKey Literal = "userId"
-)
 
+	SessionKey    = "SessionKey"
+	AuthHeaderKey = "Authorization"
+
+	MaxAge = 24 * time.Hour / time.Second
+)

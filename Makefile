@@ -17,17 +17,16 @@ test:
 	$(GOTEST) -v ./
 
 clean:
-	$(GOCLEAN) -i -n
 	rm -f ./gateway/build/$(BINARY_NAME)
 	rm -f ./gateway/build/$(BINARY_UNIX)
 	rm -f ./servers/user/build/$(BINARY_NAME)
 	rm -f ./servers/user/build/$(BINARY_UNIX)
 
 run:
-	$(GOBUILD) -o ./gateway/build/$(BINARY_NAME) -v ./gateway/cmd/gateway
+	$(GOBUILD) -o ./gateway/build/$(BINARY_NAME) -v ./gateway/cmd/*.go
 	./gateway/build/$(BINARY_NAME) &
-	$(GOBUILD) -o ./servers/order/build/$(BINARY_NAME) -v ./servers/order/cmd/order
-	./servers/order/build/$(BINARY_NAME) &
+	$(GOBUILD) -o ./servers/user/build/$(BINARY_NAME) -v ./servers/user/cmd/*.go &
+	./servers/user/build/$(BINARY_NAME) &
 
 restart:
 	kill -INT $$(cat pid)

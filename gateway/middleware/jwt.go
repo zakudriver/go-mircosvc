@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/Zhan9Yunhua/blog-svr/gateway/config"
 	"github.com/dgrijalva/jwt-go"
 	kitjwt "github.com/go-kit/kit/auth/jwt"
@@ -25,6 +26,11 @@ func CookieMiddleware() endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 			// TODO
+			v, ok := ctx.Value(common.SessionKey).(string)
+			if !ok {
+				return nil, nil
+			}
+			fmt.Println(v)
 			fmt.Printf("%+v\n", request)
 
 			return next(ctx, request)

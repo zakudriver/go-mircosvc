@@ -10,7 +10,6 @@ import (
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/gorilla/mux"
 
-	"github.com/go-kit/kit/auth/jwt"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/sd"
@@ -19,7 +18,7 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 )
 
-func MakeHandler(logger log.Logger, ins *etcdv3.Instancer, method string, path string, isJwt bool,
+func MakeHandler(logger log.Logger, ins *etcdv3.Instancer, method string, path string, isCookie bool,
 	middlewares ...endpoint.Middleware) *kithttp.Server {
 	factory := svcFactory(method, path)
 
@@ -32,12 +31,14 @@ func MakeHandler(logger log.Logger, ins *etcdv3.Instancer, method string, path s
 	}
 
 	opts := []kithttp.ServerOption{
-		kithttp.ServerErrorLogger(logger),
+		// kithttp.ServerErrorLogger(logger),
 		kithttp.ServerErrorEncoder(encodeError),
+		// kithttp.ServerFinalizer(func(ctx context.Context, code int, r *http.Request){
+		// }),
 	}
 
-	if isJwt {
-		opts = append(opts, kithttp.ServerBefore(jwt.HTTPToContext()))
+	if isCookie {
+		opts = append(opts, kithttp.ServerBefore(cookieToContext()))
 	}
 
 	var decode kithttp.DecodeRequestFunc
@@ -90,4 +91,15 @@ func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 		"code": http.StatusInternalServerError,
 		"msg":  err.Error(),
 	})
+}
+
+func cookieToContext() kithttp.RequestFunc {
+	return func(ctx context.Context, r *http.Request) context.Context {
+		c, err := r.Cookie(common.AuthHeaderKey)
+		if err != nil {
+			return ctx
+		}
+
+		return context.WithValue(ctx, common.SessionKey, c.Value)
+	}
 }

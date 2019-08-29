@@ -4,12 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/Zhan9Yunhua/blog-svr/common"
-	"net/http"
-
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
 	kitlog "github.com/go-kit/kit/log"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
 func MakeHandler(bs UserServicer, logger kitlog.Logger) http.Handler {
@@ -21,7 +20,7 @@ func MakeHandler(bs UserServicer, logger kitlog.Logger) http.Handler {
 	loginHandler := kithttp.NewServer(
 		makeLoginEndpoint(bs),
 		decodeLoginRequest,
-		encodeResponse,
+		encodeResponseSetCookie,
 		opts...,
 	)
 
@@ -63,6 +62,18 @@ func encodeResponse(_ context.Context, w http.ResponseWriter, response interface
 	return json.NewEncoder(w).Encode(response)
 }
 
+func encodeResponseSetCookie(_ context.Context, w http.ResponseWriter, response interface{}) error {
+	cookie := &http.Cookie{
+		Name:     common.AuthHeaderKey,
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		MaxAge:   int(common.MaxAge),
+	}
+	http.SetCookie(w, cookie)
+	return json.NewEncoder(w).Encode(response)
+}
+
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	// switch err {
@@ -78,4 +89,3 @@ func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 		"msg":  "from user error: " + err.Error(),
 	})
 }
-

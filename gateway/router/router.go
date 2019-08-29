@@ -59,3 +59,14 @@ func (r *Router) Get(path string, middlewares ...endpoint.Middleware) {
 		middlewares...,
 	))
 }
+
+func (r *Router) JetGet(path string, middlewares ...endpoint.Middleware) {
+	r.R.Handle(path, transport.MakeHandler(
+		r.Logger,
+		r.EtcdIns,
+		"GET",
+		path,
+		true,
+		middlewares...,
+	))
+}

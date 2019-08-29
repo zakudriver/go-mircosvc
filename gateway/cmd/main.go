@@ -18,7 +18,7 @@ func main() {
 	{
 		r.Service("/svc/user", etcdClient)
 		r.Post("/svc/user/login", middleware.CookieMiddleware())
-		r.Get("/svc/user")
+		r.JetGet("/svc/user/{param}",  middleware.CookieMiddleware())
 	}
 
 	server.RunServer(config.GetConfig().ServerPort, r)
