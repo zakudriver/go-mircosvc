@@ -11,3 +11,17 @@ Mysql:
   Host: 127.0.0.1
   Port: 2333
   AuthSource: user
+
+Redis:
+  Host: 127.0.0.1
+  Port: 8080
+  Password: zzzz
+  MaxIdle: 30
+  MaxActive: 30
+
+Email:
+  From: zy.hua1122@qq.com
+  AuthCode: afyehpitqgmvbecc
+  Host: smtp.qq.com
+  Port: 25
+  Sender: Kumo

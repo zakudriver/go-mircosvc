@@ -87,9 +87,10 @@ func decodeJsonRequest(_ context.Context, r *http.Request) (interface{}, error) 
 
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"code": http.StatusInternalServerError,
-		"msg":  err.Error(),
+
+	json.NewEncoder(w).Encode(common.OutputResponse{
+		Code: common.SerError.Code(),
+		Msg:  err.Error(),
 	})
 }
 

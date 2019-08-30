@@ -8,19 +8,17 @@ import (
 )
 
 type RedisConf struct {
-	Host      string
-	Port      int
-	Password  string
-	MaxIdle   int
-	MaxActive int
+	Host      string `yaml:"Host"`
+	Port      int    `yaml:"Port"`
+	Password  string `yaml:"Password"`
+	MaxIdle   int    `yaml:"MaxIdle"`
+	MaxActive int    `yaml:"MaxActive"`
 }
 
-var pool *redis.Pool
-
-func InitRedis(conf RedisConf) {
+func NewRedis(conf RedisConf) *redis.Pool {
 	addr := fmt.Sprintf("%s:%d", conf.Host, conf.Port)
 
-	pool = &redis.Pool{
+	return &redis.Pool{
 		MaxIdle:     conf.MaxIdle,       // 最大空闲连接数
 		MaxActive:   conf.MaxActive,     // 最大连接数
 		IdleTimeout: 1000 * time.Second, // 空闲连接超时时间
@@ -41,6 +39,6 @@ func InitRedis(conf RedisConf) {
 	}
 }
 
-func RedisConn() redis.Conn {
-	return pool.Get()
-}
+// func RedisConn() redis.Conn {
+// 	return pool.Get()
+// }

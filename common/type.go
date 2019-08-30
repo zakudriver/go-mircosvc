@@ -1,6 +1,5 @@
 package common
 
-
 // body参数
 type RequestBodyParams = map[string]interface{}
 
@@ -11,7 +10,7 @@ type RequestUrlParams struct {
 
 // 内部响应
 type InnerResponse struct {
-	Code int32                    `json:"code"`
+	Code int32                  `json:"code"`
 	Msg  string                 `json:"msg"`
 	Data map[string]interface{} `json:"data"`
 	Err  string                 `json:"err,omitempty"`
@@ -19,9 +18,7 @@ type InnerResponse struct {
 
 // 外部输出响应
 type OutputResponse struct {
-	Code int32                    `json:"code"`
+	Code int32                  `json:"code"`
 	Msg  string                 `json:"msg"`
 	Data map[string]interface{} `json:"data"`
 }
-
-

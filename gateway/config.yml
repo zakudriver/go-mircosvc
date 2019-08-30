@@ -3,3 +3,11 @@ JwtAuthSecret: zyhua
 PidPath: pid
 ServerPort: :4001
 EtcdAddr: 127.0.0.1:2379
+
+Redis:
+  Host: 118.24.103.174
+  Port: 6300
+  Password: zyhua1122
+  MaxIdle: 30
+  MaxActive: 30
+

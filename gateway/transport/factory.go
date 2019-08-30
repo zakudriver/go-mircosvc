@@ -82,7 +82,7 @@ func decodeResponse(_ context.Context, r *http.Response) (interface{}, error) {
 		outputResponse.Data = innerResponse.Data
 	} else {
 		outputResponse.Msg = innerResponse.Err
-		outputResponse.Code = common.Error
+		outputResponse.Code = common.Error.Code()
 		outputResponse.Data = nil
 	}
 	return outputResponse, nil

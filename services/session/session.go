@@ -2,7 +2,6 @@ package session
 
 import (
 	"encoding/json"
-	"errors"
 	"sync"
 	"time"
 
@@ -13,8 +12,8 @@ import (
 type Sessioner interface {
 	Set(key string, value interface{}) // 设置Session
 	Get(key string) interface{}        // 获取Session
-	Del(key string) error              // 删除Session
-	GetName() string                   // 当前Session ID
+	Del(key string)                    // 删除Session
+	Sid() string                       // 当前Session ID
 }
 
 func NewSession() *Session {
@@ -25,7 +24,7 @@ func NewSession() *Session {
 }
 
 type Session struct {
-	Name             string                 // 唯一标示
+	SID              string                 // 唯一标示
 	lock             sync.Mutex             // 一把互斥锁
 	LastAccessedTime time.Time              // 最后访问时间
 	MaxAge           int64                  // 超时时间
@@ -47,27 +46,26 @@ func (s *Session) Get(key string) interface{} {
 	return nil
 }
 
-func (s *Session) Del(key string) error {
+func (s *Session) Del(key string) {
 	if _, ok := s.Data[key]; ok {
 		delete(s.Data, key)
-		return nil
 	}
-	return errors.New("key is not exist")
 }
 
-func (s *Session) GetName() string {
-	return s.Name
+func (s *Session) Sid() string {
+	return s.SID
 }
 
 type Storager interface {
 	// SessionInit(sid string) (Session, error)
 	SetSession(session *Session) error
-	ReadSession(name string) (*Session, error)
-	DestroySession(name string) error
+	ReadSession(sid string) (*Session, error)
+	DestroySession(sid string) error
+	ExistsSession(sid string) bool
 	// GCSession(maxLifeTime int64)
 }
 
-func NewStorager(pool *redis.Pool) *Storage {
+func NewStorage(pool *redis.Pool) *Storage {
 	return &Storage{
 		pool: pool,
 	}
@@ -89,21 +87,21 @@ func (st *Storage) SetSession(session *Session) error {
 	if err != nil {
 		return err
 	}
-	if _, err := conn.Do("SET", session.Name, string(jsonStr), string(session.MaxAge)); err != nil {
+	if _, err := conn.Do("SET", session.SID, string(jsonStr), string(session.MaxAge)); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (st *Storage) ReadSession(name string) (*Session, error) {
+func (st *Storage) ReadSession(sid string) (*Session, error) {
 	st.lock.Lock()
 	defer st.lock.Unlock()
 
 	conn := st.pool.Get()
 	defer conn.Close()
 
-	r, err := redis.Bytes(conn.Do("GET", name))
+	r, err := redis.Bytes(conn.Do("GET", sid))
 	if err != nil {
 		return nil, err
 	}
@@ -116,17 +114,32 @@ func (st *Storage) ReadSession(name string) (*Session, error) {
 	return se, nil
 }
 
-func (st *Storage) DestroySession(name string) error {
+func (st *Storage) DestroySession(sid string) error {
 	st.lock.Lock()
 	st.lock.Unlock()
 
 	conn := st.pool.Get()
 	defer conn.Close()
 
-	_, err := conn.Do("DEL", name)
+	_, err := conn.Do("DEL", sid)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (st *Storage) ExistsSession(sid string) bool {
+	st.lock.Lock()
+	defer st.lock.Unlock()
+
+	conn := st.pool.Get()
+	defer conn.Close()
+
+	is, err := redis.Bool(conn.Do("GET", sid))
+	if err != nil {
+		return false
+	}
+
+	return is
 }

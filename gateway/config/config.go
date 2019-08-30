@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"github.com/Zhan9Yunhua/blog-svr/services/db"
 	"github.com/Zhan9Yunhua/blog-svr/utils"
 	"path/filepath"
 
@@ -19,12 +20,13 @@ const (
 )
 
 type config struct {
-	LogPath       string `yaml:"LogPath"`
-	JwtAuthSecret string `yaml:"JwtAuthSecret"`
-	PidPath       string `yaml:"PidPath"`
-	ServerHost    string `yaml:"ServerHost"`
-	ServerPort    string `yaml:"ServerPort"`
-	EtcdAddr      string `yaml:"EtcdAddr"`
+	LogPath       string       `yaml:"LogPath"`
+	JwtAuthSecret string       `yaml:"JwtAuthSecret"`
+	PidPath       string       `yaml:"PidPath"`
+	ServerHost    string       `yaml:"ServerHost"`
+	ServerPort    string       `yaml:"ServerPort"`
+	EtcdAddr      string       `yaml:"EtcdAddr"`
+	Redis         db.RedisConf `yaml:"Redis"`
 }
 
 var (
@@ -58,4 +60,3 @@ func handleConf() error {
 
 	return nil
 }
-

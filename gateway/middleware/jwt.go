@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/Zhan9Yunhua/blog-svr/gateway/config"
+	"github.com/Zhan9Yunhua/blog-svr/services/session"
 	"github.com/dgrijalva/jwt-go"
 	kitjwt "github.com/go-kit/kit/auth/jwt"
 	"github.com/go-kit/kit/endpoint"
@@ -22,18 +22,27 @@ func GetJwtMiddleware() endpoint.Middleware {
 	return kitjwt.NewParser(keysFunc, jwt.SigningMethodHS256, kitjwt.MapClaimsFactory)
 }
 
-func CookieMiddleware() endpoint.Middleware {
+func CookieMiddleware(st *session.Storage) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-			// TODO
+
 			v, ok := ctx.Value(common.SessionKey).(string)
 			if !ok {
-				return nil, nil
+				return common.OutputResponse{
+					Code: common.Error.Code(),
+					Msg:  "cookie be not exists",
+				}, nil
 			}
-			fmt.Println(v)
-			fmt.Printf("%+v\n", request)
 
-			return next(ctx, request)
+			is := st.ExistsSession(v)
+			if is {
+				return next(ctx, request)
+			}
+
+			return common.OutputResponse{
+				Code: common.Error.Code(),
+				Msg:  "cookie is expired",
+			}, nil
 		}
 	}
 }

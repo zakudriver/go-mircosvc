@@ -2,9 +2,10 @@ package config
 
 import (
 	"flag"
+	"github.com/Zhan9Yunhua/blog-svr/services/email"
 	"path/filepath"
 
-	"github.com/Zhan9Yunhua/blog-svr/db"
+	"github.com/Zhan9Yunhua/blog-svr/services/db"
 	"github.com/Zhan9Yunhua/blog-svr/utils"
 	"github.com/Zhan9Yunhua/logger"
 )
@@ -20,13 +21,16 @@ const (
 )
 
 type config struct {
-	LogPath       string       `yaml:"LogPath"`
-	JwtAuthSecret string       `yaml:"JwtAuthSecret"`
-	PidPath       string       `yaml:"PidPath"`
-	ServerAddr    string       `yaml:"ServerAddr"`
-	EtcdAddr      string       `yaml:"EtcdAddr"`
-	Prefix        string       `yaml:"Prefix"`
-	Mysql         db.MysqlConf `yaml:"Mysql"`
+	LogPath       string `yaml:"LogPath"`
+	JwtAuthSecret string `yaml:"JwtAuthSecret"`
+	PidPath       string `yaml:"PidPath"`
+	ServerAddr    string `yaml:"ServerAddr"`
+	EtcdAddr      string `yaml:"EtcdAddr"`
+	Prefix        string `yaml:"Prefix"`
+
+	Mysql db.MysqlConf    `yaml:"Mysql"`
+	Redis db.RedisConf    `yaml:"Redis"`
+	Email email.EmailConf `yaml:"Email"`
 }
 
 var (

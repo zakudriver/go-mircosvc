@@ -51,3 +51,9 @@ func makeGetUserEndpoint(s UserServicer) endpoint.Endpoint {
 		return common.InnerResponse{Code: 0, Msg: "ok", Data: data, Err: errmsg}, nil
 	}
 }
+
+type registerRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Code     int    `json:"code"`
+}

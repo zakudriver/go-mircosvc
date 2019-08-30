@@ -16,9 +16,7 @@ type MysqlConf struct {
 	AuthSource string `yaml:"AuthSource"`
 }
 
-var mdb *sql.DB
-
-func InitMysql(conf MysqlConf) {
+func NewMysql(conf MysqlConf) *sql.DB {
 	host := fmt.Sprintf("%s:%s@%s(%s:%d)/%s", conf.Username, conf.Password, "tcp", conf.Host,
 		conf.Port, conf.AuthSource)
 
@@ -26,12 +24,12 @@ func InitMysql(conf MysqlConf) {
 	if err != nil {
 		// fmt.Printf("Open mysql failed,err:%v\n", err)
 		logger.Errorf("Open mysql failed,err:%v\n", err)
-		return
+		return nil
 	}
 
 	db.SetConnMaxLifetime(100 * time.Second)
 	db.SetMaxOpenConns(100) // 设置最大连接数
 	db.SetMaxIdleConns(16)  // 设置闲置连接数
 
-	mdb = db
+	return db
 }
