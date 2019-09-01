@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/go-kit/kit/endpoint"
 )
@@ -26,7 +27,7 @@ func makeLoginEndpoint(s UserServicer) endpoint.Endpoint {
 			errmsg = ""
 		}
 
-		return common.InnerResponse{Code: 0, Msg: "ok", Data: data, Err: errmsg}, nil
+		return common.InnerResponse{Msg: "ok", Data: data, Err: errmsg}, nil
 	}
 }
 
@@ -48,7 +49,7 @@ func makeGetUserEndpoint(s UserServicer) endpoint.Endpoint {
 			errmsg = ""
 		}
 
-		return common.InnerResponse{Code: 0, Msg: "ok", Data: data, Err: errmsg}, nil
+		return common.InnerResponse{ Msg: "ok", Data: data, Err: errmsg}, nil
 	}
 }
 
@@ -56,4 +57,15 @@ type registerRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Code     int    `json:"code"`
+}
+
+func makeSendCodeEndpoint(s UserServicer) endpoint.Endpoint {
+	return func(_ context.Context, request interface{}) (interface{}, error) {
+		err := s.SendCode()
+		if err != nil {
+			return nil, err
+		}
+
+		return common.InnerResponse{Msg: "注册码发送成功", Data: nil, Err: nil}, nil
+	}
 }

@@ -10,7 +10,6 @@ type RequestUrlParams struct {
 
 // 内部响应
 type InnerResponse struct {
-	Code int32                  `json:"code"`
 	Msg  string                 `json:"msg"`
 	Data map[string]interface{} `json:"data"`
 	Err  string                 `json:"err,omitempty"`

@@ -3,16 +3,18 @@ package service
 import (
 	"database/sql"
 	"fmt"
+	"strings"
+
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/Zhan9Yunhua/blog-svr/services/email"
 	"github.com/Zhan9Yunhua/blog-svr/utils"
 	"github.com/gomodule/redigo/redis"
-	"strings"
 )
 
 type UserServicer interface {
 	Login(loginRequest) (string, error)
 	GetUser(string) (string, error)
+	SendCode()(error)
 }
 
 func NewUserService(mdb *sql.DB, rd *redis.Pool, email *email.Email) *UserService {
@@ -44,7 +46,7 @@ func (u *UserService) Register(params registerRequest) {
 
 }
 
-func (u *UserService) SendEmail() error {
+func (u *UserService) SendCode() error {
 	uuid, err := utils.NewUUID()
 	if err != nil {
 		return nil
@@ -57,12 +59,12 @@ func (u *UserService) SendEmail() error {
 
 	ch := make(chan error)
 
-	go func() {
+	go func(c chan<- error) {
 		if _, err := rc.Do("SET", uuid, code, "EX", 600); err != nil {
-			ch <- err
+			c <- err
 		}
-		ch <- nil
-	}()
+		c <- nil
+	}(ch)
 
 	html := fmt.Sprintf(`
       <html>
@@ -73,13 +75,21 @@ func (u *UserService) SendEmail() error {
       </body>
       </html>
       `, code)
-	go func() {
-		err := u.email.Send("zy.hua1122@outlook.com", "注册码", html)
-		if err != nil {
-			ch <- err
-		}
-		ch <- nil
-	}()
+	go func(c chan<- error) {
+		c <- u.email.Send("zy.hua1122@outlook.com", "注册码", html)
+	}(ch)
 
-	return <-ch
+	n := 2
+	for c := range ch {
+		n--
+		if c != nil {
+			close(ch)
+			return c
+		}
+		if n == 0 {
+			close(ch)
+		}
+	}
+
+	return nil
 }

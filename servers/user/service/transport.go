@@ -3,12 +3,13 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"net/http"
+
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
 	kitlog "github.com/go-kit/kit/log"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
-	"net/http"
 )
 
 func MakeHandler(bs UserServicer, logger kitlog.Logger) http.Handler {
@@ -76,16 +77,9 @@ func encodeResponseSetCookie(_ context.Context, w http.ResponseWriter, response 
 
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	// switch err {
-	// 	case ErrUnknown:
-	// 		w.WriteHeader(http.StatusNotFound)
-	// 	case ErrInvalidArgument:
-	// 		w.WriteHeader(http.StatusBadRequest)
-	// 	default:
-	// 		w.WriteHeader(http.StatusInternalServerError)
-	// }
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"code": http.StatusNotFound,
-		"msg":  "from user error: " + err.Error(),
+
+	json.NewEncoder(w).Encode(common.OutputResponse{
+		Code: common.SerError.Code(),
+		Msg:  err.Error(),
 	})
 }
