@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"fmt"
+
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/go-kit/kit/endpoint"
 )
@@ -61,7 +61,6 @@ type registerRequest struct {
 
 func makeRegisterEndpoint(s UserServicer) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
-		fmt.Println("registerRequest")
 		req, ok := request.(registerRequest)
 		if !ok {
 			return common.Response{Code: common.Error.Code(), Msg: "参数错误", Data: nil,}, nil

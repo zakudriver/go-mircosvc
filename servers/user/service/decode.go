@@ -8,7 +8,6 @@ import (
 	"net/http"
 )
 
-
 func decodeLoginRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var request loginRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -24,4 +23,12 @@ func decodeGetUserRequest(_ context.Context, r *http.Request) (interface{}, erro
 		return nil, common.ErrRouteArgs
 	}
 	return getUserRequest{UID: value}, nil
+}
+
+func decodeRegisterRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var request registerRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return nil, err
+	}
+	return request, nil
 }

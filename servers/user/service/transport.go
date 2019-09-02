@@ -38,7 +38,7 @@ func MakeHandler(bs UserServicer, logger kitlog.Logger) http.Handler {
 
 	registerHandler := kithttp.NewServer(
 		makeRegisterEndpoint(bs),
-		decodeGetUserRequest,
+		decodeRegisterRequest,
 		encodeResponse,
 		opts...,
 	)
