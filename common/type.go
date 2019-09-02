@@ -16,7 +16,7 @@ type InnerResponse struct {
 }
 
 // 外部输出响应
-type OutputResponse struct {
+type Response struct {
 	Code int32                  `json:"code"`
 	Msg  string                 `json:"msg"`
 	Data map[string]interface{} `json:"data"`

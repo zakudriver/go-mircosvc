@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-
+	"fmt"
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/go-kit/kit/endpoint"
 )
@@ -49,7 +49,7 @@ func makeGetUserEndpoint(s UserServicer) endpoint.Endpoint {
 			errmsg = ""
 		}
 
-		return common.InnerResponse{ Msg: "ok", Data: data, Err: errmsg}, nil
+		return common.InnerResponse{Msg: "ok", Data: data, Err: errmsg}, nil
 	}
 }
 
@@ -59,6 +59,22 @@ type registerRequest struct {
 	Code     int    `json:"code"`
 }
 
+func makeRegisterEndpoint(s UserServicer) endpoint.Endpoint {
+	return func(_ context.Context, request interface{}) (interface{}, error) {
+		fmt.Println("registerRequest")
+		req, ok := request.(registerRequest)
+		if !ok {
+			return common.Response{Code: common.Error.Code(), Msg: "参数错误", Data: nil,}, nil
+		}
+		err := s.Register(req)
+		if err != nil {
+			return nil, err
+		}
+
+		return common.Response{Code: common.OK.Code(), Msg: "注册成功", Data: nil,}, nil
+	}
+}
+
 func makeSendCodeEndpoint(s UserServicer) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		err := s.SendCode()
@@ -66,6 +82,6 @@ func makeSendCodeEndpoint(s UserServicer) endpoint.Endpoint {
 			return nil, err
 		}
 
-		return common.InnerResponse{Msg: "注册码发送成功", Data: nil, Err: nil}, nil
+		return common.Response{Msg: "注册码发送成功", Data: nil,}, nil
 	}
 }

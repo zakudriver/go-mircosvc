@@ -14,7 +14,8 @@ import (
 type UserServicer interface {
 	Login(loginRequest) (string, error)
 	GetUser(string) (string, error)
-	SendCode()(error)
+	SendCode() error
+	Register(registerRequest) error
 }
 
 func NewUserService(mdb *sql.DB, rd *redis.Pool, email *email.Email) *UserService {
@@ -38,12 +39,16 @@ func (u *UserService) GetUser(s string) (string, error) {
 	return strings.ToUpper(s), nil
 }
 
+// 登录
 func (u *UserService) Login(params loginRequest) (string, error) {
 	return "", nil
 }
 
-func (u *UserService) Register(params registerRequest) {
+// 注册
+func (u *UserService) Register(params registerRequest) error {
+	fmt.Printf("%+v\n", params)
 
+	return nil
 }
 
 func (u *UserService) SendCode() error {

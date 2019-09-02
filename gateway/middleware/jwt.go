@@ -28,7 +28,7 @@ func CookieMiddleware(st *session.Storage) endpoint.Middleware {
 
 			v, ok := ctx.Value(common.SessionKey).(string)
 			if !ok {
-				return common.OutputResponse{
+				return common.Response{
 					Code: common.Error.Code(),
 					Msg:  "cookie be not exists",
 				}, nil
@@ -39,7 +39,7 @@ func CookieMiddleware(st *session.Storage) endpoint.Middleware {
 				return next(ctx, request)
 			}
 
-			return common.OutputResponse{
+			return common.Response{
 				Code: common.Error.Code(),
 				Msg:  "cookie is expired",
 			}, nil

@@ -70,20 +70,22 @@ func encodeJsonRequest(_ context.Context, req *http.Request, request interface{}
 
 // 内部 -> 外部响应
 func decodeResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	var innerResponse common.InnerResponse
-	var outputResponse common.OutputResponse
+	// var innerResponse common.InnerResponse
+	// var outputResponse common.OutputResponse
+	var res common.Response
 
-	if err := json.NewDecoder(r.Body).Decode(&innerResponse); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
 		return nil, err
 	}
-	if innerResponse.Err == "" {
-		outputResponse.Msg = innerResponse.Msg
-		outputResponse.Code = common.OK.Code()
-		outputResponse.Data = innerResponse.Data
-	} else {
-		outputResponse.Msg = innerResponse.Err
-		outputResponse.Code = common.Error.Code()
-		outputResponse.Data = nil
-	}
-	return outputResponse, nil
+	// if innerResponse.Err == "" {
+	// 	outputResponse.Msg = innerResponse.Msg
+	// 	outputResponse.Code = common.OK.Code()
+	// 	outputResponse.Data = innerResponse.Data
+	// } else {
+	// 	outputResponse.Msg = innerResponse.Err
+	// 	outputResponse.Code = common.Error.Code()
+	// 	outputResponse.Data = nil
+	// }
+	// return outputResponse, nil
+	return res, nil
 }
