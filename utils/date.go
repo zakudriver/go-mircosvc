@@ -7,7 +7,7 @@ import (
 
 // 字符串名称月份 -> 整数月份
 func Str2IntForMonth(month string) int {
-	var data = map[string]int{
+	months := map[string]int{
 		"January":   0,
 		"February":  1,
 		"March":     2,
@@ -21,7 +21,7 @@ func Str2IntForMonth(month string) int {
 		"November":  10,
 		"December":  11,
 	}
-	return data[month]
+	return months[month]
 }
 
 // 获取当天 年-月-日 格式
