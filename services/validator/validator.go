@@ -6,18 +6,26 @@ import (
 	"strings"
 )
 
+const (
+	VALIDATOR_VALUE_SIGN       = "="
+	VALIDATOR_RANGE_SPLIT_SIGN = ","
+	VALIDATOR_IGNORE_SIGN      = "_"
+)
+
 func NewValidator() *Validator {
 	return &Validator{
-		tagName:     "validator",
-		splitSymbol: "||",
-		lazy:        false,
+		tagName:       "validator",
+		splitSign:     "||",
+		lazy:          false,
+		validatorsMap: make(map[string]IValidator),
 	}
 }
 
 type Validator struct {
-	tagName     string
-	splitSymbol string
-	lazy        bool
+	tagName       string
+	splitSign     string
+	lazy          bool
+	validatorsMap map[string]IValidator
 }
 
 func (v *Validator) Validate(a interface{}) {
@@ -47,7 +55,7 @@ func (v *Validator) handleStut(vl reflect.Value) (errs []error) {
 
 	for i := 0; i < numField; i++ {
 		fieldTypeInfo := vl.Type().Field(i)
-		tag := fieldTypeInfo.Tag.Get(v.tagName)
+		// tag := fieldTypeInfo.Tag.Get(v.tagName)
 
 		fieldInfo := vl.Field(i)
 		fieldTypeKind := fieldInfo.Type().Kind()
@@ -62,13 +70,15 @@ func (v *Validator) handleStut(vl reflect.Value) (errs []error) {
 
 func (v *Validator) hanleVerifyFromTag(tag string, field reflect.StructField, value reflect.Value) {
 
-	args := strings.Split(tag, v.splitSymbol)
+	args := strings.Split(tag, v.splitSign)
 	for _, v := range args {
+		vKey := v
+		vArgs := make([]string, 0)
 
-		idx := strings.Index(v, "=")
-		if idx!=-1{
-
-
+		idx := strings.Index(v, VALIDATOR_VALUE_SIGN)
+		if idx != -1 {
+			vKey = v[0:idx]
+			vArgs = strings.Split(v[idx+1:], VALIDATOR_RANGE_SPLIT_SIGN)
 		}
 	}
 
