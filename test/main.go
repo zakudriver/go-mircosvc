@@ -3,8 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
-	"reflect"
 	"time"
+
+	"github.com/Zhan9Yunhua/blog-svr/services/validator"
 )
 
 type T struct {
@@ -16,7 +17,7 @@ type P struct {
 	Name string `validator:"required||string=1,5"`
 	Age  int    `validator:"number"`
 	Sex  int    `validator:"string"`
-	Num  string `validator:"number"`
+	Num  int    `validator:"array"`
 }
 
 func main() {
@@ -31,18 +32,13 @@ func main() {
 	// field := tp.Elem().Field(0)
 	// fmt.Println(info)
 	// fmt.Printf("%+v\n", field.Name)
-	a := []*P{&P{}}
 
-	b := reflect.ValueOf(a)
-	c := b.Type().Elem().Kind()
-	fmt.Println(c)
+	tar := P{Name: "zzz"}
+	vali := validator.NewValidator()
 
-	// tar := P{Name: "zzz"}
-	// vali := validator.NewValidator()
-	//
-	// err := vali.Validate(tar)
-	//
-	// fmt.Printf("%+v\n", err)
+	err := vali.Validate(tar)
+
+	fmt.Printf("%+v\n", err)
 }
 
 func handle() error {

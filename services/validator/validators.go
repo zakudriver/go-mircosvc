@@ -10,6 +10,7 @@ var validatorsMap = map[string]IValidator{
 	"required": &RequiredValidator{},
 	"string":   &StringValidator{},
 	"number":   &NumberValidator{},
+	"array":    &ArrayValidator{},
 }
 
 /*
@@ -65,11 +66,28 @@ func (nv *NumberValidator) Validate(field string, value reflect.Value, isRequire
 		eMsg = nv.EMsg
 	}
 
-	switch value.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8,
-		reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Float32, reflect.Float64:
-		break
-	default:
+	if !checkIsNumberKind(value) {
+		return formatError(eMsg, field)
+	}
+
+	return nil
+}
+
+/*
+ArrayValidator
+*/
+type ArrayValidator struct {
+	EMsg string
+}
+
+func (av *ArrayValidator) Validate(field string, value reflect.Value, isRequired bool,
+	args ...string) error {
+	eMsg := "[name] is not a array/slice/map"
+	if av.EMsg != "" {
+		eMsg = av.EMsg
+	}
+
+	if !checkIsMultiKind(value) {
 		return formatError(eMsg, field)
 	}
 

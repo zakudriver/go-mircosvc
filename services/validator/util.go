@@ -10,6 +10,30 @@ const (
 	STRUCT_EMPTY              = "struct %v is empty"
 	VALIDATOR_ALREADY_EXISTED = "[%s] validator already existed"
 	ERROR_NAME_PLACEHOLDER    = "name"
+	Kind                      = "kind"
+)
+
+var (
+	numberKindMap = map[reflect.Kind]string{
+		reflect.Int:     Kind,
+		reflect.Int8:    Kind,
+		reflect.Int16:   Kind,
+		reflect.Int32:   Kind,
+		reflect.Int64:   Kind,
+		reflect.Uint:    Kind,
+		reflect.Uint8:   Kind,
+		reflect.Uint16:  Kind,
+		reflect.Uint32:  Kind,
+		reflect.Uint64:  Kind,
+		reflect.Float32: Kind,
+		reflect.Float64: Kind,
+	}
+
+	multiKindMap = map[reflect.Kind]string{
+		reflect.Array: Kind,
+		reflect.Slice: Kind,
+		reflect.Map:   Kind,
+	}
 )
 
 func checkIsZoreValue(value reflect.Value) bool {
@@ -38,3 +62,16 @@ func formatError(format, field string) error {
 	return errors.New(e)
 }
 
+func checkIsMultiKind(value reflect.Value) bool {
+	kind := value.Kind()
+	_, ok := multiKindMap[kind]
+
+	return ok
+}
+
+func checkIsNumberKind(value reflect.Value) bool {
+	kind := value.Kind()
+
+	_, ok := numberKindMap[kind]
+	return ok
+}

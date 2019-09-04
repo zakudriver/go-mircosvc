@@ -130,4 +130,7 @@ func (va *Validator) hanleVerifyFromTag(tag string, field reflect.StructField, v
 }
 
 func (v *Validator) checkIsMulti(value reflect.Value) bool {
+	// kind := value.Kind()
+
+	return false
 }
