@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/Zhan9Yunhua/blog-svr/services/validator"
+	"strings"
 	"time"
 )
 
@@ -19,13 +19,13 @@ type P struct {
 }
 
 func main() {
-	a := P{Name: "zz", Age: 11.1,}
-
-	vali := validator.NewValidator()
-
-	err := vali.Validate(a)
-
-	fmt.Printf("%+v\n", err)
+	// a := P{Name: "zz", Age: 11.1,}
+	//
+	// vali := validator.NewValidator()
+	//
+	// err := vali.Validate(a)
+	//
+	// fmt.Printf("%+v\n", err)
 }
 
 func handle() error {
@@ -57,4 +57,15 @@ func handle() error {
 
 	fmt.Println("over")
 	return nil
+}
+
+func formatMapError(format string, fieldMap map[string]string) error {
+	var params []string
+	for k, v := range fieldMap {
+		if strings.Index(format, k) >= 0 {
+			params = append(params, k, v)
+		}
+	}
+	replacer := strings.NewReplacer(params...)
+	return errors.New(replacer.Replace(format))
 }

@@ -12,7 +12,7 @@ type Kind uint
 const (
 	STRUCT_EMPTY              = "struct %v is empty"
 	VALIDATOR_ALREADY_EXISTED = "[%s] validator already existed"
-	ERROR_NAME_PLACEHOLDER    = "name"
+	// ERROR_NAME_PLACEHOLDER    = "name"
 
 	Int_Kind Kind = iota
 	Int8_Kind
@@ -116,8 +116,19 @@ func checkIsZoreValue(value reflect.Value) bool {
 }
 
 func formatError(format, field string) error {
-	e := strings.Replace(format, ERROR_NAME_PLACEHOLDER, field, 1)
+	e := strings.Replace(format, "name", field, 1)
 	return errors.New(e)
+}
+
+func formatMapError(format string, fieldMap map[string]string) error {
+	var params []string
+	for k, v := range fieldMap {
+		if strings.Index(format, k) >= 0 {
+			params = append(params, k, v)
+		}
+	}
+	replacer := strings.NewReplacer(params...)
+	return errors.New(replacer.Replace(format))
 }
 
 // 判断 Array/Slice/Map
