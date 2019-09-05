@@ -38,16 +38,24 @@ StringValidator
 */
 type StringValidator struct {
 	EMsg string
+	Equal
 }
 
-func (s *StringValidator) Validate(field string, value reflect.Value, isRequired bool, args ...string) error {
+func (sv *StringValidator) Validate(field string, value reflect.Value, isRequired bool, args ...string) error {
 	eMsg := "[name] is not a string"
-	if s.EMsg != "" {
-		eMsg = s.EMsg
+	if sv.EMsg != "" {
+		eMsg = sv.EMsg
 	}
 
 	if value.Kind() != reflect.String {
 		return formatError(eMsg, field)
+	}
+
+	argsLen := len(args)
+	if argsLen == 1 {
+		if !sv.StringEqual(value, args[0]) {
+			return formatError("[name] is not equal to "+args[0], field)
+		}
 	}
 
 	return nil
@@ -58,6 +66,7 @@ NumberValidator
 */
 type NumberValidator struct {
 	EMsg string
+	Equal
 }
 
 func (nv *NumberValidator) Validate(field string, value reflect.Value, isRequired bool, args ...string) error {
@@ -66,8 +75,15 @@ func (nv *NumberValidator) Validate(field string, value reflect.Value, isRequire
 		eMsg = nv.EMsg
 	}
 
-	if !checkIsNumberKind(value) {
+	if !checkIsNumberKind(value.Kind()) {
 		return formatError(eMsg, field)
+	}
+
+	argsLen := len(args)
+	if argsLen == 1 {
+		if !nv.NumberEqual(value, args[0]) {
+			return formatError("[name] is not equal to "+args[0], field)
+		}
 	}
 
 	return nil
@@ -78,6 +94,7 @@ ArrayValidator
 */
 type ArrayValidator struct {
 	EMsg string
+	Equal
 }
 
 func (av *ArrayValidator) Validate(field string, value reflect.Value, isRequired bool,
@@ -87,7 +104,7 @@ func (av *ArrayValidator) Validate(field string, value reflect.Value, isRequired
 		eMsg = av.EMsg
 	}
 
-	if !checkIsMultiKind(value) {
+	if !checkIsMultiKind(value.Kind()) {
 		return formatError(eMsg, field)
 	}
 

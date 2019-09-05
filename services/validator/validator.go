@@ -8,8 +8,9 @@ import (
 
 const (
 	VALIDATOR_VALUE_SIGN       = "="
-	VALIDATOR_RANGE_SPLIT_SIGN = ","
+	VALIDATOR_SPLIT_SIGN       = ","
 	VALIDATOR_PLACEHOLDER      = "_"
+	// VALIDATOR_RANGE_SPLIT_SIGN = ","
 )
 
 func NewValidator() *Validator {
@@ -55,34 +56,66 @@ func (v *Validator) validate(a interface{}) (errs []error) {
 		vl = vl.Elem()
 	}
 
-	switch tp.Kind() {
-	case reflect.Struct:
-		errs = v.handleStut(vl)
+	switch kind := tp.Kind(); {
+	case reflect.Struct == kind:
+		errs = v.handleStruct(vl)
+	case checkIsMultiKind(kind):
+
 	}
 
 	return
 }
 
-func (v *Validator) handleStut(vl reflect.Value) (errs []error) {
-	numField := vl.NumField()
+func (v *Validator) handleStruct(value reflect.Value) (errs []error) {
+	numField := value.NumField()
 	if numField <= 0 {
-		errs = append(errs, fmt.Errorf(STRUCT_EMPTY, vl.Type().Name()))
+		errs = append(errs, fmt.Errorf(STRUCT_EMPTY, value.Type().Name()))
 		return
 	}
 
 	for i := 0; i < numField; i++ {
-		fieldTypeInfo := vl.Type().Field(i)
+		fieldTypeInfo := value.Type().Field(i)
+		fieldValue := value.Field(i)
 		tag := fieldTypeInfo.Tag.Get(v.tagName)
+		if tag != "" {
+			// fieldTypeKind := fieldInfo.Type().Kind()
 
-		fieldValue := vl.Field(i)
-		// fieldTypeKind := fieldInfo.Type().Kind()
+			if reErrs := v.hanleVerifyFromTag(tag, fieldTypeInfo, fieldValue); len(reErrs) > 0 {
+				errs = append(errs, reErrs...)
+				if v.lazy {
+					return
+				}
+				continue
+			}
+		}
 
-		if err := v.hanleVerifyFromTag(tag, fieldTypeInfo, fieldValue); err != nil {
-			errs = append(errs, err...)
-			if v.lazy {
-				return
+		if value.Kind() == reflect.Struct {
+			if reErrs := v.validate(fieldValue.Interface()); len(reErrs) > 0 {
+				errs = append(errs, reErrs...)
+				if v.lazy {
+					return
+				}
 			}
 			continue
+		}
+
+		if reErrs := v.handleMulti(value); len(reErrs) > 0 {
+			errs = append(errs, reErrs...)
+		}
+	}
+
+	return
+}
+
+func (v *Validator) handleMulti(value reflect.Value) (errs []error) {
+	if v.checkIsMulti(value) {
+		for i := 0; i < value.Len(); i++ {
+			if reErrs := v.validate(value.Index(i).Interface()); len(reErrs) > 0 {
+				errs = append(errs, reErrs...)
+				if v.lazy {
+					return
+				}
+			}
 		}
 	}
 
@@ -107,7 +140,7 @@ func (va *Validator) hanleVerifyFromTag(tag string, field reflect.StructField, v
 		idx := strings.Index(v, VALIDATOR_VALUE_SIGN)
 		if idx != -1 {
 			vKey = v[0:idx]
-			vArgs = strings.Split(v[idx+1:], VALIDATOR_RANGE_SPLIT_SIGN)
+			vArgs = strings.Split(v[idx+1:], VALIDATOR_SPLIT_SIGN)
 		}
 		vali, ok := va.validatorsMap[vKey];
 		if !ok {
@@ -129,8 +162,17 @@ func (va *Validator) hanleVerifyFromTag(tag string, field reflect.StructField, v
 	return
 }
 
-func (v *Validator) checkIsMulti(value reflect.Value) bool {
-	// kind := value.Kind()
+// 判断 arrar/slice/map的item是否是array/slice/map/struct
+func (v *Validator) checkIsMulti(value reflect.Value) (ok bool) {
+	if ok = checkIsMultiKind(value.Kind()); !ok {
+		return
+	}
 
-	return false
+	valueType := value.Type().Elem().Kind()
+
+	if ok = checkIsMultiKind(valueType) || valueType == reflect.Struct; !ok {
+		return
+	}
+
+	return
 }
