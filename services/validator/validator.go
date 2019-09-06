@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	VALIDATOR_VALUE_SIGN       = "="
-	VALIDATOR_SPLIT_SIGN       = ","
-	VALIDATOR_PLACEHOLDER      = "_"
+	VALIDATOR_VALUE_SIGN  = "="
+	VALIDATOR_SPLIT_SIGN  = "|"
+	VALIDATOR_PLACEHOLDER = "_"
 	// VALIDATOR_RANGE_SPLIT_SIGN = ","
 )
 
@@ -58,9 +58,13 @@ func (v *Validator) validate(a interface{}) (errs []error) {
 
 	switch kind := tp.Kind(); {
 	case reflect.Struct == kind:
-		errs = v.handleStruct(vl)
+		if reErrs := v.handleStruct(vl); len(reErrs) > 0 {
+			errs = append(errs, reErrs...)
+		}
 	case checkIsMultiKind(kind):
-
+		if reErrs := v.handleMulti(vl); len(reErrs) > 0 {
+			errs = append(errs, reErrs...)
+		}
 	}
 
 	return
@@ -142,7 +146,7 @@ func (va *Validator) hanleVerifyFromTag(tag string, field reflect.StructField, v
 			vKey = v[0:idx]
 			vArgs = strings.Split(v[idx+1:], VALIDATOR_SPLIT_SIGN)
 		}
-		vali, ok := va.validatorsMap[vKey];
+		vali, ok := va.validatorsMap[vKey]
 		if !ok {
 			errs = append(errs, fmt.Errorf("[%s] validator not exist", vKey))
 			if va.lazy {
@@ -168,9 +172,9 @@ func (v *Validator) checkIsMulti(value reflect.Value) (ok bool) {
 		return
 	}
 
-	valueType := value.Type().Elem().Kind()
+	valueKind := value.Type().Elem().Kind()
 
-	if ok = checkIsMultiKind(valueType) || valueType == reflect.Struct; !ok {
+	if ok = checkIsMultiKind(valueKind) || valueKind == reflect.Struct; !ok {
 		return
 	}
 

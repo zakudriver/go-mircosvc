@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/Zhan9Yunhua/blog-svr/services/validator"
 	"strings"
 	"time"
 )
@@ -13,19 +14,26 @@ type T struct {
 }
 
 type P struct {
-	Name string  `validator:"required"`
-	Age  float64 `validator:"number=11.1"`
-	Sex  int     `validator:"string"`
+	Name string            `validator:"required"`
+	Age  int               `validator:"number=[11.1|20]"`
+	Sex  map[string]string `validator:"multi={name:zz,age:1}"`
+}
+
+type Person struct {
+	Name string   `validator:"required||string=[2|_"`    // 必填。2<=len
+	Age  int      `validator:"number=10|20]"`            // 选填。10<Age<=20 / 0
+	Sex  int      `validator:"number||in=0,1,2"`         // 选填。值只能是0||1||2
+	Car  []string `validator:"multi=_|5]||in=LEXUS,BMW"` // 选填。len>=5且包含LEXUS||BMW
 }
 
 func main() {
-	// a := P{Name: "zz", Age: 11.1,}
-	//
-	// vali := validator.NewValidator()
-	//
-	// err := vali.Validate(a)
-	//
-	// fmt.Printf("%+v\n", err)
+	p := Person{Name: "z", Age: 11, Sex: 1, Car: []string{"AUDI"}}
+
+	vali := validator.NewValidator()
+	err := vali.Validate(p)
+
+	fmt.Printf("%+v\n", err)
+
 }
 
 func handle() error {

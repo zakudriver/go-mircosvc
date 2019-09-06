@@ -10,6 +10,8 @@ import (
 type Kind uint
 
 const (
+	TYPE_INVALID              = "[name] type invalid"
+	PARAMS_INVALID            = "[name] params invalid"
 	STRUCT_EMPTY              = "struct %v is empty"
 	VALIDATOR_ALREADY_EXISTED = "[%s] validator already existed"
 	// ERROR_NAME_PLACEHOLDER    = "name"
