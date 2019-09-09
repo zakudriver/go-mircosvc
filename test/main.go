@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/Zhan9Yunhua/blog-svr/services/validator"
 	"strings"
 	"time"
 )
@@ -27,13 +26,27 @@ type Person struct {
 }
 
 func main() {
-	p := Person{Name: "z", Age: 11, Sex: 1, Car: []string{"AUDI"}}
+	// p := Person{Name: "z", Age: 11, Sex: 1, Car: []string{"AUDI"}}
+	//
+	// vali := validator.NewValidator()
+	// err := vali.Validate(p)
+	//
+	// fmt.Printf("%+v\n", err)
+	type a struct {
+		name string
+	}
 
-	vali := validator.NewValidator()
-	err := vali.Validate(p)
+	type b struct {
+		name string
+	}
 
-	fmt.Printf("%+v\n", err)
+	var c interface{} = map[string]string{"name": "zz"}
+	v, ok := c.(map[string]interface{})
+	if ok {
+		fmt.Println(v)
+	}
 
+	fmt.Println(ok)
 }
 
 func handle() error {

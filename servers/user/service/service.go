@@ -3,8 +3,9 @@ package service
 import (
 	"database/sql"
 	"fmt"
-	"github.com/Zhan9Yunhua/blog-svr/services/validator"
 	"strings"
+
+	"github.com/Zhan9Yunhua/blog-svr/services/validator"
 
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/Zhan9Yunhua/blog-svr/services/email"
@@ -17,7 +18,7 @@ type UserServicer interface {
 	GetUser(string) (string, error)
 	SendCode() error
 	Register(registerRequest) error
-	Validate(a interface{}) []error
+	Validate(interface{}) []error
 }
 
 func NewUserService(mdb *sql.DB, rd *redis.Pool, email *email.Email) *UserService {

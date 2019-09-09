@@ -54,24 +54,19 @@ func makeGetUserEndpoint(s UserServicer) endpoint.Endpoint {
 }
 
 type registerRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Code     int    `json:"code"`
+	Username string `json:"username" validator:"required||string=[6|10]"`
+	Password string `json:"password" validator:"required||string=[6|10]"`
+	Code     int    `json:"code" validator:"required||len=6"`
 }
 
 func makeRegisterEndpoint(s UserServicer) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
-		req, ok := request.(registerRequest)
-		if !ok {
-			return common.Response{Code: common.Error.Code(), Msg: "params error", Data: nil,}, nil
-		}
-
 		errs := s.Validate(request)
-
 		if errs != nil {
 			return common.Response{Code: common.Error.Code(), Msg: errs[0].Error(), Data: nil,}, nil
 		}
 
+		req := request.(registerRequest)
 		err := s.Register(req)
 		if err != nil {
 			return nil, err

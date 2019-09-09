@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	EQUAL_ERR = "[name] length should be equal [value]"
+	EQUAL_ERR = "[name] should be equal [value]"
 )
 
 type Equal struct {

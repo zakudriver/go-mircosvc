@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -17,6 +18,7 @@ var validatorsMap = map[string]IValidator{
 	"number":   &NumberValidator{},
 	"multi":    &MultiValidator{},
 	"in":       &InValidator{},
+	"len":      &LenValidator{},
 }
 
 /*
@@ -107,8 +109,7 @@ type MultiValidator struct {
 	Range
 }
 
-func (av *MultiValidator) Validate(field string, value reflect.Value, isRequired bool,
-	args ...string) error {
+func (av *MultiValidator) Validate(field string, value reflect.Value, isRequired bool, args ...string) error {
 	eMsg := "[name] is not a array/slice/map"
 
 	if !checkIsMultiKind(value.Kind()) {
@@ -138,8 +139,7 @@ type BoolValidator struct {
 	Equal
 }
 
-func (bv *BoolValidator) Validate(field string, value reflect.Value, isRequired bool,
-	args ...string) error {
+func (bv *BoolValidator) Validate(field string, value reflect.Value, isRequired bool, args ...string) error {
 	eMsg := "[name] is not a bool"
 
 	if value.Kind() != reflect.Bool {
@@ -167,8 +167,7 @@ type InValidator struct {
 	Equal
 }
 
-func (iv *InValidator) Validate(field string, value reflect.Value, isRequired bool,
-	args ...string) (err error) {
+func (iv *InValidator) Validate(field string, value reflect.Value, isRequired bool, args ...string) (err error) {
 	eMsg := "[name] is not in [value]"
 
 	if len(args) == 0 {
@@ -211,6 +210,47 @@ func (iv *InValidator) Validate(field string, value reflect.Value, isRequired bo
 	}
 
 	if !isIn {
+		return formatMapError(eMsg, map[string]string{"name": field, "value": args[0]})
+	}
+
+	return nil
+}
+
+/*
+	LenValidator
+*/
+type LenValidator struct {
+	Equal
+}
+
+func (lv *LenValidator) Validate(field string, value reflect.Value, isRequired bool, args ...string) error {
+	eMsg := "[name] length should be equal [value]"
+
+	if len(args) != 1 {
+		return errors.New("[LenValidator] validator must have 1 param")
+	}
+
+	if !checkIsLen(value.Kind()) && !checkIsNumberKind(value.Kind()) {
+		return formatError(TYPE_INVALID, field)
+	}
+
+	if !isRequired && checkIsZoreValue(value) {
+		return nil
+	}
+	l, err := strconv.ParseInt(args[0], 10, 64)
+	if err != nil {
+		return errors.New("len args must be a int")
+	}
+
+	le := 0
+	if checkIsNumberKind(value.Kind()) {
+		s := numberToString(value)
+		le = len(s)
+	} else {
+		le = value.Len()
+	}
+
+	if le != int(l) {
 		return formatMapError(eMsg, map[string]string{"name": field, "value": args[0]})
 	}
 

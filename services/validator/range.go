@@ -78,7 +78,7 @@ func (r *Range) InitRange(field string, args ...string) {
 			panic("max must be int/float.")
 		}
 
-		if min >= max {
+		if min > max {
 			panic("max must be greater than min.")
 		}
 	}
