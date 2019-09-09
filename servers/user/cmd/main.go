@@ -23,13 +23,16 @@ func main() {
 	defer register.Deregister()
 
 	conf := config.GetConfig()
-	// mdb := db.NewMysql(conf.Mysql)
-	rd := db.NewRedis(conf.Redis)
-	email := email.NewEmail(conf.Email)
 
 	var userSvc service.UserServicer
-	userSvc = service.NewUserService(nil, rd, email)
-	userSvc = middleware.InstrumentingMiddleware()(userSvc)
+	{
+		// mdb := db.NewMysql(conf.Mysql)
+		rd := db.NewRedis(conf.Redis)
+		email := email.NewEmail(conf.Email)
+
+		userSvc = service.NewUserService(nil, rd, email)
+		userSvc = middleware.InstrumentingMiddleware()(userSvc)
+	}
 
 	mux := http.NewServeMux()
 	mux.Handle(conf.Prefix+"/", service.MakeHandler(userSvc, lg))

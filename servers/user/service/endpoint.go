@@ -63,8 +63,15 @@ func makeRegisterEndpoint(s UserServicer) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(registerRequest)
 		if !ok {
-			return common.Response{Code: common.Error.Code(), Msg: "参数错误", Data: nil,}, nil
+			return common.Response{Code: common.Error.Code(), Msg: "params error", Data: nil,}, nil
 		}
+
+		errs := s.Validate(request)
+
+		if errs != nil {
+			return common.Response{Code: common.Error.Code(), Msg: errs[0].Error(), Data: nil,}, nil
+		}
+
 		err := s.Register(req)
 		if err != nil {
 			return nil, err

@@ -122,11 +122,13 @@ func formatError(format, field string) error {
 	return errors.New(e)
 }
 
-func formatMapError(format string, fieldMap map[string]string) error {
+func formatMapError(format string, fieldMaps ...map[string]string) error {
 	var params []string
-	for k, v := range fieldMap {
-		if strings.Index(format, k) >= 0 {
-			params = append(params, k, v)
+	for _, mv := range fieldMaps {
+		for k, v := range mv {
+			if strings.Index(format, k) >= 0 {
+				params = append(params, k, v)
+			}
 		}
 	}
 	replacer := strings.NewReplacer(params...)

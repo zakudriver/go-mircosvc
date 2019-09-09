@@ -23,14 +23,10 @@ var validatorsMap = map[string]IValidator{
 RequiredValidator
 */
 type RequiredValidator struct {
-	EMsg string
 }
 
-func (r *RequiredValidator) Validate(field string, value reflect.Value, isRequired bool, args ...string) error {
+func (rv *RequiredValidator) Validate(field string, value reflect.Value, isRequired bool, args ...string) error {
 	eMsg := "[name] is must required"
-	if r.EMsg != "" {
-		eMsg = r.EMsg
-	}
 
 	if checkIsZoreValue(value) {
 		return formatError(eMsg, field)
@@ -43,16 +39,12 @@ func (r *RequiredValidator) Validate(field string, value reflect.Value, isRequir
 StringValidator
 */
 type StringValidator struct {
-	EMsg string
 	Equal
 	Range
 }
 
 func (sv *StringValidator) Validate(field string, value reflect.Value, isRequired bool, args ...string) error {
 	eMsg := "[name] is not a string"
-	if sv.EMsg != "" {
-		eMsg = sv.EMsg
-	}
 
 	if value.Kind() != reflect.String {
 		return formatError(eMsg, field)
@@ -79,16 +71,12 @@ func (sv *StringValidator) Validate(field string, value reflect.Value, isRequire
 NumberValidator
 */
 type NumberValidator struct {
-	EMsg string
 	Equal
 	Range
 }
 
 func (nv *NumberValidator) Validate(field string, value reflect.Value, isRequired bool, args ...string) error {
 	eMsg := "[name] is not a number"
-	if nv.EMsg != "" {
-		eMsg = nv.EMsg
-	}
 
 	if !checkIsNumberKind(value.Kind()) {
 		return formatError(eMsg, field)
@@ -115,7 +103,6 @@ func (nv *NumberValidator) Validate(field string, value reflect.Value, isRequire
 MultiValidator
 */
 type MultiValidator struct {
-	EMsg string
 	Equal
 	Range
 }
@@ -123,9 +110,6 @@ type MultiValidator struct {
 func (av *MultiValidator) Validate(field string, value reflect.Value, isRequired bool,
 	args ...string) error {
 	eMsg := "[name] is not a array/slice/map"
-	if av.EMsg != "" {
-		eMsg = av.EMsg
-	}
 
 	if !checkIsMultiKind(value.Kind()) {
 		return formatError(eMsg, field)
@@ -151,16 +135,12 @@ func (av *MultiValidator) Validate(field string, value reflect.Value, isRequired
 BoolValidator
 */
 type BoolValidator struct {
-	EMsg string
 	Equal
 }
 
 func (bv *BoolValidator) Validate(field string, value reflect.Value, isRequired bool,
 	args ...string) error {
 	eMsg := "[name] is not a bool"
-	if bv.EMsg != "" {
-		eMsg = bv.EMsg
-	}
 
 	if value.Kind() != reflect.Bool {
 		return formatError(eMsg, field)
@@ -184,16 +164,12 @@ func (bv *BoolValidator) Validate(field string, value reflect.Value, isRequired 
 	或值类型为 string,float,int,bool 类型的array,slice,map
 */
 type InValidator struct {
-	EMsg string
 	Equal
 }
 
 func (iv *InValidator) Validate(field string, value reflect.Value, isRequired bool,
 	args ...string) (err error) {
 	eMsg := "[name] is not in [value]"
-	if iv.EMsg != "" {
-		eMsg = iv.EMsg
-	}
 
 	if len(args) == 0 {
 		return errors.New("[InValidator] validator must have params")

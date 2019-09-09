@@ -3,6 +3,7 @@ package service
 import (
 	"database/sql"
 	"fmt"
+	"github.com/Zhan9Yunhua/blog-svr/services/validator"
 	"strings"
 
 	"github.com/Zhan9Yunhua/blog-svr/common"
@@ -16,6 +17,7 @@ type UserServicer interface {
 	GetUser(string) (string, error)
 	SendCode() error
 	Register(registerRequest) error
+	Validate(a interface{}) []error
 }
 
 func NewUserService(mdb *sql.DB, rd *redis.Pool, email *email.Email) *UserService {
@@ -23,13 +25,15 @@ func NewUserService(mdb *sql.DB, rd *redis.Pool, email *email.Email) *UserServic
 		mdb,
 		rd,
 		email,
+		nil,
 	}
 }
 
 type UserService struct {
-	mdb   *sql.DB
-	rd    *redis.Pool
-	email *email.Email
+	mdb       *sql.DB
+	rd        *redis.Pool
+	email     *email.Email
+	validator *validator.Validator
 }
 
 func (u *UserService) GetUser(s string) (string, error) {
@@ -97,4 +101,12 @@ func (u *UserService) SendCode() error {
 	}
 
 	return nil
+}
+
+func (u *UserService) Validate(a interface{}) []error {
+	if u.validator == nil {
+		u.validator = validator.NewValidator()
+	}
+
+	return u.validator.LazyValidate(a)
 }

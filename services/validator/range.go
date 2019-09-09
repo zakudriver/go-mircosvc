@@ -6,14 +6,12 @@ import (
 	"strings"
 )
 
-/****************************************************
- * range 验证错误提示 map
- ****************************************************/
+// range 验证错误提示 map
 
 var (
 	stringErrMap = map[string]string{
 		"lessThan": "[name] should be less than [max] chars long",
-		"atLeast":  "[name] should be at least [min] chars long",
+		"greaterThan":  "[name] should be greater than [min] chars long",
 		"between":  "[name] should be between [min] and [max] chars long",
 	}
 
@@ -23,11 +21,10 @@ var (
 		"between":     "[name] should be between [min] and [max]",
 	}
 
-	arrayErrMap = map[string]string{
-		"lessThan": "array [name] length should be less than [max]",
-		"equal":    "array [name] length should be equal [min]",
-		"atLeast":  "array [name] length should be at least [min]",
-		"between":  "array [name] length should be between [min] and [max]",
+	multiErrMap = map[string]string{
+		"lessThan": "[name] length should be less than [max]",
+		"greaterThan":  "[name] length should be greater than [min]",
+		"between":  "[name] length should be between [min] and [max]",
 	}
 )
 
@@ -70,7 +67,7 @@ func (r *Range) InitRange(field string, args ...string) {
 		maxArr = append(maxArr, args[1], "")
 	}
 
-	if minArr[1] != VALIDATOR_PLACEHOLDER && maxArr[0] != VALIDATOR_PLACEHOLDER {
+	if minArr[1] != VALIDATOR_PLACEHOLDER_SIGN && maxArr[0] != VALIDATOR_PLACEHOLDER_SIGN {
 		min, err := strconv.ParseFloat(minArr[1], 64)
 		if err != nil {
 			panic("min must be int/float.")
@@ -86,7 +83,7 @@ func (r *Range) InitRange(field string, args ...string) {
 		}
 	}
 
-	if minArr[1] == VALIDATOR_PLACEHOLDER && maxArr[0] == VALIDATOR_PLACEHOLDER {
+	if minArr[1] == VALIDATOR_PLACEHOLDER_SIGN && maxArr[0] == VALIDATOR_PLACEHOLDER_SIGN {
 		panic(`min and max can't be "_" at the same time`)
 	}
 
@@ -102,7 +99,8 @@ func (r *Range) InitRange(field string, args ...string) {
 	r.errMap["name"] = field
 }
 
-func (r *Range) compareSize(f float64) error {
+// 区间比较
+func (r *Range) compareSize(f float64, errMap map[string]string) error {
 	// status:0 -> min!="_" && max!="_"
 	// status:1 -> min!="_" && max=="_"
 	// status:2 -> min=="_" && max!="_"
@@ -110,7 +108,7 @@ func (r *Range) compareSize(f float64) error {
 	var min float64
 	var max float64
 
-	if r.min.value != VALIDATOR_PLACEHOLDER {
+	if r.min.value != VALIDATOR_PLACEHOLDER_SIGN {
 		f, err := strconv.ParseFloat(r.min.value, 64)
 		if err != nil {
 			return err
@@ -119,7 +117,7 @@ func (r *Range) compareSize(f float64) error {
 		status = 1
 	}
 
-	if r.max.value != VALIDATOR_PLACEHOLDER {
+	if r.max.value != VALIDATOR_PLACEHOLDER_SIGN {
 		f, err := strconv.ParseFloat(r.max.value, 64)
 		if err != nil {
 			return err
@@ -128,7 +126,7 @@ func (r *Range) compareSize(f float64) error {
 		status = 2
 	}
 
-	if r.min.value != VALIDATOR_PLACEHOLDER && r.max.value != VALIDATOR_PLACEHOLDER {
+	if r.min.value != VALIDATOR_PLACEHOLDER_SIGN && r.max.value != VALIDATOR_PLACEHOLDER_SIGN {
 		status = 0
 	}
 
@@ -166,7 +164,7 @@ func (r *Range) compareSize(f float64) error {
 	}
 
 	if errKey != "" {
-		return formatMapError(numberErrMap[errKey], r.errMap)
+		return formatMapError(errMap[errKey], r.errMap)
 	}
 
 	return nil
@@ -191,7 +189,7 @@ func (r *Range) CompareNumberRange(value reflect.Value) (err error) {
 		}
 	}
 
-	return r.compareSize(f)
+	return r.compareSize(f, numberErrMap)
 }
 
 func (r *Range) CompareStringRange(value reflect.Value) error {
@@ -200,7 +198,7 @@ func (r *Range) CompareStringRange(value reflect.Value) error {
 	}
 
 	l := value.Len()
-	return r.compareSize(float64(l))
+	return r.compareSize(float64(l), stringErrMap)
 }
 
 func (r *Range) CompareMultiRange(value reflect.Value) error {
@@ -209,5 +207,5 @@ func (r *Range) CompareMultiRange(value reflect.Value) error {
 	}
 
 	len := value.Len()
-	return r.compareSize(float64(len))
+	return r.compareSize(float64(len), multiErrMap)
 }
