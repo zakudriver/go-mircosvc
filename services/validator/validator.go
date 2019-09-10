@@ -32,12 +32,16 @@ func (v *Validator) Validate(a interface{}) (errs []error) {
 	return
 }
 
-func (v *Validator) LazyValidate(a interface{}) (errs []error) {
+func (v *Validator) LazyValidate(a interface{}) error {
 	oldLazy := v.lazy
 	v.lazy = true
-	errs = v.validate(a)
+	err := v.validate(a)
 	v.lazy = oldLazy
-	return
+
+	if err != nil {
+		return err[0]
+	}
+	return nil
 }
 
 // 添加验证器

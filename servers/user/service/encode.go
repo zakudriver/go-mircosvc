@@ -27,7 +27,7 @@ func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	json.NewEncoder(w).Encode(common.Response{
-		Code: common.SerError.Code(),
+		Code: common.Error.Code(),
 		Msg:  err.Error(),
 	})
 }

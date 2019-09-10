@@ -8,12 +8,12 @@ Prefix: /svc/user
 Mysql:
   Username: webtest
   Password: zyhuatest
-  Host: 127.0.0.1
-  Port: 2333
-  AuthSource: user
+  Host: 118.24.103.174
+  Port: 3306
+  AuthSource: webtest
 
 Redis:
-  Host: 127.0.0.1
+  Host: 118.24.103.174
   Port: 8080
   Password: zzzz
   MaxIdle: 30

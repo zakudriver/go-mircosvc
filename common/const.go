@@ -19,7 +19,6 @@ func (c Code) Code() int32 {
 const (
 	OK       Code = 0
 	Error    Code = 1
-	SerError Code = 500
 
 	Message          Event = "Message"
 	SubscribeMessage Event = "SubscribeMessage"

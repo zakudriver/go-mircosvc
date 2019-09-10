@@ -32,21 +32,6 @@ func main() {
 	// err := vali.Validate(p)
 	//
 	// fmt.Printf("%+v\n", err)
-	type a struct {
-		name string
-	}
-
-	type b struct {
-		name string
-	}
-
-	var c interface{} = map[string]string{"name": "zz"}
-	v, ok := c.(map[string]interface{})
-	if ok {
-		fmt.Println(v)
-	}
-
-	fmt.Println(ok)
 }
 
 func handle() error {

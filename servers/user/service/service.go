@@ -2,7 +2,9 @@ package service
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"github.com/Zhan9Yunhua/blog-svr/services/session"
 	"strings"
 
 	"github.com/Zhan9Yunhua/blog-svr/services/validator"
@@ -16,9 +18,9 @@ import (
 type UserServicer interface {
 	Login(loginRequest) (string, error)
 	GetUser(string) (string, error)
-	SendCode() error
+	SendCode() (common.ResponseData, error)
 	Register(registerRequest) error
-	Validate(interface{}) []error
+	Validate(interface{}) error
 }
 
 func NewUserService(mdb *sql.DB, rd *redis.Pool, email *email.Email) *UserService {
@@ -26,7 +28,8 @@ func NewUserService(mdb *sql.DB, rd *redis.Pool, email *email.Email) *UserServic
 		mdb,
 		rd,
 		email,
-		nil,
+		session.NewSession(),
+		validator.NewValidator(),
 	}
 }
 
@@ -34,6 +37,7 @@ type UserService struct {
 	mdb       *sql.DB
 	rd        *redis.Pool
 	email     *email.Email
+	session   *session.Session
 	validator *validator.Validator
 }
 
@@ -51,15 +55,33 @@ func (u *UserService) Login(params loginRequest) (string, error) {
 
 // 注册
 func (u *UserService) Register(params registerRequest) error {
-	fmt.Printf("%+v\n", params)
+	conn := u.rd.Get()
+	defer conn.Close()
+
+	code, err := redis.Int(conn.Do("GET", params.CodeID))
+	if err != nil {
+		return nil
+	}
+	if code == params.Code {
+		sql := fmt.Sprintf("INSERT INTO `user`(`username`, `password`, `avatar`) VALUES('%s', '%s', '%s')",
+			params.Username,
+			params.Password, "avatar")
+		fmt.Println(sql)
+		_, err := u.mdb.Exec(sql)
+		if err != nil {
+			return err
+		}
+	} else {
+		return errors.New("验证码错误")
+	}
 
 	return nil
 }
 
-func (u *UserService) SendCode() error {
+func (u *UserService) SendCode() (common.ResponseData, error) {
 	uuid, err := utils.NewUUID()
 	if err != nil {
-		return nil
+		return nil, nil
 	}
 
 	code := utils.NewRand(6)
@@ -70,7 +92,7 @@ func (u *UserService) SendCode() error {
 	ch := make(chan error)
 
 	go func(c chan<- error) {
-		if _, err := rc.Do("SET", uuid, code, "EX", 600); err != nil {
+		if _, err := rc.Do("SET", uuid.String(), code, "EX", 600); err != nil {
 			c <- err
 		}
 		c <- nil
@@ -94,20 +116,16 @@ func (u *UserService) SendCode() error {
 		n--
 		if c != nil {
 			close(ch)
-			return c
+			return nil, c
 		}
 		if n == 0 {
 			close(ch)
 		}
 	}
 
-	return nil
+	return common.ResponseData{"codeID": uuid.String()}, nil
 }
 
-func (u *UserService) Validate(a interface{}) []error {
-	if u.validator == nil {
-		u.validator = validator.NewValidator()
-	}
-
+func (u *UserService) Validate(a interface{}) error {
 	return u.validator.LazyValidate(a)
 }

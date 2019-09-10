@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Zhan9Yunhua/logger"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type MysqlConf struct {

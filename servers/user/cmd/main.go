@@ -26,11 +26,11 @@ func main() {
 
 	var userSvc service.UserServicer
 	{
-		// mdb := db.NewMysql(conf.Mysql)
+		mdb := db.NewMysql(conf.Mysql)
 		rd := db.NewRedis(conf.Redis)
 		email := email.NewEmail(conf.Email)
 
-		userSvc = service.NewUserService(nil, rd, email)
+		userSvc = service.NewUserService(mdb, rd, email)
 		userSvc = middleware.InstrumentingMiddleware()(userSvc)
 	}
 

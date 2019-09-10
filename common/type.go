@@ -8,16 +8,12 @@ type RequestUrlParams struct {
 	Param string `json:"param"`
 }
 
-// 内部响应
-type InnerResponse struct {
-	Msg  string                 `json:"msg"`
-	Data map[string]interface{} `json:"data"`
-	Err  string                 `json:"err,omitempty"`
-}
+// 响应数据
+type ResponseData = map[string]interface{}
 
-// 外部输出响应
+// 相应格式
 type Response struct {
-	Code int32                  `json:"code"`
-	Msg  string                 `json:"msg"`
-	Data map[string]interface{} `json:"data"`
+	Code int32        `json:"code"`
+	Msg  string       `json:"msg"`
+	Data ResponseData `json:"data"`
 }
