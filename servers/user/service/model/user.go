@@ -8,12 +8,12 @@ import (
 )
 
 type User struct {
-	Username   string `json:"username"`
-	Password   string `json:"password"`
-	Avatar     string `json:"avatar"`
-	Permission uint8  `json:"permission"`
-	CreatedAt  string `json:"createdAt"`
-	UpdatedAt  string `json:"updatedAt"`
+	Username   string    `json:"username"`
+	Password   string    `json:"password"`
+	Avatar     string    `json:"avatar"`
+	Permission uint8     `json:"permission"`
+	CreatedAt  time.Time `json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
 }
 
 // md5加密
@@ -40,5 +40,5 @@ func (u *User) VerifyPassword(pwd string) bool {
 		return false
 	}
 
-	return u.Pwd2Md5(pwd, "") == u.Password
+	return u.Pwd2Md5(pwd, u.Salt()) == u.Password
 }

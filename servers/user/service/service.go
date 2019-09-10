@@ -4,8 +4,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/Zhan9Yunhua/blog-svr/services/session"
 	"strings"
+
+	"github.com/Zhan9Yunhua/blog-svr/servers/user/service/model"
+	"github.com/Zhan9Yunhua/blog-svr/services/session"
 
 	"github.com/Zhan9Yunhua/blog-svr/services/validator"
 
@@ -49,8 +51,15 @@ func (u *UserService) GetUser(s string) (string, error) {
 }
 
 // 登录
-func (u *UserService) Login(params loginRequest) (string, error) {
-	return "", nil
+func (u *UserService) Login(params loginRequest) (*model.User, error) {
+	sql := fmt.Sprintf("SELECT * FROM `user` WHERE username=%s", params.Username)
+	_ := u.mdb.QueryRow(sql)
+
+	user := new(model.User)
+	user.Username = params.Username
+	user.Password = params.Password
+
+	return nil, nil
 }
 
 // 注册
@@ -62,11 +71,14 @@ func (u *UserService) Register(params registerRequest) error {
 	if err != nil {
 		return nil
 	}
+
+	user := new(model.User)
+	pwd := user.Pwd2Md5(params.Password, user.Salt())
+
 	if code == params.Code {
 		sql := fmt.Sprintf("INSERT INTO `user`(`username`, `password`, `avatar`) VALUES('%s', '%s', '%s')",
 			params.Username,
-			params.Password, "avatar")
-		fmt.Println(sql)
+			pwd, "avatar")
 		_, err := u.mdb.Exec(sql)
 		if err != nil {
 			return err
