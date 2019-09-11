@@ -8,8 +8,9 @@ import (
 )
 
 type User struct {
-	Username   string    `json:"username"`
-	Password   string    `json:"password"`
+	Id         int
+	Username   string `json:"username"`
+	Password   string
 	Avatar     string    `json:"avatar"`
 	Permission uint8     `json:"permission"`
 	CreatedAt  time.Time `json:"createdAt"`

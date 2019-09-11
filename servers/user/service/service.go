@@ -52,14 +52,18 @@ func (u *UserService) GetUser(s string) (string, error) {
 
 // 登录
 func (u *UserService) Login(params loginRequest) (*model.User, error) {
-	sql := fmt.Sprintf("SELECT * FROM `user` WHERE username=%s", params.Username)
-	_ := u.mdb.QueryRow(sql)
-
 	user := new(model.User)
-	user.Username = params.Username
-	user.Password = params.Password
+	sql := fmt.Sprintf("SELECT `id`, `username`, `password`, `avatar`, `permission` FROM `user` WHERE username=%s", params.Username)
+	err := u.mdb.QueryRow(sql).Scan(&user.Id, &user.Username, &user.Avatar, &user.Permission)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	if user.VerifyPassword(params.Password) {
+		return user, nil
+	} else {
+		return nil, errors.New("密码错误")
+	}
 }
 
 // 注册
