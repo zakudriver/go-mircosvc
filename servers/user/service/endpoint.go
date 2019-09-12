@@ -11,7 +11,7 @@ type loginRequest struct {
 	Password string `json:"password" validator:"required||string=[6|10]"`
 }
 
-func makeLoginEndpoint(s UserServicer) endpoint.Endpoint {
+func makeLoginEndpoint(s IUserService) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (a interface{}, err error) {
 		err = s.Validate(request)
 		if err != nil {
@@ -19,16 +19,12 @@ func makeLoginEndpoint(s UserServicer) endpoint.Endpoint {
 		}
 
 		req := request.(loginRequest)
-		name, err := s.Login(req)
+		userInfo, err := s.Login(req)
 		if err != nil {
 			return nil, err
 		}
 
-		data := map[string]interface{}{
-			"user": name,
-		}
-
-		return common.Response{Code: common.OK.Code(), Msg: "ok", Data: data,}, nil
+		return common.Response{Code: common.OK.Code(), Msg: "ok", Data: userInfo,}, nil
 	}
 }
 
@@ -39,7 +35,7 @@ type registerRequest struct {
 	CodeID   string `json:"codeID" validator:"required"`
 }
 
-func makeRegisterEndpoint(s UserServicer) endpoint.Endpoint {
+func makeRegisterEndpoint(s IUserService) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (a interface{}, err error) {
 		err = s.Validate(request)
 		if err != nil {
@@ -60,7 +56,7 @@ type getUserRequest struct {
 	UID string `json:"s"`
 }
 
-func makeGetUserEndpoint(s UserServicer) endpoint.Endpoint {
+func makeGetUserEndpoint(s IUserService) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		req := request.(getUserRequest)
 		name, err := s.GetUser(req.UID)
@@ -75,7 +71,7 @@ func makeGetUserEndpoint(s UserServicer) endpoint.Endpoint {
 	}
 }
 
-func makeSendCodeEndpoint(s UserServicer) endpoint.Endpoint {
+func makeSendCodeEndpoint(s IUserService) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		res, err := s.SendCode()
 		if err != nil {
@@ -83,5 +79,18 @@ func makeSendCodeEndpoint(s UserServicer) endpoint.Endpoint {
 		}
 
 		return common.Response{Msg: "注册码发送成功", Data: res,}, nil
+	}
+}
+
+func makeAuthEndpoint(_ IUserService) endpoint.Endpoint {
+	return func(_ context.Context, request interface{}) (interface{}, error) {
+		return common.Response{Msg: "ok",}, nil
+	}
+}
+
+func makeGetUserListEndpoint(s IUserService) endpoint.Endpoint {
+	return func(_ context.Context, request interface{}) (interface{}, error) {
+
+		return common.Response{Msg: "ok",}, nil
 	}
 }

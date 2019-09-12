@@ -32,3 +32,7 @@ func decodeRegisterRequest(_ context.Context, r *http.Request) (interface{}, err
 	}
 	return request, nil
 }
+
+func decodeNoParamsRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	return nil, nil
+}

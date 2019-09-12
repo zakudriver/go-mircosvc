@@ -42,25 +42,17 @@ func JSON2Struct(m map[interface{}]interface{}, target interface{}) error {
 }
 
 // struct -> map
-func Struct2Map(stut interface{}) (r map[string]interface{}) {
-	t := reflect.TypeOf(stut)
-	v := reflect.ValueOf(stut)
-
-	r = make(map[string]interface{})
-	for i := 0; i < t.NumField(); i++ {
-		r[t.Field(i).Name] = v.Field(i).Interface()
-	}
-	return
-}
-
-// struct tag
-func HandleStructTag(stut interface{}, tagName string) (tags []string) {
-	t := reflect.TypeOf(stut)
-
-	for i := 0; i < t.NumField(); i++ {
-		tag := t.Field(i).Tag.Get(tagName)
-		tags = append(tags, tag)
+func Struct2Map(a interface{}) map[string]interface{} {
+	t := reflect.TypeOf(a)
+	v := reflect.ValueOf(a)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+		v = v.Elem()
 	}
 
-	return tags
+	m := make(map[string]interface{})
+	for i := 0; i < t.NumField(); i++ {
+		m[t.Field(i).Name] = v.Field(i).Interface()
+	}
+	return m
 }

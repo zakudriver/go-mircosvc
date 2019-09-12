@@ -8,13 +8,14 @@ import (
 )
 
 type User struct {
-	Id         int
-	Username   string `json:"username"`
-	Password   string
-	Avatar     string    `json:"avatar"`
-	Permission uint8     `json:"permission"`
-	CreatedAt  time.Time `json:"createdAt"`
-	UpdatedAt  time.Time `json:"updatedAt"`
+	Id          int
+	Username    string `json:"username"`
+	Password    string
+	Avatar      string    `json:"avatar"`
+	RoleID      uint8     `json:"roleID"`
+	RecentTime  time.Time `json:"recentTime"`
+	CreatedTime time.Time `json:"createdTime"`
+	UpdatedTime time.Time `json:"updatedTime"`
 }
 
 // md5加密

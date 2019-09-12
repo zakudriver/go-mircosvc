@@ -86,7 +86,7 @@ func setTokenToHeader(ctx context.Context, r *http.Request) error {
 			return err
 		}
 
-		r.Header.Set(common.AuthHeaderKey, "Bearer "+string(b))
+		r.Header.Set(common.AuthHeaderKey, common.ServerAuthKey+" "+string(b))
 	}
 	return nil
 }

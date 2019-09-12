@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/Zhan9Yunhua/blog-svr/utils"
 	"strings"
 	"time"
 )
@@ -26,12 +27,14 @@ type Person struct {
 }
 
 func main() {
-	// p := Person{Name: "z", Age: 11, Sex: 1, Car: []string{"AUDI"}}
+	p := Person{Name: "z", Age: 11, Sex: 1, Car: []string{"AUDI"}}
 	//
 	// vali := validator.NewValidator()
 	// err := vali.Validate(p)
 	//
 	// fmt.Printf("%+v\n", err)
+	m := utils.Struct2Map(&p)
+	fmt.Println(m)
 }
 
 func handle() error {

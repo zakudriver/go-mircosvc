@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"strings"
-
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/service/model"
 	"github.com/Zhan9Yunhua/blog-svr/services/session"
+	"strings"
+	"time"
 
 	"github.com/Zhan9Yunhua/blog-svr/services/validator"
 
@@ -17,12 +17,13 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
-type UserServicer interface {
-	Login(loginRequest) (string, error)
-	GetUser(string) (string, error)
+type IUserService interface {
+	Login(loginRequest) (common.ResponseData, error)
 	SendCode() (common.ResponseData, error)
 	Register(registerRequest) error
 	Validate(interface{}) error
+	GetUser(string) (string, error)
+	GetUserList() (common.ResponseData, error)
 }
 
 func NewUserService(mdb *sql.DB, rd *redis.Pool, email *email.Email) *UserService {
@@ -43,24 +44,18 @@ type UserService struct {
 	validator *validator.Validator
 }
 
-func (u *UserService) GetUser(s string) (string, error) {
-	if s == "" {
-		return "", common.ErrEmpty
-	}
-	return strings.ToUpper(s), nil
-}
-
 // 登录
-func (u *UserService) Login(params loginRequest) (*model.User, error) {
+func (u *UserService) Login(params loginRequest) (common.ResponseData, error) {
 	user := new(model.User)
-	sql := fmt.Sprintf("SELECT `id`, `username`, `password`, `avatar`, `permission` FROM `user` WHERE username=%s", params.Username)
-	err := u.mdb.QueryRow(sql).Scan(&user.Id, &user.Username, &user.Avatar, &user.Permission)
+	sql := fmt.Sprintf("SELECT `id`, `username`, `password`, `avatar`, `role_id` FROM `User` WHERE username=%s",
+		params.Username)
+	err := u.mdb.QueryRow(sql).Scan(&user.Id, &user.Username, &user.Avatar, &user.RoleID)
 	if err != nil {
 		return nil, err
 	}
 
 	if user.VerifyPassword(params.Password) {
-		return user, nil
+		return utils.Struct2Map(user), nil
 	} else {
 		return nil, errors.New("密码错误")
 	}
@@ -139,9 +134,50 @@ func (u *UserService) SendCode() (common.ResponseData, error) {
 		}
 	}
 
-	return common.ResponseData{"codeID": uuid.String()}, nil
+	return map[string]interface{}{"codeID": uuid.String()}, nil
 }
 
 func (u *UserService) Validate(a interface{}) error {
 	return u.validator.LazyValidate(a)
+}
+
+func (u *UserService) GetUser(s string) (string, error) {
+	if s == "" {
+		return "", common.ErrEmpty
+	}
+	return strings.ToUpper(s), nil
+}
+
+func (u *UserService) GetUserList() (common.ResponseData, error) {
+	row, err := u.mdb.Query("SELECT `username`, `avatar`, `role`, `recent_time` FROM `User`")
+	defer row.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	r := make([]map[string]interface{}, 0)
+	for row.Next() {
+		var username string
+		var avatar string
+		var role uint
+		var recentTime time.Time
+
+		if err := row.Scan(&username, &avatar, &role); err != nil {
+			return nil, err
+		}
+		m := map[string]interface{}{
+			"username":   username,
+			"avatar":     avatar,
+			"role":       role,
+			"recentTime": recentTime,
+		}
+
+		r = append(r, m)
+	}
+
+	if err := row.Err(); err != nil {
+		return nil, err
+	}
+
+	return r, nil
 }

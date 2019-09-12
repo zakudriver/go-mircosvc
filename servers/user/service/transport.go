@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func MakeHandler(bs UserServicer, logger kitlog.Logger) http.Handler {
+func MakeHandler(bs IUserService, logger kitlog.Logger) http.Handler {
 	opts := []kithttp.ServerOption{
 		kithttp.ServerErrorLogger(logger),
 		kithttp.ServerErrorEncoder(encodeError),
@@ -31,13 +31,27 @@ func MakeHandler(bs UserServicer, logger kitlog.Logger) http.Handler {
 
 	sendCodeHandler := kithttp.NewServer(
 		makeSendCodeEndpoint(bs),
-		decodeGetUserRequest,
+		decodeNoParamsRequest,
 		encodeResponse,
 		opts...,
 	)
 
 	registerHandler := kithttp.NewServer(
 		makeRegisterEndpoint(bs),
+		decodeRegisterRequest,
+		encodeResponse,
+		opts...,
+	)
+
+	authHandler := kithttp.NewServer(
+		makeAuthEndpoint(bs),
+		decodeNoParamsRequest,
+		encodeResponse,
+		opts...,
+	)
+
+	userListHandler := kithttp.NewServer(
+		makeGetUserListEndpoint(bs),
 		decodeRegisterRequest,
 		encodeResponse,
 		opts...,
@@ -50,6 +64,8 @@ func MakeHandler(bs UserServicer, logger kitlog.Logger) http.Handler {
 	r.Handle(conf.Prefix+"/{UID}", getUserHandler).Methods("GET")
 	r.Handle(conf.Prefix+"/code", sendCodeHandler).Methods("GET")
 	r.Handle(conf.Prefix+"/register", registerHandler).Methods("POST")
+	r.Handle(conf.Prefix+"/auth", authHandler).Methods("GET")
+	r.Handle(conf.Prefix+"/list", userListHandler).Methods("GET")
 
 	return r
 }

@@ -24,7 +24,7 @@ func main() {
 
 	conf := config.GetConfig()
 
-	var userSvc service.UserServicer
+	var userSvc service.IUserService
 	{
 		mdb := db.NewMysql(conf.Mysql)
 		rd := db.NewRedis(conf.Redis)

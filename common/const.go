@@ -17,8 +17,8 @@ func (c Code) Code() int32 {
 }
 
 const (
-	OK       Code = 0
-	Error    Code = 1
+	OK    Code = 0
+	Error Code = 1
 
 	Message          Event = "Message"
 	SubscribeMessage Event = "SubscribeMessage"
@@ -28,6 +28,7 @@ const (
 
 	SessionKey    = "SessionKey"
 	AuthHeaderKey = "Authorization"
+	ServerAuthKey = "Bearer"
 
 	MaxAge = 24 * time.Hour / time.Second
 )

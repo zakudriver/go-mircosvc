@@ -9,7 +9,7 @@ type RequestUrlParams struct {
 }
 
 // 响应数据
-type ResponseData = map[string]interface{}
+type ResponseData = interface{}
 
 // 相应格式
 type Response struct {
