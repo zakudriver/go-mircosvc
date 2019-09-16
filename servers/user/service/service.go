@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/Zhan9Yunhua/blog-svr/servers/user/service/model"
-	"github.com/Zhan9Yunhua/blog-svr/services/session"
 	"strings"
 	"time"
+
+	"github.com/Zhan9Yunhua/blog-svr/servers/user/service/model"
+	"github.com/Zhan9Yunhua/blog-svr/services/session"
 
 	"github.com/Zhan9Yunhua/blog-svr/services/validator"
 
@@ -57,12 +58,10 @@ func (u *UserService) Login(params loginRequest) (common.ResponseData, error) {
 		return nil, errors.New(fmt.Sprintf("[%s]该用户名不存在", params.Username))
 	}
 
-	return utils.Struct2MapFromTag(user), nil
-	// if user.VerifyPassword(params.Password) {
-	// 	return utils.Struct2MapFromTag(user), nil
-	// } else {
-	// 	return nil, errors.New("密码错误")
-	// }
+	if user.VerifyPassword(params.Password) {
+		return utils.Struct2MapFromTag(user), nil
+	}
+	return nil, errors.New("密码错误")
 }
 
 // 注册
