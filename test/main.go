@@ -20,10 +20,10 @@ type P struct {
 }
 
 type Person struct {
-	Name string   `validator:"required||string=[2|_"`    // 必填。2<=len
-	Age  int      `validator:"number=10|20]"`            // 选填。10<Age<=20 / 0
-	Sex  int      `validator:"number||in=0,1,2"`         // 选填。值只能是0||1||2
-	Car  []string `validator:"multi=_|5]||in=LEXUS,BMW"` // 选填。len>=5且包含LEXUS||BMW
+	Name string   `validator:"required||string=[2|_" map:"name"` // 必填。2<=len
+	Age  int      `validator:"number=10|20]" map:"age"`          // 选填。10<Age<=20 / 0
+	Sex  int      `validator:"number||in=0,1,2"`                 // 选填。值只能是0||1||2
+	Car  []string `validator:"multi=_|5]||in=LEXUS,BMW"`         // 选填。len>=5且包含LEXUS||BMW
 }
 
 func main() {
@@ -33,8 +33,8 @@ func main() {
 	// err := vali.Validate(p)
 	//
 	// fmt.Printf("%+v\n", err)
-	m := utils.Struct2Map(&p)
-	fmt.Println(m)
+	a := utils.Struct2MapFromTag(p)
+	fmt.Printf("%+v", a)
 }
 
 func handle() error {

@@ -47,18 +47,22 @@ type UserService struct {
 // 登录
 func (u *UserService) Login(params loginRequest) (common.ResponseData, error) {
 	user := new(model.User)
-	sql := fmt.Sprintf("SELECT `id`, `username`, `password`, `avatar`, `role_id` FROM `User` WHERE username=%s",
+	sql := fmt.Sprintf("SELECT `id`, `username`, `password`, `avatar`, `role_id`, `recent_time`, `created_time`, "+
+		"`updated_time` "+
+		"FROM `User` WHERE `username`='%s'",
 		params.Username)
-	err := u.mdb.QueryRow(sql).Scan(&user.Id, &user.Username, &user.Avatar, &user.RoleID)
+	err := u.mdb.QueryRow(sql).Scan(&user.Id, &user.Username, &user.Password, &user.Avatar, &user.RoleID,
+		&user.RecentTime, &user.CreatedTime, &user.UpdatedTime)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(fmt.Sprintf("[%s]该用户名不存在", params.Username))
 	}
 
-	if user.VerifyPassword(params.Password) {
-		return utils.Struct2Map(user), nil
-	} else {
-		return nil, errors.New("密码错误")
-	}
+	return utils.Struct2MapFromTag(user), nil
+	// if user.VerifyPassword(params.Password) {
+	// 	return utils.Struct2MapFromTag(user), nil
+	// } else {
+	// 	return nil, errors.New("密码错误")
+	// }
 }
 
 // 注册
@@ -75,7 +79,7 @@ func (u *UserService) Register(params registerRequest) error {
 	pwd := user.Pwd2Md5(params.Password, user.Salt())
 
 	if code == params.Code {
-		sql := fmt.Sprintf("INSERT INTO `user`(`username`, `password`, `avatar`) VALUES('%s', '%s', '%s')",
+		sql := fmt.Sprintf("INSERT INTO `User`(`username`, `password`, `avatar`) VALUES('%s', '%s', '%s')",
 			params.Username,
 			pwd, "avatar")
 		_, err := u.mdb.Exec(sql)

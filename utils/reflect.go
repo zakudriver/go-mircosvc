@@ -5,6 +5,10 @@ import (
 	"reflect"
 )
 
+const (
+	MAP_TAG_NAME = "map"
+)
+
 func setField(target interface{}, k string, v interface{}) error {
 	structData := reflect.ValueOf(target).Elem()
 	fieldValue := structData.FieldByName(k)
@@ -53,6 +57,24 @@ func Struct2Map(a interface{}) map[string]interface{} {
 	m := make(map[string]interface{})
 	for i := 0; i < t.NumField(); i++ {
 		m[t.Field(i).Name] = v.Field(i).Interface()
+	}
+	return m
+}
+
+// 根据tag struct -> map
+func Struct2MapFromTag(a interface{}) map[string]interface{} {
+	t := reflect.TypeOf(a)
+	v := reflect.ValueOf(a)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+		v = v.Elem()
+	}
+
+	m := make(map[string]interface{})
+	for i := 0; i < t.NumField(); i++ {
+		if tag := t.Field(i).Tag.Get(MAP_TAG_NAME); tag != "" {
+			m[tag] = v.Field(i).Interface()
+		}
 	}
 	return m
 }

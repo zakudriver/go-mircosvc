@@ -18,7 +18,7 @@ type MysqlConf struct {
 }
 
 func NewMysql(conf MysqlConf) *sql.DB {
-	host := fmt.Sprintf("%s:%s@%s(%s:%d)/%s", conf.Username, conf.Password, "tcp", conf.Host,
+	host := fmt.Sprintf("%s:%s@%s(%s:%d)/%s?parseTime=true", conf.Username, conf.Password, "tcp", conf.Host,
 		conf.Port, conf.AuthSource)
 
 	db, err := sql.Open("mysql", host)

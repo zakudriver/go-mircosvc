@@ -8,14 +8,14 @@ import (
 )
 
 type User struct {
-	Id          int
-	Username    string `json:"username"`
+	Id          int    `map:"username"`
+	Username    string `map:"username"`
 	Password    string
-	Avatar      string    `json:"avatar"`
-	RoleID      uint8     `json:"roleID"`
-	RecentTime  time.Time `json:"recentTime"`
-	CreatedTime time.Time `json:"createdTime"`
-	UpdatedTime time.Time `json:"updatedTime"`
+	Avatar      string    `map:"avatar"`
+	RoleID      uint8     `map:"roleID"`
+	RecentTime  time.Time `map:"recentTime"`
+	CreatedTime time.Time `map:"createdTime"`
+	UpdatedTime time.Time `map:"updatedTime"`
 }
 
 // md5加密
@@ -28,6 +28,10 @@ func (u *User) Pwd2Md5(pwd, salt string) (hash string) {
 
 // 加盐
 func (u *User) Salt() (salt string) {
+	if len(u.Password) != 32 {
+		return
+	}
+
 	if u.Password == "" {
 		salt = strconv.Itoa(int(time.Now().Unix()))
 	} else {

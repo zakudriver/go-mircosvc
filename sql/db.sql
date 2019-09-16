@@ -7,7 +7,7 @@ CREATE TABLE `User`
     `username`     varchar(10)  NOT NULL COMMENT '用户名',
     `password`     varchar(32)  NOT NULL COMMENT '密码',
     `avatar`       varchar(100) NOT NULL COMMENT '头像',
-    `role_id`      int          NOT NULL DEFAULT 1 COMMENT '角色id',
+    `role_id`      int          NOT NULL DEFAULT 2 COMMENT '角色id',
     `recent_time`  timestamp             DEFAULT CURRENT_TIMESTAMP COMMENT '最近登录时间',
     `created_time` timestamp             DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_time` timestamp             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',

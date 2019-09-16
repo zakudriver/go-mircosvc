@@ -9,7 +9,7 @@ import (
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/service"
 )
 
-type ServiceMiddleware func(servicer service.UserServicer) service.UserServicer
+type ServiceMiddleware func(servicer service.IUserService) service.IUserService
 
 var (
 	fieldKeys    = []string{"method", "error"}
@@ -34,7 +34,7 @@ var (
 )
 
 func InstrumentingMiddleware() ServiceMiddleware {
-	return func(next service.UserServicer) service.UserServicer {
+	return func(next service.IUserService) service.IUserService {
 		return instrumentingMiddleware{requestCount, requestLatency, countResult, next}
 	}
 }
@@ -43,7 +43,7 @@ type instrumentingMiddleware struct {
 	requestCount   metrics.Counter
 	requestLatency metrics.Histogram
 	countResult    metrics.Histogram
-	service.UserServicer
+	service.IUserService
 }
 
 func (mw instrumentingMiddleware) GetUser(s string) (output string, err error) {
@@ -53,6 +53,6 @@ func (mw instrumentingMiddleware) GetUser(s string) (output string, err error) {
 		mw.requestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	output, err = mw.UserServicer.GetUser(s)
+	output, err = mw.IUserService.GetUser(s)
 	return
 }
