@@ -4,23 +4,20 @@ import (
 	"context"
 	"time"
 
-	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
 	"github.com/Zhan9Yunhua/logger"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/sd/etcdv3"
 )
 
-func NewEtcd() etcdv3.Client {
-	etcdClient, err := handleEtcd()
+func NewEtcd(addr string) etcdv3.Client {
+	etcdClient, err := handleEtcd(addr)
 	if err != nil {
 		logger.Fatalln(err)
 	}
 	return etcdClient
 }
 
-func handleEtcd() (etcdv3.Client, error) {
-	etcdAddr := config.GetConfig().EtcdAddr
-
+func handleEtcd(addr string) (etcdv3.Client, error) {
 	options := etcdv3.ClientOptions{
 		// Path to trusted ca file
 		CACert: "",
@@ -46,16 +43,16 @@ func handleEtcd() (etcdv3.Client, error) {
 
 	ctx := context.Background()
 
-	return etcdv3.NewClient(ctx, []string{etcdAddr}, options)
+	return etcdv3.NewClient(ctx, []string{addr}, options)
 }
 
-func Register(etcdClient etcdv3.Client, logger log.Logger) *etcdv3.Registrar {
-	conf := config.GetConfig()
+func Register(prefix, addr string, etcdClient etcdv3.Client, logger log.Logger) *etcdv3.Registrar {
+	// conf := config.GetConfig()
 
-	prefix := conf.Prefix        // known at compile time
-	instance := conf.ServerAddr     // taken from runtime or platform, somehow
-	key := prefix + instance      // should be globally unique
-	value := "http://" + instance // based on our transport
+	// prefix := conf.Prefix         // known at compile time
+	// instance := conf.ServerAddr   // taken from runtime or platform, somehow
+	key := prefix + addr      // should be globally unique
+	value := "http://" + addr // based on our transport
 
 	registrar := etcdv3.NewRegistrar(etcdClient, etcdv3.Service{
 		Key:   key,

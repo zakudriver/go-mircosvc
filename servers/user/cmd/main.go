@@ -1,28 +1,28 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/server"
 	"github.com/Zhan9Yunhua/blog-svr/services/db"
 	"github.com/Zhan9Yunhua/blog-svr/services/email"
-	"net/http"
 
-	_ "github.com/Zhan9Yunhua/blog-svr/servers/user/config"
-	"github.com/Zhan9Yunhua/blog-svr/servers/user/etcd"
-	"github.com/Zhan9Yunhua/blog-svr/servers/user/logger"
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/middleware"
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/service"
+	"github.com/Zhan9Yunhua/blog-svr/services/etcd"
+	"github.com/Zhan9Yunhua/blog-svr/services/logger"
 )
 
 func main() {
-	lg := logger.NewLogger()
-
-	etcdClient := etcd.NewEtcd()
-
-	register := etcd.Register(etcdClient, lg)
-	defer register.Deregister()
-
 	conf := config.GetConfig()
+
+	lg := logger.NewLogger(conf.LogPath)
+
+	etcdClient := etcd.NewEtcd(conf.EtcdAddr)
+
+	register := etcd.Register(conf.Prefix, conf.ServerAddr, etcdClient, lg)
+	defer register.Deregister()
 
 	var userSvc service.IUserService
 	{
@@ -31,7 +31,7 @@ func main() {
 		email := email.NewEmail(conf.Email)
 
 		userSvc = service.NewUserService(mdb, rd, email)
-		userSvc = middleware.InstrumentingMiddleware()(userSvc)
+		userSvc = middleware.NewInstrumentingMiddleware()(userSvc)
 	}
 
 	mux := http.NewServeMux()

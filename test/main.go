@@ -3,20 +3,35 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/Zhan9Yunhua/blog-svr/utils"
 	"strings"
 	"time"
 )
+
+type Str interface {
+	String() string
+}
 
 type T struct {
 	TName string `validator:"number"`
 	TAge  int    `validator:"number"`
 }
 
+func (t *T) String() string {
+	fmt.Println("T")
+	return t.TName
+}
+
 type P struct {
 	Name string            `validator:"required"`
 	Age  int               `validator:"number=[11.1|20]"`
 	Sex  map[string]string `validator:"multi={name:zz,age:1}"`
+	Str
+}
+
+func (p *P) String() string {
+	fmt.Println("P")
+	fmt.Println(p.Str.String())
+	return p.Name
 }
 
 type Person struct {
@@ -27,14 +42,16 @@ type Person struct {
 }
 
 func main() {
-	p := Person{Name: "z", Age: 11, Sex: 1, Car: []string{"AUDI"}}
+	p := new(P)
+	p.Str = &T{}
+
+	fmt.Println(p.String())
+	// p := Person{Name: "z", Age: 11, Sex: 1, Car: []string{"AUDI"}}
 	//
 	// vali := validator.NewValidator()
 	// err := vali.Validate(p)
 	//
 	// fmt.Printf("%+v\n", err)
-	a := utils.Struct2MapFromTag(p)
-	fmt.Printf("%+v", a)
 }
 
 func handle() error {

@@ -5,14 +5,13 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
 	"github.com/go-kit/kit/log"
 
 	lg "github.com/Zhan9Yunhua/logger"
 )
 
-func NewLogger() log.Logger {
-	logger, err := handleLogger()
+func NewLogger(path string) log.Logger {
+	logger, err := handleLogger(path)
 	if err != nil {
 		lg.Fatalln(err)
 	}
@@ -20,10 +19,8 @@ func NewLogger() log.Logger {
 	return logger
 }
 
-func handleLogger() (log.Logger, error) {
-	conf := config.GetConfig()
-
-	path, err := filepath.Abs(conf.LogPath)
+func handleLogger(logPath string) (log.Logger, error) {
+	path, err := filepath.Abs(logPath)
 	if err != nil {
 		return nil, err
 	}
