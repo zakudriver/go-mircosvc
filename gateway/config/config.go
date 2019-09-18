@@ -2,7 +2,7 @@ package config
 
 import (
 	"flag"
-	"github.com/Zhan9Yunhua/blog-svr/services/db"
+	"github.com/Zhan9Yunhua/blog-svr/shared/db"
 	"github.com/Zhan9Yunhua/blog-svr/utils"
 	"path/filepath"
 

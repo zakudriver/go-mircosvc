@@ -3,7 +3,7 @@ package middleware
 import (
 	"context"
 	"github.com/Zhan9Yunhua/blog-svr/common"
-	"github.com/Zhan9Yunhua/blog-svr/services/session"
+	"github.com/Zhan9Yunhua/blog-svr/shared/session"
 	"github.com/go-kit/kit/endpoint"
 )
 

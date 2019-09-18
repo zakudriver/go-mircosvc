@@ -4,14 +4,14 @@ import (
 	"net/http"
 
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
-	"github.com/Zhan9Yunhua/blog-svr/servers/user/server"
-	"github.com/Zhan9Yunhua/blog-svr/services/db"
-	"github.com/Zhan9Yunhua/blog-svr/services/email"
+	"github.com/Zhan9Yunhua/blog-svr/shared/db"
+	"github.com/Zhan9Yunhua/blog-svr/shared/email"
+	"github.com/Zhan9Yunhua/blog-svr/shared/server"
 
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/middleware"
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/service"
-	"github.com/Zhan9Yunhua/blog-svr/services/etcd"
-	"github.com/Zhan9Yunhua/blog-svr/services/logger"
+	"github.com/Zhan9Yunhua/blog-svr/shared/etcd"
+	"github.com/Zhan9Yunhua/blog-svr/shared/logger"
 )
 
 func main() {

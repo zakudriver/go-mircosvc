@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/service/model"
-	"github.com/Zhan9Yunhua/blog-svr/services/session"
+	"github.com/Zhan9Yunhua/blog-svr/shared/session"
 
-	"github.com/Zhan9Yunhua/blog-svr/services/validator"
+	"github.com/Zhan9Yunhua/blog-svr/shared/validator"
 
 	"github.com/Zhan9Yunhua/blog-svr/common"
-	"github.com/Zhan9Yunhua/blog-svr/services/email"
+	"github.com/Zhan9Yunhua/blog-svr/shared/email"
 	"github.com/Zhan9Yunhua/blog-svr/utils"
 	"github.com/gomodule/redigo/redis"
 )

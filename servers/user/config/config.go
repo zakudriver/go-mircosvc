@@ -2,10 +2,10 @@ package config
 
 import (
 	"flag"
-	"github.com/Zhan9Yunhua/blog-svr/services/email"
+	"github.com/Zhan9Yunhua/blog-svr/shared/email"
 	"path/filepath"
 
-	"github.com/Zhan9Yunhua/blog-svr/services/db"
+	"github.com/Zhan9Yunhua/blog-svr/shared/db"
 	"github.com/Zhan9Yunhua/blog-svr/utils"
 	"github.com/Zhan9Yunhua/logger"
 )
