@@ -19,6 +19,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/prometheus/client_golang v1.1.0
 	go.etcd.io/etcd v3.3.13+incompatible
+	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4
 	google.golang.org/grpc v1.22.1 // indirect
 	gopkg.in/yaml.v2 v2.2.2
 )

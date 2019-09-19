@@ -7,7 +7,7 @@ import (
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/service"
 	"github.com/go-kit/kit/metrics"
 	kitPrometheus "github.com/go-kit/kit/metrics/prometheus"
-	stdPrometheus "github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type ServiceMiddleware func(servicer service.IUserService) service.IUserService
@@ -17,19 +17,19 @@ var (
 )
 
 func NewInstrumentingMiddleware() ServiceMiddleware {
-	requestCount := kitPrometheus.NewCounterFrom(stdPrometheus.CounterOpts{
-		Namespace: "my_group",
-		Subsystem: "ucenter_service",
+	requestCount := kitPrometheus.NewCounterFrom(prometheus.CounterOpts{
+		Namespace: "get_user",
+		Subsystem: "user_service",
 		Name:      "request_count",
 		Help:      "Number of requests received.",
 	}, fieldKeys)
-	requestLatency := kitPrometheus.NewSummaryFrom(stdPrometheus.SummaryOpts{
-		Namespace: "my_group",
-		Subsystem: "ucenter_service",
+	requestLatency := kitPrometheus.NewSummaryFrom(prometheus.SummaryOpts{
+		Namespace: "get_user",
+		Subsystem: "user_service",
 		Name:      "request_latency_microseconds",
 		Help:      "Total duration of requests in microseconds.",
 	}, fieldKeys)
-	countResult := kitPrometheus.NewSummaryFrom(stdPrometheus.SummaryOpts{
+	countResult := kitPrometheus.NewSummaryFrom(prometheus.SummaryOpts{
 		Namespace: "my_group",
 		Subsystem: "ucenter_service",
 		Name:      "count_result",
@@ -58,4 +58,3 @@ func (mw instrumentingMiddleware) GetUser(s string) (output string, err error) {
 	output, err = mw.IUserService.GetUser(s)
 	return
 }
-
