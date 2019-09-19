@@ -39,7 +39,7 @@ func MakeHandler(us IUserService, logger kitlog.Logger) http.Handler {
 		opts...,
 	)
 
-	limiter := rate.NewLimiter(rate.Every(time.Second*1), 3)
+	limiter := rate.NewLimiter(rate.Every(time.Second*1), 10)
 	limitterMiddleware := middleware.RateLimitterMiddleware(limiter)
 
 	r := mux.NewRouter()

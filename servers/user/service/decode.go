@@ -9,7 +9,7 @@ import (
 )
 
 func decodeLoginRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var request loginRequest
+	var request LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return nil, err
 	}
@@ -22,11 +22,11 @@ func decodeGetUserRequest(_ context.Context, r *http.Request) (interface{}, erro
 	if !ok {
 		return nil, common.ErrRouteArgs
 	}
-	return getUserRequest{UID: value}, nil
+	return GetUserRequest{UID: value}, nil
 }
 
 func decodeRegisterRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var request registerRequest
+	var request RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return nil, err
 	}

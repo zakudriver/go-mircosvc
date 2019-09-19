@@ -31,7 +31,7 @@ func main() {
 		email := email.NewEmail(conf.Email)
 
 		userSvc = service.NewUserService(mdb, rd, email)
-		userSvc = middleware.NewInstrumentingMiddleware()(userSvc)
+		userSvc = middleware.NewPrometheusMiddleware()(userSvc)
 	}
 
 	mux := http.NewServeMux()

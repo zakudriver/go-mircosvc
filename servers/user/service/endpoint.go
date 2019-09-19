@@ -6,7 +6,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 )
 
-type loginRequest struct {
+type LoginRequest struct {
 	Username string `json:"username" validator:"required||string=[6|10]"`
 	Password string `json:"password" validator:"required||string=[6|10]"`
 }
@@ -18,7 +18,7 @@ func makeLoginEndpoint(s IUserService) endpoint.Endpoint {
 			return nil, err
 		}
 
-		req := request.(loginRequest)
+		req := request.(LoginRequest)
 		userInfo, err := s.Login(req)
 		if err != nil {
 			return nil, err
@@ -28,7 +28,7 @@ func makeLoginEndpoint(s IUserService) endpoint.Endpoint {
 	}
 }
 
-type registerRequest struct {
+type RegisterRequest struct {
 	Username string `json:"username" validator:"required||string=[6|10]"`
 	Password string `json:"password" validator:"required||string=[6|10]"`
 	Code     int    `json:"code" validator:"required||len=6"`
@@ -42,7 +42,7 @@ func makeRegisterEndpoint(s IUserService) endpoint.Endpoint {
 			return nil, err
 		}
 
-		req := request.(registerRequest)
+		req := request.(RegisterRequest)
 		err = s.Register(req)
 		if err != nil {
 			return nil, err
@@ -52,13 +52,13 @@ func makeRegisterEndpoint(s IUserService) endpoint.Endpoint {
 	}
 }
 
-type getUserRequest struct {
+type GetUserRequest struct {
 	UID string `json:"s"`
 }
 
 func makeGetUserEndpoint(s IUserService) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
-		req := request.(getUserRequest)
+		req := request.(GetUserRequest)
 		name, err := s.GetUser(req.UID)
 		if err != nil {
 			return nil, err

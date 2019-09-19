@@ -13,9 +13,10 @@ import (
 	"time"
 )
 
-func RunServer(mux *http.ServeMux,  httpAddr string)  {
+func RunServer(mux *http.ServeMux, httpAddr string) {
+	mux.Handle("/metrics", promhttp.Handler())
+
 	http.Handle("/", accessControl(mux))
-	http.Handle("/prometheus", promhttp.Handler())
 
 	srv := &http.Server{
 		Addr:    httpAddr,
@@ -44,7 +45,7 @@ func RunServer(mux *http.ServeMux,  httpAddr string)  {
 	lg.Infoln("Server exiting")
 
 	pid := fmt.Sprintf("%d", os.Getpid())
-	pidPath:=config.GetConfig().PidPath
+	pidPath := config.GetConfig().PidPath
 
 	_, openErr := os.OpenFile(pidPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if openErr == nil {

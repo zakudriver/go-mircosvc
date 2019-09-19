@@ -19,9 +19,9 @@ import (
 )
 
 type IUserService interface {
-	Login(loginRequest) (common.ResponseData, error)
+	Login(LoginRequest) (common.ResponseData, error)
 	SendCode() (common.ResponseData, error)
-	Register(registerRequest) error
+	Register(RegisterRequest) error
 	Validate(interface{}) error
 	GetUser(string) (string, error)
 	GetUserList() (common.ResponseData, error)
@@ -46,7 +46,7 @@ type UserService struct {
 }
 
 // 登录
-func (u *UserService) Login(params loginRequest) (common.ResponseData, error) {
+func (u *UserService) Login(params LoginRequest) (common.ResponseData, error) {
 	user := new(model.User)
 	sql := fmt.Sprintf("SELECT `id`, `username`, `password`, `avatar`, `role_id`, `recent_time`, `created_time`, "+
 		"`updated_time` "+
@@ -65,7 +65,7 @@ func (u *UserService) Login(params loginRequest) (common.ResponseData, error) {
 }
 
 // 注册
-func (u *UserService) Register(params registerRequest) error {
+func (u *UserService) Register(params RegisterRequest) error {
 	conn := u.rd.Get()
 	defer conn.Close()
 

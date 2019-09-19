@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"github.com/Zhan9Yunhua/blog-svr/common"
 	"time"
 
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/service"
@@ -16,45 +17,56 @@ var (
 	fieldKeys = []string{"method", "error"}
 )
 
-func NewInstrumentingMiddleware() ServiceMiddleware {
+func NewPrometheusMiddleware() ServiceMiddleware {
 	requestCount := kitPrometheus.NewCounterFrom(prometheus.CounterOpts{
-		Namespace: "get_user",
+		Namespace: "user_space",
 		Subsystem: "user_service",
 		Name:      "request_count",
 		Help:      "Number of requests received.",
 	}, fieldKeys)
 	requestLatency := kitPrometheus.NewSummaryFrom(prometheus.SummaryOpts{
-		Namespace: "get_user",
+		Namespace: "user_space",
 		Subsystem: "user_service",
 		Name:      "request_latency_microseconds",
 		Help:      "Total duration of requests in microseconds.",
 	}, fieldKeys)
 	countResult := kitPrometheus.NewSummaryFrom(prometheus.SummaryOpts{
-		Namespace: "my_group",
-		Subsystem: "ucenter_service",
+		Namespace: "user_space",
+		Subsystem: "user_service",
 		Name:      "count_result",
 		Help:      "The result of each count method.",
-	}, []string{}) // no fields here
+	}, []string{})
 
 	return func(next service.IUserService) service.IUserService {
-		return instrumentingMiddleware{requestCount, requestLatency, countResult, next}
+		return prometheusMiddleware{requestCount, requestLatency, countResult, next}
 	}
 }
 
-type instrumentingMiddleware struct {
+type prometheusMiddleware struct {
 	requestCount   metrics.Counter
 	requestLatency metrics.Histogram
 	countResult    metrics.Histogram
 	service.IUserService
 }
 
-func (mw instrumentingMiddleware) GetUser(s string) (output string, err error) {
+func (pm prometheusMiddleware) GetUser(s string) (output string, err error) {
 	defer func(begin time.Time) {
-		lvs := []string{"method", "uppercase", "error", fmt.Sprint(err != nil)}
-		mw.requestCount.With(lvs...).Add(1)
-		mw.requestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
+		lvs := []string{"method", "get_user", "error", fmt.Sprint(err != nil)}
+		pm.requestCount.With(lvs...).Add(1)
+		pm.requestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	output, err = mw.IUserService.GetUser(s)
+	output, err = pm.IUserService.GetUser(s)
+	return
+}
+
+func (pm prometheusMiddleware) Login(params service.LoginRequest) (data common.ResponseData, err error) {
+	defer func(begin time.Time) {
+		lvs := []string{"method", "login", "error", fmt.Sprint(err != nil)}
+		pm.requestCount.With(lvs...).Add(1)
+		pm.requestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	data, err = pm.IUserService.Login(params)
 	return
 }
