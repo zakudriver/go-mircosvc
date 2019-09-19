@@ -17,6 +17,6 @@ scrape_configs:
   - job_name: 'user_space'
     scrape_interval: 5s
     static_configs:
-      - targets: ['172.17.0.1:4002']
+      - targets: ['host.docker.internal:4002']
         labels:
           group: 'arithmetic'

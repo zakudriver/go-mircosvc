@@ -37,6 +37,7 @@ testem.log
 *.zip
 app
 app.exe
+/grafana_db
 
 # System Files
 .DS_Store
