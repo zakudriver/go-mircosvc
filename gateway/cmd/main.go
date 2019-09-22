@@ -9,6 +9,9 @@ import (
 	"github.com/Zhan9Yunhua/blog-svr/shared/logger"
 	"github.com/Zhan9Yunhua/blog-svr/shared/middleware"
 	"github.com/Zhan9Yunhua/blog-svr/shared/session"
+	"github.com/Zhan9Yunhua/blog-svr/shared/zipkin"
+
+	zipkinMiddlewareHttp "github.com/openzipkin/zipkin-go/middleware/http"
 )
 
 func main() {
@@ -20,7 +23,9 @@ func main() {
 	pool := db.NewRedis(conf.Redis)
 	session := session.NewStorage(pool)
 
-	r := router.NewRouter(lg)
+	zipkinTracer := zipkin.NewZipkin(lg, conf.ZipkinAddr, conf.ServerAddr, "gateway_server")
+
+	r := router.NewRouter(lg, zipkinTracer)
 	{
 		r.Service("/svc/user", etcdClient)
 		r.Post("/svc/user/login")
@@ -30,5 +35,14 @@ func main() {
 		r.JetGet("/svc/user/{param}", middleware.CookieMiddleware(session))
 	}
 
-	server.RunServer(conf.ServerPort, r)
+	handler := zipkinMiddlewareHttp.NewServerMiddleware(
+		zipkinTracer,
+		zipkinMiddlewareHttp.SpanName("gateway"),
+		zipkinMiddlewareHttp.TagResponseSize(true),
+		zipkinMiddlewareHttp.ServerTags(map[string]string{
+			"component": "gateway_server",
+		}),
+	)(r.R)
+
+	server.RunServer(conf.ServerAddr, handler)
 }

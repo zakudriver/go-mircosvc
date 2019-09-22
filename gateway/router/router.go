@@ -1,25 +1,32 @@
 package router
 
 import (
+	"net/http"
+
 	"github.com/Zhan9Yunhua/blog-svr/gateway/etcd"
 	"github.com/Zhan9Yunhua/blog-svr/gateway/transport"
+	zk "github.com/Zhan9Yunhua/blog-svr/shared/zipkin"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/sd/etcdv3"
 	"github.com/gorilla/mux"
+	"github.com/openzipkin/zipkin-go"
 )
 
-func NewRouter(logger log.Logger) *Router {
-	var router Router
-	router.R = mux.NewRouter()
-	router.Logger = logger
-	return &router
+func NewRouter(logger log.Logger, tracer *zipkin.Tracer) *Router {
+	return &Router{
+		R:         mux.NewRouter(),
+		EtcdIns:   nil,
+		Logger:    logger,
+		Transport: zk.NewTransport(tracer),
+	}
 }
 
 type Router struct {
-	R       *mux.Router
-	EtcdIns *etcdv3.Instancer
-	Logger  log.Logger
+	R         *mux.Router
+	EtcdIns   *etcdv3.Instancer
+	Logger    log.Logger
+	Transport http.RoundTripper
 }
 
 func (r *Router) Service(prefix string, etcdClient etcdv3.Client) {
@@ -36,7 +43,6 @@ func (r *Router) Post(path string, middlewares ...endpoint.Middleware) {
 		middlewares...,
 	))
 }
-
 
 func (r *Router) JwtPost(path string, middlewares ...endpoint.Middleware) {
 	r.R.Handle(path, transport.MakeHandler(

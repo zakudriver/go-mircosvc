@@ -2,9 +2,10 @@ package config
 
 import (
 	"flag"
+	"path/filepath"
+
 	"github.com/Zhan9Yunhua/blog-svr/shared/db"
 	"github.com/Zhan9Yunhua/blog-svr/utils"
-	"path/filepath"
 
 	"github.com/Zhan9Yunhua/logger"
 )
@@ -23,9 +24,10 @@ type config struct {
 	LogPath       string       `yaml:"LogPath"`
 	JwtAuthSecret string       `yaml:"JwtAuthSecret"`
 	PidPath       string       `yaml:"PidPath"`
-	ServerHost    string       `yaml:"ServerHost"`
-	ServerPort    string       `yaml:"ServerPort"`
+	// ServerHost    string       `yaml:"ServerHost"`
+	ServerAddr    string       `yaml:"ServerPort"`
 	EtcdAddr      string       `yaml:"EtcdAddr"`
+	ZipkinAddr    string       `yaml:"ZipkinAddr"`
 	Redis         db.RedisConf `yaml:"Redis"`
 }
 

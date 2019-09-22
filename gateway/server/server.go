@@ -3,24 +3,24 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/Zhan9Yunhua/blog-svr/gateway/config"
-	"github.com/Zhan9Yunhua/blog-svr/gateway/router"
-	lg "github.com/Zhan9Yunhua/logger"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/Zhan9Yunhua/blog-svr/gateway/config"
+	lg "github.com/Zhan9Yunhua/logger"
 )
 
-func RunServer(addr string, router *router.Router) {
-	srv := &http.Server{
+func RunServer(addr string, handler http.Handler) {
+	svr := &http.Server{
 		Addr:    addr,
-		Handler: router.R,
+		Handler: handler,
 	}
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := svr.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			lg.Fatalf("listen: %s\n", err)
 		}
 	}()
@@ -32,7 +32,7 @@ func RunServer(addr string, router *router.Router) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
+	if err := svr.Shutdown(ctx); err != nil {
 		lg.Fatal("Server Shutdown:", err)
 	}
 	lg.Infoln("Server exiting")
