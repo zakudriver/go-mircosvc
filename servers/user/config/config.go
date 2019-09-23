@@ -27,6 +27,7 @@ type config struct {
 	ServerAddr    string `yaml:"ServerAddr"`
 	EtcdAddr      string `yaml:"EtcdAddr"`
 	Prefix        string `yaml:"Prefix"`
+	ZipkinAddr    string `yaml:"ZipkinAddr"`
 
 	Mysql db.MysqlConf    `yaml:"Mysql"`
 	Redis db.RedisConf    `yaml:"Redis"`

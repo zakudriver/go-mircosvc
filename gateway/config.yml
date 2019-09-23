@@ -1,7 +1,7 @@
 LogPath: ./log/access.log
 JwtAuthSecret: zyhua
 PidPath: pid
-ServerAddr: :127.0.0.1:4001
+ServerAddr: 127.0.0.1:4001
 EtcdAddr: 127.0.0.1:2379
 ZipkinAddr: 127.0.0.1:9411
 

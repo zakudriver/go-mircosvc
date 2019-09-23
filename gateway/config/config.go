@@ -25,7 +25,7 @@ type config struct {
 	JwtAuthSecret string       `yaml:"JwtAuthSecret"`
 	PidPath       string       `yaml:"PidPath"`
 	// ServerHost    string       `yaml:"ServerHost"`
-	ServerAddr    string       `yaml:"ServerPort"`
+	ServerAddr    string       `yaml:"ServerAddr"`
 	EtcdAddr      string       `yaml:"EtcdAddr"`
 	ZipkinAddr    string       `yaml:"ZipkinAddr"`
 	Redis         db.RedisConf `yaml:"Redis"`

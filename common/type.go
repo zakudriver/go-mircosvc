@@ -17,3 +17,4 @@ type Response struct {
 	Msg  string       `json:"msg"`
 	Data ResponseData `json:"data"`
 }
+
