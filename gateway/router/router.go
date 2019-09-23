@@ -1,11 +1,8 @@
 package router
 
 import (
-	"net/http"
-
 	"github.com/Zhan9Yunhua/blog-svr/gateway/etcd"
 	"github.com/Zhan9Yunhua/blog-svr/gateway/transport"
-	zk "github.com/Zhan9Yunhua/blog-svr/shared/zipkin"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/sd/etcdv3"
@@ -18,7 +15,7 @@ func NewRouter(logger log.Logger, tracer *zipkin.Tracer) *Router {
 		R:         mux.NewRouter(),
 		EtcdIns:   nil,
 		Logger:    logger,
-		Transport: zk.NewTransport(tracer),
+		// Transport: zk.NewTransport(tracer),
 	}
 }
 
@@ -26,7 +23,7 @@ type Router struct {
 	R         *mux.Router
 	EtcdIns   *etcdv3.Instancer
 	Logger    log.Logger
-	Transport http.RoundTripper
+	// Transport http.RoundTripper
 }
 
 func (r *Router) Service(prefix string, etcdClient etcdv3.Client) {

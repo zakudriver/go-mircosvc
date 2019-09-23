@@ -3,7 +3,7 @@ JwtAuthSecret: zyhua
 PidPath: pid
 ServerAddr: 127.0.0.1:4001
 EtcdAddr: 127.0.0.1:2379
-ZipkinAddr: 127.0.0.1:9411
+ZipkinAddr: 127.0.0.1:9411/api/v2/spans
 
 Redis:
   Host: 118.24.103.174

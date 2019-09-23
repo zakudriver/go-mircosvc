@@ -1,6 +1,9 @@
 package service
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
 	"github.com/Zhan9Yunhua/blog-svr/shared/middleware"
 	sharedZipkin "github.com/Zhan9Yunhua/blog-svr/shared/zipkin"
@@ -11,8 +14,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/openzipkin/zipkin-go"
 	"golang.org/x/time/rate"
-	"net/http"
-	"time"
 )
 
 var (

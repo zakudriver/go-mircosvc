@@ -13,18 +13,21 @@ import (
 
 func NewZipkin(logger log.Logger, zipkinAddr, svrAddr, svrName string) *zipkin.Tracer {
 	isNoopTracer := (svrAddr == "")
-	reporter := zipkinReporterHttp.NewReporter(svrAddr)
+	reporter := zipkinReporterHttp.NewReporter(zipkinAddr)
 	defer reporter.Close()
 
-	zEP, _ := zipkin.NewEndpoint(svrName, zipkinAddr)
+	zEP, err := zipkin.NewEndpoint(svrName, svrAddr)
+	if err != nil {
+		logger.Log("zipkin NewEndpoint", err)
+	}
 	zipkinTracer, err := zipkin.NewTracer(
 		reporter, zipkin.WithLocalEndpoint(zEP), zipkin.WithNoopTracer(isNoopTracer),
 	)
 	if err != nil {
-		logger.Log(err)
+		logger.Log("zipkin NewTracer",err)
 	}
 	if !isNoopTracer {
-		logger.Log("tracer", "Zipkin", "type", "Native", "URL", svrAddr)
+		logger.Log("tracer", "Zipkin", "type", "Native", "URL", zipkinAddr)
 	}
 
 	return zipkinTracer
@@ -37,4 +40,3 @@ func NewTransport(zikkinTracer *zipkin.Tracer) http.RoundTripper {
 
 	return transport
 }
-
