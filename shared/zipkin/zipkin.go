@@ -2,6 +2,7 @@ package zipkin
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/go-kit/kit/log"
 	"github.com/openzipkin/zipkin-go"
@@ -12,19 +13,20 @@ import (
 )
 
 func NewZipkin(logger log.Logger, zipkinAddr, svrAddr, svrName string) *zipkin.Tracer {
-	isNoopTracer := (svrAddr == "")
+	isNoopTracer := (zipkinAddr == "")
 	reporter := zipkinReporterHttp.NewReporter(zipkinAddr)
 	defer reporter.Close()
 
-	zEP, err := zipkin.NewEndpoint(svrName, svrAddr)
+	zkEndpoint, err := zipkin.NewEndpoint(svrName, svrAddr)
 	if err != nil {
 		logger.Log("zipkin NewEndpoint", err)
 	}
 	zipkinTracer, err := zipkin.NewTracer(
-		reporter, zipkin.WithLocalEndpoint(zEP), zipkin.WithNoopTracer(isNoopTracer),
+		reporter, zipkin.WithLocalEndpoint(zkEndpoint), zipkin.WithNoopTracer(isNoopTracer),
 	)
 	if err != nil {
 		logger.Log("zipkin NewTracer",err)
+		os.Exit(0)
 	}
 	if !isNoopTracer {
 		logger.Log("tracer", "Zipkin", "type", "Native", "URL", zipkinAddr)

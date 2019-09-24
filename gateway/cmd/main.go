@@ -10,7 +10,7 @@ import (
 	"github.com/Zhan9Yunhua/blog-svr/shared/middleware"
 	"github.com/Zhan9Yunhua/blog-svr/shared/session"
 	"github.com/Zhan9Yunhua/blog-svr/shared/zipkin"
-	// zipkinMiddlewareHttp "github.com/openzipkin/zipkin-go/middleware/http"
+	zipkinMiddlewareHttp "github.com/openzipkin/zipkin-go/middleware/http"
 )
 
 func main() {
@@ -34,14 +34,14 @@ func main() {
 		r.JetGet("/svc/user/{param}", middleware.CookieMiddleware(session))
 	}
 
-	// handler := zipkinMiddlewareHttp.NewServerMiddleware(
-	// 	zipkinTracer,
-	// 	zipkinMiddlewareHttp.SpanName("gateway"),
-	// 	zipkinMiddlewareHttp.TagResponseSize(true),
-	// 	zipkinMiddlewareHttp.ServerTags(map[string]string{
-	// 		"component": "gateway_server",
-	// 	}),
-	// )(r.R)
+	handler := zipkinMiddlewareHttp.NewServerMiddleware(
+		zipkinTracer,
+		zipkinMiddlewareHttp.SpanName("gateway"),
+		zipkinMiddlewareHttp.TagResponseSize(true),
+		zipkinMiddlewareHttp.ServerTags(map[string]string{
+			"component": "gateway_server",
+		}),
+	)(r.R)
 
-	server.RunServer(conf.ServerAddr, r.R)
+	server.RunServer(conf.ServerAddr, handler)
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/Zhan9Yunhua/logger"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/sd/etcdv3"
 )
@@ -12,7 +11,7 @@ import (
 func NewEtcd(addr string) etcdv3.Client {
 	etcdClient, err := handleEtcd(addr)
 	if err != nil {
-		logger.Fatalln(err)
+		panic(err)
 	}
 	return etcdClient
 }

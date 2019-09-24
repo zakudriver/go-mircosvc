@@ -1,19 +1,18 @@
 package logger
 
 import (
+	"github.com/go-kit/kit/log/level"
 	"io"
 	"os"
 	"path/filepath"
 
 	"github.com/go-kit/kit/log"
-
-	lg "github.com/Zhan9Yunhua/logger"
 )
 
 func NewLogger(path string) log.Logger {
 	logger, err := handleLogger(path)
 	if err != nil {
-		lg.Fatalln(err)
+		panic(err)
 	}
 
 	return logger
@@ -31,11 +30,14 @@ func handleLogger(logPath string) (log.Logger, error) {
 	}
 	defer logfile.Close()
 
-	var kitlogger log.Logger
+	var logger log.Logger
 	{
-		kitlogger = log.NewLogfmtLogger(io.MultiWriter(os.Stderr, logfile))
-		kitlogger = log.With(kitlogger, "ts", log.DefaultTimestampUTC)
+		logger = log.NewLogfmtLogger(io.MultiWriter(os.Stderr, logfile))
+		logger = level.NewFilter(logger, level.AllowInfo())
+		logger = log.With(logger, "ts", log.DefaultTimestampUTC)
+		logger = log.With(logger, "caller", log.DefaultCaller)
+		// logger = log.With(logger, "component", "http")
 	}
 
-	return log.With(kitlogger, "component", "http"), nil
+	return logger, nil
 }
