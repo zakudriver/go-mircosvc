@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/Zhan9Yunhua/blog-svr/gateway/config"
-	"github.com/Zhan9Yunhua/blog-svr/gateway/etcd"
+	etcd2 "github.com/Zhan9Yunhua/blog-svr/gateway/etcd"
 	"github.com/Zhan9Yunhua/blog-svr/gateway/router"
 	"github.com/Zhan9Yunhua/blog-svr/gateway/server"
 	"github.com/Zhan9Yunhua/blog-svr/shared/db"
@@ -17,7 +17,7 @@ func main() {
 	conf := config.GetConfig()
 	lg := logger.NewLogger(conf.LogPath)
 
-	etcdClient := etcd.NewEtcd()
+	etcdClient := etcd2.NewEtcd()
 
 	pool := db.NewRedis(conf.Redis)
 	session := session.NewStorage(pool)

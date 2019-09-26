@@ -3,13 +3,13 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/Zhan9Yunhua/blog-svr/gateway/config"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
-	"github.com/Zhan9Yunhua/blog-svr/gateway/config"
 	lg "github.com/Zhan9Yunhua/logger"
 )
 

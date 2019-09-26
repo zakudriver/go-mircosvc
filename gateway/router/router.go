@@ -1,7 +1,7 @@
 package router
 
 import (
-	"github.com/Zhan9Yunhua/blog-svr/gateway/etcd"
+	etcd2 "github.com/Zhan9Yunhua/blog-svr/gateway/etcd"
 	"github.com/Zhan9Yunhua/blog-svr/gateway/transport"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
@@ -27,7 +27,7 @@ type Router struct {
 }
 
 func (r *Router) Service(prefix string, etcdClient etcdv3.Client) {
-	r.EtcdIns = etcd.GetEtcdIns(prefix, etcdClient, r.Logger)
+	r.EtcdIns = etcd2.GetEtcdIns(prefix, etcdClient, r.Logger)
 }
 
 func (r *Router) Post(path string, middlewares ...endpoint.Middleware) {

@@ -1,0 +1,28 @@
+LogPath: ./log/access.log
+JwtAuthSecret: zyhua
+PidPath: pid
+ServerAddr: "localhost:4002"
+EtcdAddr: 127.0.0.1:2379
+Prefix: /svc/user
+ZipkinAddr: "http://localhost:9411/api/v2/spans"
+
+Mysql:
+  Username: webtest
+  Password: zyhuatest
+  Host: 118.24.103.174
+  Port: 3306
+  AuthSource: webtest
+
+Redis:
+  Host: 118.24.103.174
+  Port: 8080
+  Password: zzzz
+  MaxIdle: 30
+  MaxActive: 30
+
+Email:
+  From: zy.hua1122@qq.com
+  AuthCode: afyehpitqgmvbecc
+  Host: smtp.qq.com
+  Port: 25
+  Sender: Kumo

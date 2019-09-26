@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package pb;
+
+// The Addsvc service definition.
+service UserSvc {
+
+    rpc GetUser (GetUserRequest) returns (GetUserReply) {
+    }
+
+    rpc Login (LoginRequest) returns (ConcatReply) {
+    }
+}
+
+message GetUserRequest {
+    int64 uid = 1;
+}
+
+message GetUserReply {
+    int64 rs = 1;
+    string err = 2;
+}
+
+message LoginRequest {
+    string a = 1;
+    string b = 2;
+}
+
+message ConcatReply {
+    string rs = 1;
+    string err = 2;
+}
