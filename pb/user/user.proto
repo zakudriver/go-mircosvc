@@ -8,25 +8,24 @@ service UserSvc {
     rpc GetUser (GetUserRequest) returns (GetUserReply) {
     }
 
-    rpc Login (LoginRequest) returns (ConcatReply) {
+    rpc Login (LoginRequest) returns (LoginReply) {
     }
 }
 
 message GetUserRequest {
-    int64 uid = 1;
+    string uid = 1;
 }
 
 message GetUserReply {
-    int64 rs = 1;
-    string err = 2;
+    string uid = 1;
 }
 
 message LoginRequest {
-    string a = 1;
-    string b = 2;
+    string username = 1;
+    string password = 2;
 }
 
-message ConcatReply {
+message LoginReply {
     string rs = 1;
     string err = 2;
 }

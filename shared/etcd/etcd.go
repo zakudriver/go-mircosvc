@@ -62,3 +62,12 @@ func Register(prefix, addr string, etcdClient etcdv3.Client, logger log.Logger) 
 
 	return registrar
 }
+
+func NewInstancer(addr, prefix string, logger log.Logger) *etcdv3.Instancer {
+	ins, err := etcdv3.NewInstancer(NewEtcd(addr), prefix, logger)
+	if err != nil {
+		panic(err)
+	}
+
+	return ins
+}

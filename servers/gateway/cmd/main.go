@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/Zhan9Yunhua/blog-svr/servers/gateway/config"
 	"github.com/Zhan9Yunhua/blog-svr/servers/gateway/transport"
+	"github.com/Zhan9Yunhua/blog-svr/shared/etcd"
 	"github.com/Zhan9Yunhua/blog-svr/shared/logger"
 	"github.com/go-kit/kit/log"
 	"io/ioutil"
@@ -17,13 +19,16 @@ import (
 )
 
 func main() {
-	log := logger.NewLogger("")
+	conf := config.GetConfig()
+	log := logger.NewLogger(conf.LogPath)
 
 	tracer := opentracing.GlobalTracer()
-	zipkinTracer := zipkin.NewZipkin(log, "", "", "")
+	zipkinTracer := zipkin.NewZipkin(log, conf.ZipkinAddr, conf.HttpPort, conf.ServiceName)
+
+	ins := etcd.NewInstancer(conf.EtcdHost+":"+conf.EtcdPort, "/user", log)
 
 	ctx := context.Background()
-	r := transport.MakeHandler(ctx, tracer, zipkinTracer, log)
+	r := transport.MakeHandler(ctx, ins, tracer, zipkinTracer, log)
 	runServer(log, "", r)
 }
 

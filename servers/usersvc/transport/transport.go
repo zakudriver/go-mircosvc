@@ -8,6 +8,7 @@ import (
 	"github.com/go-kit/kit/log"
 	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 	kitTransport "github.com/go-kit/kit/transport/http"
+	"github.com/gorilla/mux"
 
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
 	"github.com/opentracing/opentracing-go"
@@ -24,7 +25,7 @@ func NewHTTPHandler(endpoints endpoint.Endponits, otTracer opentracing.Tracer, z
 		zipkinServer,
 	}
 
-	m := http.NewServeMux()
+	m := mux.NewRouter()
 	m.Handle("/user/{param}", kitTransport.NewServer(
 		endpoints.GetUserEP,
 		decodeGetUserRequest,
