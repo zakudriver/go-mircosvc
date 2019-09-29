@@ -38,6 +38,7 @@ testem.log
 app
 app.exe
 /grafana_db
+/log
 
 # System Files
 .DS_Store
