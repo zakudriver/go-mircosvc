@@ -1,4 +1,4 @@
-package endpoint
+package service
 
 type GetUserRequest struct {
 	UID string `json:"s"`

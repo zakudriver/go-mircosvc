@@ -1,51 +1,24 @@
 package config
 
 import (
-	"os"
+	"github.com/Zhan9Yunhua/blog-svr/utils"
 	"strconv"
 )
 
-const (
-	envSpaceName    = "SPACE_NAME"
-	envServiceName  = "SERVICE_NAME"
-	envLogLevel     = "LOG_LEVEL"
-	envLogPath      = "LOG_PATH"
-	envHTTPPort     = "HTTP_PORT"
-	envGRPCPort     = "GRPC_PORT"
-	envRetryMax     = "RETRY_MAX"
-	envRetryTimeout = "RETRY_TIMEOUT"
-	envZipkinAddr   = "ZIPKIN_ADDR"
-	envEtcdHost     = "ETCD_HOST"
-	envEtcdPort     = "ETCD_PORT"
-
-	defSpaceName    = "gateway_svc"
-	defServiceName  = "gateway_svc"
-	defLogLevel     = "info"
-	defLogPath      = "./"
-	defHTTPPort     = "4001"
-	defGRPCPort     = "4002"
-	defClientTLS    = "false"
-	defRetryMax     = "3"
-	defRetryTimeout = "3000"
-	defZipkinAddr   = ""
-	defAppdashAddr  = ""
-	defEtcdHost     = "localhost"
-	defEtcdPort     = "2379"
-)
-
 type config struct {
-	NameSpace    string
-	ServiceName  string
-	LogLevel     string
-	LogPath      string
-	HttpPort     string
-	GrpcPort     string
-	ZipkinAddr   string
+	// NameSpace    string
+	ServiceName string `env:"SERVICE_NAME=gateway_svc"`
+	// LogLevel     string
+	LogPath      string `env:"LOG_PATH=./gateway.log"`
+	HttpPort     string `env:"HTTP_PORT=4001"`
+	GrpcPort     string `env:"GRPC_PORT=4002"`
+	ZipkinAddr   string `env:"ZIPKIN_ADDR=localhost:9411"`
+	RETRYMAX     string `env:"RETRY_MAX=3"`
+	RETRYTIMEOUT string `env:"RETRY_TIMEOUT=10000"`
+	EtcdHost     string `env:"ETCD_HOST=localhost"`
+	EtcdPort     string `env:"HTTP_PORT=2379"`
 	RetryMax     int
 	RetryTimeout int
-	RouterMap    map[string]string
-	EtcdHost     string
-	EtcdPort     string
 }
 
 var c *config
@@ -60,32 +33,20 @@ func GetConfig() *config {
 
 func initConfig() {
 	c = new(config)
-	retry, err := strconv.ParseInt(handleEnv(envRetryMax, defRetryMax), 10, 0)
-	if err != nil {
-		panic("RetryMax: " + err.Error())
+
+	if err := utils.ParseEnvForTag(c, "env"); err != nil {
+		panic(err)
 	}
 
-	retryTimeout, err := strconv.ParseInt(handleEnv(envRetryTimeout, defRetryTimeout), 10, 0)
+	retryMax, err := strconv.ParseInt(c.RETRYMAX, 10, 0)
 	if err != nil {
-		panic("RetryTimeout: " + err.Error())
+		panic(err)
 	}
+	c.RetryMax = int(retryMax)
 
-	c.NameSpace = handleEnv(envSpaceName, defSpaceName)
-	c.ServiceName = handleEnv(envServiceName, defServiceName)
-	c.LogLevel = handleEnv(envLogLevel, defLogLevel)
-	c.LogPath = handleEnv(envLogPath, defLogPath)
-	c.HttpPort = handleEnv(envHTTPPort, defHTTPPort)
-	c.GrpcPort = handleEnv(envGRPCPort, defGRPCPort)
-	c.ZipkinAddr = handleEnv(envZipkinAddr, defZipkinAddr)
-	c.RetryMax = int(retry)
+	retryTimeout, err := strconv.ParseInt(c.RETRYTIMEOUT, 10, 0)
+	if err != nil {
+		panic(err)
+	}
 	c.RetryTimeout = int(retryTimeout)
-	c.EtcdHost = handleEnv(envEtcdHost, defEtcdHost)
-	c.EtcdPort = handleEnv(envEtcdPort, defEtcdPort)
-}
-
-func handleEnv(key string, def string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return def
 }

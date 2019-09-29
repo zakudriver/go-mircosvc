@@ -20,16 +20,16 @@ import (
 
 func main() {
 	conf := config.GetConfig()
-	log := logger.NewLogger(conf.LogPath)
+	log := logger.NewLogger("./log.log")
 
 	tracer := opentracing.GlobalTracer()
 	zipkinTracer := zipkin.NewZipkin(log, conf.ZipkinAddr, conf.HttpPort, conf.ServiceName)
 
-	ins := etcd.NewInstancer(conf.EtcdHost+":"+conf.EtcdPort, "/user", log)
+	etcdClient := etcd.NewEtcd(conf.EtcdHost + ":" + conf.EtcdPort)
 
 	ctx := context.Background()
-	r := transport.MakeHandler(ctx, ins, tracer, zipkinTracer, log)
-	runServer(log, "", r)
+	r := transport.MakeHandler(ctx, etcdClient, tracer, zipkinTracer, log)
+	runServer(log, ":4001", r)
 }
 
 func runServer(lg log.Logger, addr string, handler http.Handler) {

@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/Zhan9Yunhua/blog-svr/common"
+	"github.com/Zhan9Yunhua/blog-svr/servers/user/service"
 	"net/http"
+
+	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
 )
 
 func encodeResponseSetCookie(_ context.Context, w http.ResponseWriter, response interface{}) error {
@@ -21,4 +24,9 @@ func encodeResponseSetCookie(_ context.Context, w http.ResponseWriter, response 
 
 func encodeResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
 	return json.NewEncoder(w).Encode(response)
+}
+
+func encodeGRPCGetUserResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp := response.(service.GetUserRequest)
+	return &userPb.GetUserRequest{Uid: resp.UID}, nil
 }

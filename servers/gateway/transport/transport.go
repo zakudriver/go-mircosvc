@@ -3,6 +3,8 @@ package transport
 import (
 	"context"
 	"github.com/Zhan9Yunhua/blog-svr/servers/gateway/config"
+	userSvcSer "github.com/Zhan9Yunhua/blog-svr/servers/user/service"
+	userSvcTransport "github.com/Zhan9Yunhua/blog-svr/servers/user/transport"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/sd"
@@ -15,26 +17,25 @@ import (
 	"io"
 	"net/http"
 	"time"
-
-	userSvcEp "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoint"
-	userSvcSer "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
-	userSvcTransport "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/transport"
 )
 
-func MakeHandler(ctx context.Context, etcdClient *etcdv3.Instancer, tracer opentracing.Tracer,
+func MakeHandler(ctx context.Context, etcdClient etcdv3.Client, tracer opentracing.Tracer,
 	zipkinTracer *zipkin.Tracer,
 	logger log.Logger) http.Handler {
 	conf := config.GetConfig()
 	r := mux.NewRouter()
 	{
-		endpoints := userSvcEp.Endponits{}
-		{
-			// factory, _ := userSvcFactory(ctx, "", userSvcEp.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
-			// endpoints.GetUserEP = factory
+		endpoints := userSvcSer.Endponits{}
+		ins, err := etcdv3.NewInstancer(etcdClient, "/user_svc", logger)
+		if err != nil {
+			logger.Log(err)
+		}
 
-			factory := usersvcFactory(userSvcEp.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
-			endpointer := sd.NewEndpointer(etcdClient, factory, logger)
+		{
+			factory := usersvcFactory(userSvcSer.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
+			endpointer := sd.NewEndpointer(ins, factory, logger)
 			balancer := lb.NewRoundRobin(endpointer)
+
 			retry := lb.Retry(conf.RetryMax, time.Duration(conf.RetryTimeout), balancer)
 			endpoints.GetUserEP = retry
 		}
@@ -64,7 +65,6 @@ func userSvcFactory(
 func usersvcFactory(makeEndpoint func(service userSvcSer.IUserService) endpoint.Endpoint, tracer opentracing.Tracer,
 	zipkinTracer *zipkin.Tracer, logger log.Logger) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
-
 		conn, err := grpc.Dial(instance, grpc.WithInsecure())
 		if err != nil {
 			return nil, nil, err

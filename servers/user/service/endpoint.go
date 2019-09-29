@@ -3,63 +3,60 @@ package service
 import (
 	"context"
 	"github.com/Zhan9Yunhua/blog-svr/common"
+	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/metrics"
+	"github.com/go-kit/kit/ratelimit"
+	"github.com/go-kit/kit/tracing/opentracing"
+	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
+	"github.com/sony/gobreaker"
+	"golang.org/x/time/rate"
+	"time"
+
+	stdopentracing "github.com/opentracing/opentracing-go"
+	"github.com/openzipkin/zipkin-go"
 )
 
-type LoginRequest struct {
-	Username string `json:"username" validator:"required||string=[6|10]"`
-	Password string `json:"password" validator:"required||string=[6|10]"`
+type Endponits struct {
+	GetUserEP endpoint.Endpoint
+	// LoginEP    endpoint.Endpoint
+	// SendCodeEP endpoint.Endpoint
 }
 
-func makeLoginEndpoint(s IUserService) endpoint.Endpoint {
-	return func(_ context.Context, request interface{}) (a interface{}, err error) {
-		err = s.Validate(request)
-		if err != nil {
-			return nil, err
-		}
-
-		req := request.(LoginRequest)
-		userInfo, err := s.Login(req)
-		if err != nil {
-			return nil, err
-		}
-
-		return common.Response{Code: common.OK.Code(), Msg: "ok", Data: userInfo,}, nil
+func NewEndpoints(svc IUserService, logger log.Logger, duration metrics.Histogram,
+	otTracer stdopentracing.Tracer,
+	zipkinTracer *zipkin.Tracer) Endponits {
+	var sumEndpoint endpoint.Endpoint
+	{
+		sumEndpoint = MakeGetUserEndpoint(svc)
+		sumEndpoint = ratelimit.NewErroringLimiter(rate.NewLimiter(rate.Every(time.Second), 1))(sumEndpoint)
+		sumEndpoint = circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{}))(sumEndpoint)
+		sumEndpoint = opentracing.TraceServer(otTracer, "Sum")(sumEndpoint)
+		sumEndpoint = kitZipkin.TraceEndpoint(zipkinTracer, "Sum")(sumEndpoint)
+		// sumEndpoint = LoggingMiddleware(log.With(logger, "method", "Sum"))(sumEndpoint)
+		// sumEndpoint = InstrumentingMiddleware(duration.With("method", "Sum"))(sumEndpoint)
+	}
+	return Endponits{
+		GetUserEP: sumEndpoint,
 	}
 }
 
-type RegisterRequest struct {
-	Username string `json:"username" validator:"required||string=[6|10]"`
-	Password string `json:"password" validator:"required||string=[6|10]"`
-	Code     int    `json:"code" validator:"required||len=6"`
-	CodeID   string `json:"codeID" validator:"required"`
-}
+func (e Endponits) GetUser(ctx context.Context, uid string) (string, error) {
+	r, err := e.GetUserEP(ctx, uid)
 
-func makeRegisterEndpoint(s IUserService) endpoint.Endpoint {
-	return func(_ context.Context, request interface{}) (a interface{}, err error) {
-		err = s.Validate(request)
-		if err != nil {
-			return nil, err
-		}
-
-		req := request.(RegisterRequest)
-		err = s.Register(req)
-		if err != nil {
-			return nil, err
-		}
-
-		return common.Response{Code: common.OK.Code(), Msg: "注册成功",}, nil
+	if err != nil {
+		return "", err
 	}
+	response := r.(string)
+	return response, err
 }
 
-type GetUserRequest struct {
-	UID string `json:"s"`
-}
-
-func makeGetUserEndpoint(s IUserService) endpoint.Endpoint {
-	return func(_ context.Context, request interface{}) (interface{}, error) {
+func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(GetUserRequest)
-		name, err := s.GetUser(req.UID)
+
+		name, err := svc.GetUser(ctx, req.UID)
 		if err != nil {
 			return nil, err
 		}
@@ -68,29 +65,5 @@ func makeGetUserEndpoint(s IUserService) endpoint.Endpoint {
 		}
 
 		return common.Response{Code: common.OK.Code(), Msg: "ok", Data: data,}, nil
-	}
-}
-
-func makeSendCodeEndpoint(s IUserService) endpoint.Endpoint {
-	return func(_ context.Context, request interface{}) (interface{}, error) {
-		res, err := s.SendCode()
-		if err != nil {
-			return nil, err
-		}
-
-		return common.Response{Msg: "注册码发送成功", Data: res,}, nil
-	}
-}
-
-func makeAuthEndpoint(_ IUserService) endpoint.Endpoint {
-	return func(_ context.Context, request interface{}) (interface{}, error) {
-		return common.Response{Msg: "ok",}, nil
-	}
-}
-
-func makeGetUserListEndpoint(s IUserService) endpoint.Endpoint {
-	return func(_ context.Context, request interface{}) (interface{}, error) {
-
-		return common.Response{Msg: "ok",}, nil
 	}
 }

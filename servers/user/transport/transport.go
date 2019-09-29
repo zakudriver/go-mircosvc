@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/Zhan9Yunhua/blog-svr/common"
-	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoint"
+	"github.com/Zhan9Yunhua/blog-svr/servers/user/service"
 	"github.com/go-kit/kit/log"
 	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 	kitTransport "github.com/go-kit/kit/transport/http"
@@ -16,7 +16,7 @@ import (
 	"net/http"
 )
 
-func NewHTTPHandler(endpoints endpoint.Endponits, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
+func NewHTTPHandler(endpoints service.Endponits, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
 	logger log.Logger) http.Handler {
 	zipkinServer := kitZipkin.HTTPServerTrace(zipkinTracer)
 
@@ -32,12 +32,12 @@ func NewHTTPHandler(endpoints endpoint.Endponits, otTracer opentracing.Tracer, z
 		encodeResponse,
 		append(options, kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "GetUser", logger)))...,
 	))
-	m.Handle("/login", kitTransport.NewServer(
-		endpoints.LoginEP,
-		decodeLoginRequest,
-		encodeResponseSetCookie,
-		append(options, kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Login", logger)))...,
-	))
+	// m.Handle("/login", kitTransport.NewServer(
+	// 	endpoints.LoginEP,
+	// 	decodeLoginRequest,
+	// 	encodeResponseSetCookie,
+	// 	append(options, kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Login", logger)))...,
+	// ))
 	return m
 }
 

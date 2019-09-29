@@ -1,8 +1,11 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"reflect"
+	"strings"
 )
 
 const (
@@ -77,4 +80,48 @@ func Struct2MapFromTag(a interface{}) map[string]interface{} {
 		}
 	}
 	return m
+}
+
+func ParseEnvForTag(a interface{}, tagName string) (err error) {
+	tp := reflect.TypeOf(a)
+	if tp.Kind() != reflect.Ptr && tp.Elem().Kind() != reflect.Struct {
+		err = errors.New("[ParseEnvForTag] params must be *Struct")
+		return
+	}
+
+	tp = tp.Elem()
+	vl := reflect.ValueOf(a).Elem()
+
+	for i := 0; i < vl.NumField(); i++ {
+		fieldTypeInfo := vl.Type().Field(i)
+		fieldValue := vl.Field(i)
+		tag := fieldTypeInfo.Tag.Get(tagName)
+
+		if tag != "" {
+			if fieldValue.Kind() != reflect.String {
+				// err = errors.New("[ParseEnvForTag] Struct property must be String")
+				// return
+				continue
+			}
+			args := strings.Split(tag, "=")
+			if len(args) == 0 {
+				continue
+			}
+
+			env := ""
+			if len(args) == 1 {
+				env = os.Getenv(args[0])
+			} else {
+				if v := os.Getenv(args[0]); v != "" {
+					env = v
+				} else {
+					env = args[1]
+				}
+			}
+			fieldValue.Set(reflect.ValueOf(env))
+		}
+
+	}
+
+	return
 }

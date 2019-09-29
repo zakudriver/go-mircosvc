@@ -41,11 +41,14 @@ type Person struct {
 	Car  []string `validator:"multi=_|5]||in=LEXUS,BMW"`         // 选填。len>=5且包含LEXUS||BMW
 }
 
-func main() {
-	p := new(P)
-	p.Str = &T{}
+type Env struct {
+	Name string `env:"NAME=test"`
+}
 
-	fmt.Println(p.String())
+func main() {
+	// p := new(P)
+	// p.Str = &T{}
+
 	// p := Person{Name: "z", Age: 11, Sex: 1, Car: []string{"AUDI"}}
 	//
 	// vali := validator.NewValidator()
