@@ -1,5 +1,9 @@
 version: '3'
 
+networks:
+  net:
+    driver: bridge
+
 services:
   prometheus:
     image: prom/prometheus
@@ -8,6 +12,9 @@ services:
       - 9090:9090
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - net
+
   grafana:
     image: grafana/grafana
     container_name: grafana
@@ -17,17 +24,40 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=zyhua
     volumes:
       - $PWD/grafana_db:/var/lib/grafana grafana/grafana
+      -
+    networks:
+      - net
+
   zipkin:
     image: openzipkin/zipkin
     container_name: zipkin
     ports:
       - 9411:9411
+      -
+    networks:
+      - net
 
-#  consignment-service:
-#    build: ./consignment-server
-#    ports:
-#      - 50051:50051
-#    environment:
-#      MICRO_ADRESS: ":50051"
-#      MICRO_REGISTRY: "mdns"
-#      DB_HOST: "datastore:27017"
+  gateway:
+    image: kum0/mircosvc-gateway:latest
+    container_name: mircosvc-gateway
+    environment:
+      QS_GATEWAY_LOG_LEVEL: info
+      QS_GATEWAY_HTTP_PORT: 8000
+      QS_GATEWAY_GRPC_PORT: 8001
+      QS_GATEWAY_SERVER_CERT: /ssl/localhost+3.pem
+      QS_GATEWAY_SERVER_KEY: /ssl/localhost+3-key.pem
+      QS_GATEWAY_RETRY_MAX: 3
+      QS_GATEWAY_RETRY_TIMEOUT: 500
+      QS_CONSULT_HOST: consul
+      QS_CONSULT_PORT: 8500
+      QS_ZIPKIN_V2_URL: http://zipkin:9411/api/v2/spans
+    depends_on:
+      - etcd
+    ports:
+      - 8000:8000
+      - 8001:8001
+    volumes:
+      -
+    networks:
+      - net
+
