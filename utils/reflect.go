@@ -82,6 +82,7 @@ func Struct2MapFromTag(a interface{}) map[string]interface{} {
 	return m
 }
 
+// 根据struts解析环境变量
 func ParseEnvForTag(a interface{}, tagName string) (err error) {
 	tp := reflect.TypeOf(a)
 	if tp.Kind() != reflect.Ptr && tp.Elem().Kind() != reflect.Struct {

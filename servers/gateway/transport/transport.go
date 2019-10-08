@@ -32,7 +32,7 @@ func MakeHandler(ctx context.Context, etcdClient etcdv3.Client, tracer opentraci
 		}
 
 		{
-			factory := usersvcFactory(userSvcSer.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
+			factory := userSvcFactory(userSvcSer.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
 			endpointer := sd.NewEndpointer(ins, factory, logger)
 			balancer := lb.NewRoundRobin(endpointer)
 
@@ -46,23 +46,23 @@ func MakeHandler(ctx context.Context, etcdClient etcdv3.Client, tracer opentraci
 	return r
 }
 
-func userSvcFactory(
-	_ context.Context,
-	addr string,
-	makeEndpoint func(service userSvcSer.IUserService) endpoint.Endpoint,
-	tracer opentracing.Tracer,
-	zipkinTracer *zipkin.Tracer,
-	logger log.Logger) (endpoint.Endpoint, error) {
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
-	if err != nil {
-		return nil, err
-	}
-	svc := userSvcTransport.NewGRPCClient(conn, tracer, zipkinTracer, logger)
+// func userSvcFactory(
+// 	_ context.Context,
+// 	addr string,
+// 	makeEndpoint func(service userSvcSer.IUserService) endpoint.Endpoint,
+// 	tracer opentracing.Tracer,
+// 	zipkinTracer *zipkin.Tracer,
+// 	logger log.Logger) (endpoint.Endpoint, error) {
+// 	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	svc := userSvcTransport.NewGRPCClient(conn, tracer, zipkinTracer, logger)
+//
+// 	return makeEndpoint(svc), nil
+// }
 
-	return makeEndpoint(svc), nil
-}
-
-func usersvcFactory(makeEndpoint func(service userSvcSer.IUserService) endpoint.Endpoint, tracer opentracing.Tracer,
+func userSvcFactory(makeEndpoint func(service userSvcSer.IUserService) endpoint.Endpoint, tracer opentracing.Tracer,
 	zipkinTracer *zipkin.Tracer, logger log.Logger) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc.Dial(instance, grpc.WithInsecure())

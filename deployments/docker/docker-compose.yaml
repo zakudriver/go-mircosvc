@@ -1,0 +1,192 @@
+version: "3"
+
+networks:
+  net:
+    driver: bridge
+
+services:
+  consul:
+    image: consul:1.5.1
+    container_name: gokitconsul-consul
+    depends_on:
+      - fluentd
+    ports:
+      - 8400:8400
+      - 8500:8500
+      - 8600:8600
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        tag: alpha.efk.consul
+    networks:
+      - net
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: gokitconsul-zipkin
+    depends_on:
+      - fluentd
+    ports:
+      - 9411:9411
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        tag: alpha.efk.zipkin
+    networks:
+      - net
+
+  prometheus:
+    image: prom/prometheus
+    container_name: gokitconsul-prometheus
+    depends_on:
+      - fluentd
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        tag: alpha.efk.prometheus
+    networks:
+      - net
+
+  grafana:
+    image: grafana/grafana
+    container_name: gokitconsul-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=password
+    depends_on:
+      - fluentd
+    ports:
+      - 3000:3000
+    volumes:
+      - ./extra/grafana_db:/var/lib/grafana grafana/grafana
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        tag: alpha.efk.grafana
+    networks:
+      - net
+
+  fluentd:
+    build: ./fluentd
+    container_name: gokitconsul-fluentd
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./fluentd/conf:/fluentd/etc
+    ports:
+      - 24224:24224
+      - 24224:24224/udp
+    networks:
+      - net
+
+  elasticsearch:
+    image: elasticsearch:6.6.1
+    container_name: gokitconsul-elasticsearch
+    volumes:
+      - ./esdata:/usr/share/elasticsearch/data
+    environment:
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms256m -Xms256m"
+      - discovery.type=single-node
+    expose:
+      - 9200
+    ports:
+      - 9200:9200
+    networks:
+      - net
+
+  kibana:
+    image: kibana:6.6.1
+    container_name: gokitconsul-kibana
+    depends_on:
+      - elasticsearch
+      - fluentd
+    ports:
+      - 5601:5601
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        tag: alpha.efk.kibana
+    networks:
+      - net
+
+  foosvc:
+    image: cage1016/gokitconsul-foosvc:latest
+    container_name: gokitconsul-foosvc
+    environment:
+      QS_ADDSVC_LOG_LEVEL: info
+      QS_FOOSVC_HTTP_PORT: 7020
+      QS_FOOSVC_GRPC_PORT: 7021
+      QS_CONSULT_HOST: consul
+      QS_CONSULT_PORT: 8500
+      QS_ADDSVC_URL: addsvc:8021
+      QS_ZIPKIN_V2_URL: http://zipkin:9411/api/v2/spans
+    depends_on:
+      - consul
+      - fluentd
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        tag: alpha.efk.foosvc
+    networks:
+      - net
+
+  addsvc:
+    image: cage1016/gokitconsul-addsvc:latest
+    container_name: gokitconsul-addsvc
+    environment:
+      QS_ADDSVC_LOG_LEVEL: info
+      QS_ADDSVC_HTTP_PORT: 8020
+      QS_ADDSVC_GRPC_PORT: 8021
+      QS_CONSULT_HOST: consul
+      QS_CONSULT_PORT: 8500
+      QS_ZIPKIN_V2_URL: http://zipkin:9411/api/v2/spans
+    depends_on:
+      - consul
+      - fluentd
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        tag: alpha.efk.addsvc
+    networks:
+      - net
+
+  gateway:
+    image: cage1016/gokitconsul-gateway:latest
+    container_name: gokitconsul-gateway
+    environment:
+      QS_GATEWAY_LOG_LEVEL: info
+      QS_GATEWAY_HTTP_PORT: 8000
+      QS_GATEWAY_GRPC_PORT: 8001
+      QS_GATEWAY_SERVER_CERT: /ssl/localhost+3.pem
+      QS_GATEWAY_SERVER_KEY: /ssl/localhost+3-key.pem
+      QS_GATEWAY_RETRY_MAX: 3
+      QS_GATEWAY_RETRY_TIMEOUT: 500
+      QS_CONSULT_HOST: consul
+      QS_CONSULT_PORT: 8500
+      QS_ZIPKIN_V2_URL: http://zipkin:9411/api/v2/spans
+    depends_on:
+      - consul
+      - fluentd
+    ports:
+      - 8000:8000
+      - 8001:8001
+    volumes:
+      - ./ssl:/ssl
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        tag: alpha.efk.gateway
+    networks:
+      - net
