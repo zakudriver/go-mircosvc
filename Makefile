@@ -63,6 +63,7 @@ install:
 test:
 	go test -v -race -tags test $(shell go list ./... | grep -v 'vendor\|cmd')
 
+# compile proto
 PD_SOURCES:=$(shell find ./pb -type d)
 proto:
 	@for var in $(PD_SOURCES); do \
