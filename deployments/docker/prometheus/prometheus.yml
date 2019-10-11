@@ -1,36 +1,22 @@
 global:
-  scrape_interval:     15s # By default, scrape targets every 15 seconds.
-
-  # Attach these labels to any time series or alerts when communicating with
-  # external systems (federation, remote storage, Alertmanager).
+  scrape_interval: 15s
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  scrape_timeout: 10s # is set to the global default (10s).
   external_labels:
-    monitor: 'gokitconsul-monitor'
+    monitor: 'mircosvc-monitor'
 
-# A scrape configuration containing exactly one endpoint to scrape:
-# Here it's Prometheus itself.
 scrape_configs:
-  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
   - job_name: 'prometheus'
-
-    # Override the global default and scrape targets from this job every 5 seconds.
+    metrics_path: '/metrics' # defaults to '/metrics'
     scrape_interval: 5s
-
     static_configs:
-      - targets: ['prometheus:9090']
+      - targets: ['localhost:9090']
         labels:
           group: 'local'
 
-  - job_name: 'gokitconsul-prometheus'
+  - job_name: 'user_space'
     scrape_interval: 5s
-    consul_sd_configs:
-      - server: 'consul:8500'
-        services: []
-        tags:
-          - gokitconsul
-
-    relabel_configs:
-      - source_labels: ['__meta_consul_service_address', '__meta_consul_service_metadata_metricsport']
-        separator: ':'
-        regex: '(.*)'
-        target_label: '__address__'
-        replacement: '$1'
+    static_configs:
+      - targets: ['host.docker.internal:4002']
+        labels:
+          group: 'arithmetic'

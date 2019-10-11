@@ -1,0 +1,68 @@
+version: '3'
+
+networks:
+  net:
+    driver: bridge
+
+services:
+  etcd:
+    image: ./Dockerfile.etcd
+    container_name: micro-etcd
+    ports:
+      - 2379:2379
+    networks:
+      - net
+
+  prometheus:
+    image: prom/prometheus
+    container_name: micro-prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - net
+
+  grafana:
+    image: grafana/grafana
+    container_name: micro-grafana
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=zyhua
+    volumes:
+      - $PWD/grafana_db:/var/lib/grafana grafana/grafana
+    networks:
+      - net
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: micro_zipkin
+    ports:
+      - 9411:9411
+    networks:
+      - net
+
+  gateway:
+    image: kum0/mircosvc-gateway:latest
+    container_name: mircosvc-gateway
+    environment:
+      SERVICE_NAME: gateway_svc
+      LOG_PATH: ./gateway.log
+      HTTP_PORT: 4001
+      GRPC_PORT: 4002
+      ZIPKIN_ADDR: http://zipkin:9411
+      RETRY_MAX: 3
+      RETRY_TIMEOUT: 10000
+      ETCD_HOST: http://etcd
+      ETCD_PORT: 2379
+    depends_on:
+      - etcd
+    ports:
+      - 8000:8000
+      - 8001:8001
+    volumes:
+      -
+    networks:
+      - net
+

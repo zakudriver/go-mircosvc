@@ -12,27 +12,27 @@ GOOS ?= linux
 TAG_PREFIX = mircosvc
 
 define compile_service
-	CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM) go build -ldflags "-s -w" -o
-	${BUILD_DIR}/$(TAG_PREFIX)-$(1) cmd/$(1)/main.go
+	CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM) go build -ldflags "-s -w" -o \
+	${BUILD_DIR}/$(TAG_PREFIX)-$(1) servers/$(1)/cmd/main.go
 endef
 
 define compile_debug_service
-	CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM) go build -gcflags "all=-N -l" -o
+	CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=$(GOARM) go build -gcflags "all=-N -l" -o \
 	${BUILD_DIR}/$(TAG_PREFIX)-$(1) cmd/$(1)/main.go
 endef
 
 define make_docker_cleanbuild
-	docker build --no-cache --build-arg SVC_NAME=$(subst docker_prod_,,$(1)) --tag=kum0/$(TAG_PREFIX)-$(subst
+	docker build --no-cache --build-arg SVC_NAME=$(subst docker_prod_,,$(1)) --tag=kum0/$(TAG_PREFIX)-$(subst \
 	docker_prod_,,$(1)) -f deployments/docker/Dockerfile .
 endef
 
 define make_docker_dev
-	docker build --build-arg SVC_NAME=$(subst docker_dev_,,$(1)) --tag=kum0/$(TAG_PREFIX)-$(subst docker_dev_,,$(1))
+	docker build --build-arg SVC_NAME=$(subst docker_dev_,,$(1)) --tag=kum0/$(TAG_PREFIX)-$(subst docker_dev_,,$(1)) \
 	 -f deployments/docker/Dockerfile.dev ./build
 endef
 
 define make_docker_debug
-	docker build --build-arg SVC_NAME=$(subst docker_debug_,,$(1)) --tag=kum0/$(TAG_PREFIX)-debug-$(subst
+	docker build --build-arg SVC_NAME=$(subst docker_debug_,,$(1)) --tag=kum0/$(TAG_PREFIX)-debug-$(subst \
 	docker_debug_,,$(1)) -f deployments/docker/Dockerfile.debug ./build
 endef
 

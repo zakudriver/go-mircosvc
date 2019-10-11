@@ -6,9 +6,7 @@ import (
 )
 
 type config struct {
-	// NameSpace    string
 	ServiceName string `env:"SERVICE_NAME=gateway_svc"`
-	// LogLevel     string
 	LogPath      string `env:"LOG_PATH=./gateway.log"`
 	HttpPort     string `env:"HTTP_PORT=4001"`
 	GrpcPort     string `env:"GRPC_PORT=4002"`
@@ -16,7 +14,7 @@ type config struct {
 	RETRYMAX     string `env:"RETRY_MAX=3"`
 	RETRYTIMEOUT string `env:"RETRY_TIMEOUT=10000"`
 	EtcdHost     string `env:"ETCD_HOST=localhost"`
-	EtcdPort     string `env:"HTTP_PORT=2379"`
+	EtcdPort     string `env:"ETCD_PORT=2379"`
 	RetryMax     int
 	RetryTimeout int
 }
