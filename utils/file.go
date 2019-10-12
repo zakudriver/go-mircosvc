@@ -18,7 +18,7 @@ func IsExist(path string) bool {
 	return false
 }
 
-func ReadYmlFile(filePath string, out interface{}) error {
+func ReadYamlFile(filePath string, out interface{}) error {
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return err

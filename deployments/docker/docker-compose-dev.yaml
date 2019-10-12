@@ -6,7 +6,8 @@ networks:
 
 services:
   etcd:
-    image: ./Dockerfile.etcd
+#    build: ./Dockerfile.etcd
+    image: xieyanze/etcd3
     container_name: micro-etcd
     ports:
       - 2379:2379
@@ -19,7 +20,7 @@ services:
     ports:
       - 9090:9090
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
     networks:
       - net
 
@@ -59,10 +60,28 @@ services:
     depends_on:
       - etcd
     ports:
-      - 8000:8000
-      - 8001:8001
-    volumes:
-      -
+      - 4001:4001
+      - 4002:4002
     networks:
       - net
 
+  usersvc:
+    image: kum0/mircosvc-usersvc:latest
+    container_name: mircosvc-usersvc
+    environment:
+      SERVICE_NAME: user_svc
+      LOG_PATH: ./user.log
+      HTTP_PORT: 5001
+      GRPC_PORT: 5002
+      ZIPKIN_ADDR: http://zipkin:9411
+      RETRY_MAX: 3
+      RETRY_TIMEOUT: 10000
+      ETCD_HOST: http://etcd
+      ETCD_PORT: 2379
+    depends_on:
+      - etcd
+    ports:
+      - 5001:5001
+      - 5002:5002
+    networks:
+      - net

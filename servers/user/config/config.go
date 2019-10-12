@@ -1,67 +1,50 @@
 package config
 
 import (
-	"flag"
-	"github.com/Zhan9Yunhua/blog-svr/shared/email"
-	"path/filepath"
-
-	"github.com/Zhan9Yunhua/blog-svr/shared/db"
 	"github.com/Zhan9Yunhua/blog-svr/utils"
-	"github.com/Zhan9Yunhua/logger"
-)
-
-func init() {
-	if err := handleConf(); err != nil {
-		logger.Fatalln(err)
-	}
-}
-
-const (
-	DefConfFile = "servers/user/config.yml"
+	"strconv"
 )
 
 type config struct {
-	LogPath       string `yaml:"LogPath"`
-	JwtAuthSecret string `yaml:"JwtAuthSecret"`
-	PidPath       string `yaml:"PidPath"`
-	ServerAddr    string `yaml:"ServerAddr"`
-	EtcdAddr      string `yaml:"EtcdAddr"`
-	Prefix        string `yaml:"Prefix"`
-	ZipkinAddr    string `yaml:"ZipkinAddr"`
-
-	Mysql db.MysqlConf    `yaml:"Mysql"`
-	Redis db.RedisConf    `yaml:"Redis"`
-	Email email.EmailConf `yaml:"Email"`
+	ServiceName string `env:"SERVICE_NAME=gateway_svc"`
+	LogPath      string `env:"LOG_PATH=./gateway.log"`
+	HttpPort     string `env:"HTTP_PORT=4001"`
+	GrpcPort     string `env:"GRPC_PORT=4002"`
+	ZipkinAddr   string `env:"ZIPKIN_ADDR=localhost:9411"`
+	RETRYMAX     string `env:"RETRY_MAX=3"`
+	RETRYTIMEOUT string `env:"RETRY_TIMEOUT=10000"`
+	EtcdHost     string `env:"ETCD_HOST=localhost"`
+	EtcdPort     string `env:"ETCD_PORT=2379"`
+	RetryMax     int
+	RetryTimeout int
 }
 
-var (
-	confFile string
-	c        = new(config)
-)
+var c *config
+
+func init() {
+	initConfig()
+}
 
 func GetConfig() *config {
 	return c
 }
 
-func handleConf() error {
-	logger.Infoln("USER SERVER config init")
-	flag.StringVar(&confFile, "cf", "", "config file path")
+func initConfig() {
+	c = new(config)
 
-	flag.Parse()
-
-	cf := DefConfFile
-	if confFile != "" {
-		cf = confFile
+	if err := utils.ParseEnvForTag(c, "env"); err != nil {
+		panic(err)
 	}
 
-	cf, err := filepath.Abs(cf)
+	retryMax, err := strconv.ParseInt(c.RETRYMAX, 10, 0)
 	if err != nil {
-		return err
+		panic(err)
 	}
+	c.RetryMax = int(retryMax)
 
-	if err := utils.ReadYmlFile(cf, &c); err != nil {
-		return err
+	retryTimeout, err := strconv.ParseInt(c.RETRYTIMEOUT, 10, 0)
+	if err != nil {
+		panic(err)
 	}
-
-	return nil
+	c.RetryTimeout = int(retryTimeout)
 }

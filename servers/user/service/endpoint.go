@@ -20,8 +20,8 @@ import (
 
 type Endponits struct {
 	GetUserEP endpoint.Endpoint
-	// LoginEP    endpoint.Endpoint
-	// SendCodeEP endpoint.Endpoint
+	// LoginEP    endpoints.Endpoint
+	// SendCodeEP endpoints.Endpoint
 }
 
 func NewEndpoints(svc IUserService, logger log.Logger, duration metrics.Histogram,

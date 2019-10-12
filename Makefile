@@ -1,5 +1,5 @@
 BUILD_DIR = build
-SERVICES = gateway
+SERVICES = gateway usersvc
 DOCKERS_CLEANBUILD = $(addprefix docker_prod_,$(SERVICES))
 DOCKERS_DEV = $(addprefix docker_dev_,$(SERVICES))
 DOCKERS_DEBUG = $(addprefix docker_debug_,$(SERVICES))

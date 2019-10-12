@@ -1,41 +1,65 @@
 package main
 
 import (
-	"net/http"
-
+	"context"
+	"fmt"
 	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
-	"github.com/Zhan9Yunhua/blog-svr/shared/db"
-	"github.com/Zhan9Yunhua/blog-svr/shared/email"
-	"github.com/Zhan9Yunhua/blog-svr/shared/server"
-
-	"github.com/Zhan9Yunhua/blog-svr/servers/user/middleware"
-	"github.com/Zhan9Yunhua/blog-svr/servers/user/service"
+	"github.com/Zhan9Yunhua/blog-svr/servers/user/transport"
 	"github.com/Zhan9Yunhua/blog-svr/shared/etcd"
 	"github.com/Zhan9Yunhua/blog-svr/shared/logger"
+	"github.com/go-kit/kit/log"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
+
+	"github.com/Zhan9Yunhua/blog-svr/shared/zipkin"
+	"github.com/opentracing/opentracing-go"
 )
 
 func main() {
 	conf := config.GetConfig()
+	log := logger.NewLogger("./log.log")
 
-	lg := logger.NewLogger(conf.LogPath)
+	tracer := opentracing.GlobalTracer()
+	zipkinTracer := zipkin.NewZipkin(log, conf.ZipkinAddr, "localhost:"+conf.HttpPort, conf.ServiceName)
 
-	etcdClient := etcd.NewEtcd(conf.EtcdAddr)
+	etcdClient := etcd.NewEtcd(conf.EtcdHost + ":" + conf.EtcdPort)
 
-	register := etcd.Register(conf.Prefix, conf.ServerAddr, etcdClient, lg)
-	defer register.Deregister()
+	ctx := context.Background()
+	r := transport.MakeHandler(ctx, etcdClient, tracer, zipkinTracer, log)
+	runServer(log, ":4001", r)
+}
 
-	var userSvc service.IUserService
-	{
-		mdb := db.NewMysql(conf.Mysql)
-		rd := db.NewRedis(conf.Redis)
-		email := email.NewEmail(conf.Email)
-
-		userSvc = service.NewUserService(mdb, rd, email)
-		userSvc = middleware.NewPrometheusMiddleware()(userSvc)
+func runServer(lg log.Logger, addr string, handler http.Handler) {
+	svr := &http.Server{
+		Addr:    addr,
+		Handler: handler,
 	}
 
-	mux := http.NewServeMux()
-	mux.Handle(conf.Prefix+"/", service.MakeHandler(userSvc, lg))
+	go func() {
+		if err := svr.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			lg.Log("listen: %s\n", err)
+		}
+	}()
 
-	server.RunServer(mux, conf.ServerAddr)
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	lg.Log("Shutdown Server ...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := svr.Shutdown(ctx); err != nil {
+		lg.Log("Server Shutdown:", err)
+	}
+	lg.Log("Server exiting")
+
+	pid := fmt.Sprintf("%d", os.Getpid())
+
+	_, openErr := os.OpenFile("", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if openErr == nil {
+		ioutil.WriteFile("", []byte(pid), 0)
+	}
 }

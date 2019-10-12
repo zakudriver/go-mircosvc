@@ -49,10 +49,10 @@ func MakeHandler(ctx context.Context, etcdClient etcdv3.Client, tracer opentraci
 // func userSvcFactory(
 // 	_ context.Context,
 // 	addr string,
-// 	makeEndpoint func(service userSvcSer.IUserService) endpoint.Endpoint,
+// 	makeEndpoint func(service userSvcSer.IUserService) endpoints.Endpoint,
 // 	tracer opentracing.Tracer,
 // 	zipkinTracer *zipkin.Tracer,
-// 	logger log.Logger) (endpoint.Endpoint, error) {
+// 	logger log.Logger) (endpoints.Endpoint, error) {
 // 	conn, err := grpc.Dial(addr, grpc.WithInsecure())
 // 	if err != nil {
 // 		return nil, err

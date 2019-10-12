@@ -55,6 +55,14 @@ func main() {
 	// err := vali.Validate(p)
 	//
 	// fmt.Printf("%+v\n", err)
+	c := make(chan int, 2)
+	c<-2
+	c<-1
+
+	go func() {
+		c <- 1
+	}()
+	fmt.Println(<-c)
 }
 
 func handle() error {
