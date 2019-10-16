@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
@@ -40,6 +41,7 @@ func NewEndpoints(svc IUserService, otTracer stdopentracing.Tracer, zipkinTracer
 
 func (e Endponits) GetUser(ctx context.Context, uid string) (string, error) {
 	r, err := e.GetUserEP(ctx, uid)
+	fmt.Println(r)
 
 	if err != nil {
 		return "", err

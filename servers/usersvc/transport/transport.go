@@ -9,6 +9,7 @@ import (
 	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 	kitTransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
 	"github.com/opentracing/opentracing-go"
@@ -26,7 +27,7 @@ func NewHTTPHandler(endpoints service.Endponits, otTracer opentracing.Tracer, zi
 	}
 
 	m := mux.NewRouter()
-	m.Handle("/user/{param}", kitTransport.NewServer(
+	m.Handle("/{UID}", kitTransport.NewServer(
 		endpoints.GetUserEP,
 		decodeGetUserRequest,
 		encodeResponse,
@@ -38,6 +39,8 @@ func NewHTTPHandler(endpoints service.Endponits, otTracer opentracing.Tracer, zi
 	// 	encodeResponseSetCookie,
 	// 	append(options, kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Login", logger)))...,
 	// ))
+
+	m.Handle("/metrics", promhttp.Handler())
 	return m
 }
 

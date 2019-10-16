@@ -39,7 +39,7 @@ func MakeHandler(ctx context.Context, etcdClient etcdv3.Client, tracer opentraci
 			retry := lb.Retry(conf.RetryMax, time.Duration(conf.RetryTimeout), balancer)
 			endpoints.GetUserEP = retry
 		}
-		r.PathPrefix("/usersvc").Handler(http.StripPrefix("/usersvc", userSvcTransport.NewHTTPHandler(endpoints, tracer,
+		r.PathPrefix("/user").Handler(http.StripPrefix("/user", userSvcTransport.NewHTTPHandler(endpoints, tracer,
 			zipkinTracer, logger)))
 	}
 
