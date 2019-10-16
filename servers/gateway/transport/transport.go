@@ -3,8 +3,8 @@ package transport
 import (
 	"context"
 	"github.com/Zhan9Yunhua/blog-svr/servers/gateway/config"
-	userSvcSer "github.com/Zhan9Yunhua/blog-svr/servers/user/service"
-	userSvcTransport "github.com/Zhan9Yunhua/blog-svr/servers/user/transport"
+	userSvcSer "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
+	userSvcTransport "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/transport"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/sd"
@@ -39,7 +39,7 @@ func MakeHandler(ctx context.Context, etcdClient etcdv3.Client, tracer opentraci
 			retry := lb.Retry(conf.RetryMax, time.Duration(conf.RetryTimeout), balancer)
 			endpoints.GetUserEP = retry
 		}
-		r.PathPrefix("/user").Handler(http.StripPrefix("/user", userSvcTransport.NewHTTPHandler(endpoints, tracer,
+		r.PathPrefix("/usersvc").Handler(http.StripPrefix("/usersvc", userSvcTransport.NewHTTPHandler(endpoints, tracer,
 			zipkinTracer, logger)))
 	}
 

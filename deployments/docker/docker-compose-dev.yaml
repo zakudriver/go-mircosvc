@@ -7,7 +7,7 @@ networks:
 services:
   etcd:
 #    build: ./Dockerfile.etcd
-    image: xieyanze/etcd3
+    image: xieyanze/etcd3:latest
     container_name: micro-etcd
     ports:
       - 2379:2379
@@ -70,7 +70,7 @@ services:
     container_name: mircosvc-usersvc
     environment:
       SERVICE_NAME: user_svc
-      LOG_PATH: ./user.log
+      LOG_PATH: ./usersvc.log
       HTTP_PORT: 5001
       GRPC_PORT: 5002
       ZIPKIN_ADDR: http://zipkin:9411

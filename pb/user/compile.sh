@@ -6,7 +6,7 @@
 #  ./autogen.sh ; ./configure ; make ; make install
 #
 # Update protoc Go bindings via
-#  go get -user github.com/golang/protobuf/{proto,protoc-gen-go}
+#  go get -usersvc github.com/golang/protobuf/{proto,protoc-gen-go}
 #
 # See also
 #  https://github.com/grpc/grpc-go/tree/master/examples

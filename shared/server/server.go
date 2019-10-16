@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/Zhan9Yunhua/blog-svr/servers/user/config"
+	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/config"
 	lg "github.com/Zhan9Yunhua/logger"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"io/ioutil"
