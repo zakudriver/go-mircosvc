@@ -8,11 +8,11 @@ import (
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/tracing/opentracing"
 	"github.com/sony/gobreaker"
 	"golang.org/x/time/rate"
 	"time"
 
+	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 	stdopentracing "github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
 )
@@ -44,8 +44,8 @@ func NewEndpoints(svc service.IUserService, logger log.Logger, otTracer stdopent
 		mids := append(
 			middlewares,
 			middleware.LoggingMiddleware(log.With(logger, "method", method)),
-			opentracing.TraceServer(otTracer, method),
-			// kitZipkin.TraceEndpoint(zipkinTracer, method),
+			// opentracing.TraceServer(otTracer, method),
+			kitZipkin.TraceEndpoint(zipkinTracer, method),
 		)
 
 		getUserEndpoint = handleEndpointMiddleware(getUserEndpoint, mids...)

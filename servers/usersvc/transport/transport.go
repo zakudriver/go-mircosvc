@@ -14,6 +14,8 @@ import (
 	"github.com/openzipkin/zipkin-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
+
+	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 )
 
 func NewHTTPHandler(endpoints endpoints.Endponits, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
@@ -21,7 +23,7 @@ func NewHTTPHandler(endpoints endpoints.Endponits, otTracer opentracing.Tracer, 
 
 	opts := []kitTransport.ServerOption{
 		kitTransport.ServerErrorEncoder(encodeError),
-		// kitZipkin.HTTPServerTrace(zipkinTracer),
+		kitZipkin.HTTPServerTrace(zipkinTracer),
 	}
 
 	m := mux.NewRouter()
