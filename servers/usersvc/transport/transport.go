@@ -23,7 +23,7 @@ func NewHTTPHandler(endpoints endpoints.Endponits, otTracer opentracing.Tracer, 
 
 	opts := []kitTransport.ServerOption{
 		kitTransport.ServerErrorEncoder(encodeError),
-		kitZipkin.HTTPServerTrace(zipkinTracer),
+		kitZipkin.HTTPServerTrace(zipkinTracer,kitZipkin.Name("usersvc-transport")),
 	}
 
 	m := mux.NewRouter()
