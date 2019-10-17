@@ -7,11 +7,11 @@ import (
 )
 
 type config struct {
-	ServiceName  string `env:"SERVICE_NAME=user_svc"`
+	ServiceName  string `env:"SERVICE_NAME=usersvc"`
 	LogPath      string `env:"LOG_PATH=./usersvc.log"`
 	HttpPort     string `env:"HTTP_PORT=5001"`
 	GrpcPort     string `env:"GRPC_PORT=5002"`
-	ZipkinAddr   string `env:"ZIPKIN_ADDR=localhost:9411"`
+	ZipkinAddr   string `env:"ZIPKIN_ADDR=127.0.0.1:9411"`
 	RETRYMAX     string `env:"RETRY_MAX=3"`
 	RETRYTIMEOUT string `env:"RETRY_TIMEOUT=10000"`
 	EtcdHost     string `env:"ETCD_HOST=localhost"`

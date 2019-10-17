@@ -11,8 +11,8 @@ services:
     container_name: micro-etcd
     ports:
       - 2379:2379
-    networks:
-      - net
+#    networks:
+#      - net
 
   prometheus:
     image: prom/prometheus
@@ -21,8 +21,8 @@ services:
       - 9090:9090
     volumes:
       - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
-    networks:
-      - net
+#    networks:
+#      - net
 
   grafana:
     image: grafana/grafana
@@ -33,16 +33,16 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=zyhua
     volumes:
       - $PWD/grafana_db:/var/lib/grafana grafana/grafana
-    networks:
-      - net
+#    networks:
+#      - net
 
   zipkin:
     image: openzipkin/zipkin
     container_name: micro_zipkin
     ports:
       - 9411:9411
-    networks:
-      - net
+#    networks:
+#      - net
 
 #  gateway:
 #    image: kum0/mircosvc-gateway:latest

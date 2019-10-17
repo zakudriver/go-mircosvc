@@ -2,12 +2,9 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"github.com/Zhan9Yunhua/blog-svr/common"
+	"github.com/Zhan9Yunhua/blog-svr/shared/middleware"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/ratelimit"
-	"github.com/go-kit/kit/tracing/opentracing"
-	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 	"golang.org/x/time/rate"
 	"time"
 
@@ -26,11 +23,16 @@ func NewEndpoints(svc IUserService, otTracer stdopentracing.Tracer, zipkinTracer
 	{
 		getUserEndpoint = MakeGetUserEndpoint(svc)
 
-		// middleware.RateLimitterMiddleware()
-		getUserEndpoint = ratelimit.NewErroringLimiter(rate.NewLimiter(rate.Every(time.Second), 1))(getUserEndpoint)
-		// getUserEndpoint = circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{}))(getUserEndpoint)
-		getUserEndpoint = opentracing.TraceServer(otTracer, "GetUser")(getUserEndpoint)
-		getUserEndpoint = kitZipkin.TraceEndpoint(zipkinTracer, "GetUser")(getUserEndpoint)
+		middlewares := make([]endpoint.Middleware, 0)
+		{
+			limiter := rate.NewLimiter(rate.Every(time.Second*1), 10)
+			limitterMiddleware := middleware.RateLimitterMiddleware(limiter)
+			middlewares = append(middlewares, limitterMiddleware)
+		}
+
+		getUserEndpoint = handleEndpointMiddleware(getUserEndpoint, middlewares...)
+		// getUserEndpoint = kitZipkin.TraceEndpoint(zipkinTracer, "usersvc_GetUser")(getUserEndpoint)
+		// getUserEndpoint = opentracing.TraceServer(otTracer, "usersvc_GetUser")(getUserEndpoint)
 		// sumEndpoint = LoggingMiddleware(log.With(logger, "method", "Sum"))(sumEndpoint)
 		// sumEndpoint = InstrumentingMiddleware(duration.With("method", "Sum"))(sumEndpoint)
 	}
@@ -41,13 +43,23 @@ func NewEndpoints(svc IUserService, otTracer stdopentracing.Tracer, zipkinTracer
 
 func (e Endponits) GetUser(ctx context.Context, uid string) (string, error) {
 	r, err := e.GetUserEP(ctx, uid)
-	fmt.Println(r)
 
 	if err != nil {
 		return "", err
 	}
 	response := r.(string)
 	return response, err
+}
+
+func handleEndpointMiddleware(endpoint endpoint.Endpoint, middlewares ...endpoint.Middleware) endpoint.Endpoint {
+
+	// endpoint = kitZipkin.TraceEndpoint(zipkinTracer, endpointName)(endpoint)
+
+	for _, m := range middlewares {
+		endpoint = m(endpoint)
+	}
+
+	return endpoint
 }
 
 func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {

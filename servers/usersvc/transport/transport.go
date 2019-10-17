@@ -3,40 +3,34 @@ package transport
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
+	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
+	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
 	kitTransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-
 	"github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 )
 
 func NewHTTPHandler(endpoints service.Endponits, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
 	logger log.Logger) http.Handler {
-	// zipkinServer := kitZipkin.HTTPServerTrace(zipkinTracer)
-	//
-	// options := []kitTransport.ServerOption{
-	// 	kitTransport.ServerErrorEncoder(encodeError),
-	// 	zipkinServer,
-	// }
 
 	opts := []kitTransport.ServerOption{
 		kitTransport.ServerErrorEncoder(encodeError),
-		// kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "GetUser", logger))
+		// kitZipkin.HTTPServerTrace(zipkinTracer),
 	}
 
 	m := mux.NewRouter()
-	m.Handle("/{UID}", kitTransport.NewServer(
-		endpoints.GetUserEP,
-		decodeGetUserRequest,
-		encodeResponse,
-		opts...
-	)).Methods("GET")
+	{
+		ops := append(opts,
+			kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "usersvc_GetUser",
+				logger)))
+		m.Handle("/{UID}", makeHandler(endpoints.GetUserEP, decodeGetUserRequest, encodeResponse, ops)).Methods("GET")
+	}
 
 	// m.Handle("/login", kitTransport.NewServer(
 	// 	endpoints.LoginEP,
@@ -46,8 +40,21 @@ func NewHTTPHandler(endpoints service.Endponits, otTracer opentracing.Tracer, zi
 	// ))
 
 	m.Handle("/metrics", promhttp.Handler())
-	m.Handle("/test", &S{})
 	return m
+}
+
+func makeHandler(
+	endpoint endpoint.Endpoint,
+	dec kitTransport.DecodeRequestFunc,
+	enc kitTransport.EncodeResponseFunc,
+	ops []kitTransport.ServerOption,
+) *kitTransport.Server {
+	return kitTransport.NewServer(
+		endpoint,
+		dec,
+		enc,
+		ops...,
+	)
 }
 
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
@@ -57,13 +64,4 @@ func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 		Code: common.Error.Code(),
 		Msg:  err.Error(),
 	})
-}
-
-type S struct {
-}
-
-func (s *S) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ok")
-
-	w.Write([]byte("ok"))
 }
