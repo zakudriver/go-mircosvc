@@ -12,12 +12,12 @@ import (
 	zipkinReporterHttp "github.com/openzipkin/zipkin-go/reporter/http"
 )
 
-func NewZipkin(logger log.Logger, zipkinAddr, svrAddr, svrName string) *zipkin.Tracer {
+func NewZipkin(logger log.Logger, zipkinAddr, svcAddr, svcName string) *zipkin.Tracer {
 	isNoopTracer := (zipkinAddr == "")
 	reporter := zipkinReporterHttp.NewReporter(zipkinAddr)
 	defer reporter.Close()
 
-	zkEndpoint, err := zipkin.NewEndpoint(svrName, svrAddr)
+	zkEndpoint, err := zipkin.NewEndpoint(svcName, svcAddr)
 	if err != nil {
 		logger.Log("zipkin NewEndpoint", err)
 	}
@@ -34,6 +34,7 @@ func NewZipkin(logger log.Logger, zipkinAddr, svrAddr, svrName string) *zipkin.T
 
 	return zipkinTracer
 }
+
 func NewTransport(zikkinTracer *zipkin.Tracer) http.RoundTripper {
 	transport, err := zipkinMiddlewareHttp.NewTransport(zikkinTracer, zipkinMiddlewareHttp.TransportTrace(true))
 	if err != nil {

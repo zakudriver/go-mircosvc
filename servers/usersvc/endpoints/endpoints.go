@@ -1,10 +1,15 @@
-package service
+package endpoints
 
 import (
 	"context"
 	"github.com/Zhan9Yunhua/blog-svr/common"
+	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
 	"github.com/Zhan9Yunhua/blog-svr/shared/middleware"
+	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/tracing/opentracing"
+	"github.com/sony/gobreaker"
 	"golang.org/x/time/rate"
 	"time"
 
@@ -18,24 +23,34 @@ type Endponits struct {
 	// SendCodeEP endpoints.Endpoint
 }
 
-func NewEndpoints(svc IUserService, otTracer stdopentracing.Tracer, zipkinTracer *zipkin.Tracer) Endponits {
+func NewEndpoints(svc service.IUserService, logger log.Logger, otTracer stdopentracing.Tracer,
+	zipkinTracer *zipkin.Tracer) Endponits {
+	var middlewares []endpoint.Middleware
+	{
+		limiter := rate.NewLimiter(rate.Every(time.Second*1), 10)
+
+		middlewares = append(
+			middlewares,
+			middleware.RateLimitterMiddleware(limiter),
+			circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{})),
+		)
+	}
+
 	var getUserEndpoint endpoint.Endpoint
 	{
+		method := "GetUser"
 		getUserEndpoint = MakeGetUserEndpoint(svc)
 
-		middlewares := make([]endpoint.Middleware, 0)
-		{
-			limiter := rate.NewLimiter(rate.Every(time.Second*1), 10)
-			limitterMiddleware := middleware.RateLimitterMiddleware(limiter)
-			middlewares = append(middlewares, limitterMiddleware)
-		}
+		mids := append(
+			middlewares,
+			middleware.LoggingMiddleware(log.With(logger, "method", method)),
+			opentracing.TraceServer(otTracer, method),
+			// kitZipkin.TraceEndpoint(zipkinTracer, method),
+		)
 
-		getUserEndpoint = handleEndpointMiddleware(getUserEndpoint, middlewares...)
-		// getUserEndpoint = kitZipkin.TraceEndpoint(zipkinTracer, "usersvc_GetUser")(getUserEndpoint)
-		// getUserEndpoint = opentracing.TraceServer(otTracer, "usersvc_GetUser")(getUserEndpoint)
-		// sumEndpoint = LoggingMiddleware(log.With(logger, "method", "Sum"))(sumEndpoint)
-		// sumEndpoint = InstrumentingMiddleware(duration.With("method", "Sum"))(sumEndpoint)
+		getUserEndpoint = handleEndpointMiddleware(getUserEndpoint, mids...)
 	}
+
 	return Endponits{
 		GetUserEP: getUserEndpoint,
 	}
@@ -52,9 +67,6 @@ func (e Endponits) GetUser(ctx context.Context, uid string) (string, error) {
 }
 
 func handleEndpointMiddleware(endpoint endpoint.Endpoint, middlewares ...endpoint.Middleware) endpoint.Endpoint {
-
-	// endpoint = kitZipkin.TraceEndpoint(zipkinTracer, endpointName)(endpoint)
-
 	for _, m := range middlewares {
 		endpoint = m(endpoint)
 	}
@@ -62,7 +74,7 @@ func handleEndpointMiddleware(endpoint endpoint.Endpoint, middlewares ...endpoin
 	return endpoint
 }
 
-func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
+func MakeGetUserEndpoint(svc service.IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(GetUserRequest)
 

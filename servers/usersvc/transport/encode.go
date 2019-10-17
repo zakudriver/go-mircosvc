@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/Zhan9Yunhua/blog-svr/common"
-	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
+	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
 	"net/http"
 
 	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
@@ -27,6 +27,6 @@ func encodeResponse(_ context.Context, w http.ResponseWriter, response interface
 }
 
 func encodeGRPCGetUserResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp := response.(service.GetUserRequest)
+	resp := response.(endpoints.GetUserRequest)
 	return &userPb.GetUserRequest{Uid: resp.UID}, nil
 }

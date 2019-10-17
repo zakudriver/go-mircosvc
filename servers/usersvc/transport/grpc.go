@@ -1,6 +1,7 @@
 package transport
 
 import (
+	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/ratelimit"
@@ -48,7 +49,7 @@ func NewGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTra
 		// }))(getUserEndpoint)
 	}
 
-	return service.Endponits{
+	return endpoints.Endponits{
 		GetUserEP: getUserEndpoint,
 	}
 }

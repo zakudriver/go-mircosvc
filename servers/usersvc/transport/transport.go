@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/Zhan9Yunhua/blog-svr/common"
-	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
+	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
@@ -16,7 +16,7 @@ import (
 	"net/http"
 )
 
-func NewHTTPHandler(endpoints service.Endponits, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
+func NewHTTPHandler(endpoints endpoints.Endponits, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
 	logger log.Logger) http.Handler {
 
 	opts := []kitTransport.ServerOption{

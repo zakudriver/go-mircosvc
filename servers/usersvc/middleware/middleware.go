@@ -3,7 +3,6 @@ package middleware
 import (
 	"context"
 	"fmt"
-	"github.com/Zhan9Yunhua/blog-svr/common"
 	"time"
 
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
@@ -13,6 +12,17 @@ import (
 )
 
 type ServiceMiddleware func(servicer service.IUserService) service.IUserService
+
+func MakeServiceMiddleware(s service.IUserService) service.IUserService {
+	mids := []ServiceMiddleware{
+		NewPrometheusMiddleware(),
+	}
+	for _, m := range mids {
+		s = m(s)
+	}
+
+	return s
+}
 
 var (
 	fieldKeys = []string{"method", "error"}
@@ -61,13 +71,13 @@ func (pm prometheusMiddleware) GetUser(ctx context.Context, s string) (output st
 	return
 }
 
-func (pm prometheusMiddleware) Login(params service.LoginRequest) (data common.ResponseData, err error) {
-	defer func(begin time.Time) {
-		lvs := []string{"method", "login", "error", fmt.Sprint(err != nil)}
-		pm.requestCount.With(lvs...).Add(1)
-		pm.requestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
-	}(time.Now())
-
-	data, err = pm.IUserService.Login(params)
-	return
-}
+// func (pm prometheusMiddleware) Login(params endpoints.LoginRequest) (data common.ResponseData, err error) {
+// 	defer func(begin time.Time) {
+// 		lvs := []string{"method", "login", "error", fmt.Sprint(err != nil)}
+// 		pm.requestCount.With(lvs...).Add(1)
+// 		pm.requestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
+// 	}(time.Now())
+//
+// 	data, err = pm.IUserService.Login(params)
+// 	return
+// }

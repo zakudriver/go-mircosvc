@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/config"
+	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
+	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/middleware"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/transport"
 	"github.com/Zhan9Yunhua/blog-svr/shared/logger"
@@ -19,20 +21,21 @@ import (
 
 func main() {
 	conf := config.GetConfig()
-	log := logger.NewLogger(conf.LogPath)
+	logger := logger.NewLogger(conf.LogPath)
 
 	tracer := opentracing.GlobalTracer()
-	zipkinTracer := zipkin.NewZipkin(log, conf.ZipkinAddr, "127.0.0.1:"+conf.HttpPort, conf.ServiceName)
+	zipkinTracer := zipkin.NewZipkin(logger, conf.ZipkinAddr, "localhost:"+conf.HttpPort, conf.ServiceName)
 
 	// etcdClient := etcd.NewEtcd(conf.EtcdHost + ":" + conf.EtcdPort)
 
 	svc := service.NewUserService()
-	ep := service.NewEndpoints(svc, tracer, zipkinTracer)
+	svc = middleware.MakeServiceMiddleware(svc)
+	ep := endpoints.NewEndpoints(svc, logger, tracer, zipkinTracer)
 
-	handle := transport.NewHTTPHandler(ep, tracer, zipkinTracer, log)
+	handle := transport.NewHTTPHandler(ep, tracer, zipkinTracer, logger)
 
 	errs := make(chan error, 1)
-	go httpServer(log, fmt.Sprintf(":%s", conf.HttpPort), handle, errs)
+	go httpServer(logger, fmt.Sprintf(":%s", conf.HttpPort), handle, errs)
 
 	go func() {
 		c := make(chan os.Signal)
@@ -40,10 +43,10 @@ func main() {
 		errs <- fmt.Errorf("%s", <-c)
 	}()
 
-	level.Info(log).Log("serviceName", conf.ServiceName, "terminated", <-errs)
+	level.Info(logger).Log("serviceName", conf.ServiceName, "terminated", <-errs)
 }
 
-func httpServer(lg log.Logger, addr string, handler http.Handler, errs chan error) {
+func httpServer(logger log.Logger, addr string, handler http.Handler, errs chan error) {
 	http.Handle("/", accessControl(handler))
 	svr := &http.Server{
 		Addr:    addr,
@@ -51,7 +54,7 @@ func httpServer(lg log.Logger, addr string, handler http.Handler, errs chan erro
 	}
 	err := svr.ListenAndServe()
 	if err != nil {
-		lg.Log("listen: %s\n", err)
+		logger.Log("listen: %s\n", err)
 	}
 	errs <- err
 }
