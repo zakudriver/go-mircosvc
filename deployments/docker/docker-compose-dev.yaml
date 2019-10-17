@@ -44,44 +44,44 @@ services:
     networks:
       - net
 
-  gateway:
-    image: kum0/mircosvc-gateway:latest
-    container_name: mircosvc-gateway
-    environment:
-      SERVICE_NAME: gateway_svc
-      LOG_PATH: ./gateway.log
-      HTTP_PORT: 4001
-      GRPC_PORT: 4002
-      ZIPKIN_ADDR: http://zipkin:9411
-      RETRY_MAX: 3
-      RETRY_TIMEOUT: 10000
-      ETCD_HOST: http://etcd
-      ETCD_PORT: 2379
-    depends_on:
-      - etcd
-    ports:
-      - 4001:4001
-      - 4002:4002
-    networks:
-      - net
-
-  usersvc:
-    image: kum0/mircosvc-usersvc:latest
-    container_name: mircosvc-usersvc
-    environment:
-      SERVICE_NAME: user_svc
-      LOG_PATH: ./usersvc.log
-      HTTP_PORT: 5001
-      GRPC_PORT: 5002
-      ZIPKIN_ADDR: http://zipkin:9411
-      RETRY_MAX: 3
-      RETRY_TIMEOUT: 10000
-      ETCD_HOST: http://etcd
-      ETCD_PORT: 2379
-    depends_on:
-      - etcd
-    ports:
-      - 5001:5001
-      - 5002:5002
-    networks:
-      - net
+#  gateway:
+#    image: kum0/mircosvc-gateway:latest
+#    container_name: mircosvc-gateway
+#    environment:
+#      SERVICE_NAME: gateway_svc
+#      LOG_PATH: ./gateway.log
+#      HTTP_PORT: 4001
+#      GRPC_PORT: 4002
+#      ZIPKIN_ADDR: http://zipkin:9411
+#      RETRY_MAX: 3
+#      RETRY_TIMEOUT: 10000
+#      ETCD_HOST: http://etcd
+#      ETCD_PORT: 2379
+#    depends_on:
+#      - etcd
+#    ports:
+#      - 4001:4001
+#      - 4002:4002
+#    networks:
+#      - net
+#
+#  usersvc:
+#    image: kum0/mircosvc-usersvc:latest
+#    container_name: mircosvc-usersvc
+#    environment:
+#      SERVICE_NAME: user_svc
+#      LOG_PATH: ./usersvc.log
+#      HTTP_PORT: 5001
+#      GRPC_PORT: 5002
+#      ZIPKIN_ADDR: http://zipkin:9411
+#      RETRY_MAX: 3
+#      RETRY_TIMEOUT: 10000
+#      ETCD_HOST: http://etcd
+#      ETCD_PORT: 2379
+#    depends_on:
+#      - etcd
+#    ports:
+#      - 5001:5001
+#      - 5002:5002
+#    networks:
+#      - net

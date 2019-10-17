@@ -3,15 +3,14 @@ package transport
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
 	"github.com/go-kit/kit/log"
-	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 	kitTransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
 	"github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
 	"net/http"
@@ -19,11 +18,16 @@ import (
 
 func NewHTTPHandler(endpoints service.Endponits, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
 	logger log.Logger) http.Handler {
-	zipkinServer := kitZipkin.HTTPServerTrace(zipkinTracer)
+	// zipkinServer := kitZipkin.HTTPServerTrace(zipkinTracer)
+	//
+	// options := []kitTransport.ServerOption{
+	// 	kitTransport.ServerErrorEncoder(encodeError),
+	// 	zipkinServer,
+	// }
 
-	options := []kitTransport.ServerOption{
+	opts := []kitTransport.ServerOption{
 		kitTransport.ServerErrorEncoder(encodeError),
-		zipkinServer,
+		// kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "GetUser", logger))
 	}
 
 	m := mux.NewRouter()
@@ -31,8 +35,9 @@ func NewHTTPHandler(endpoints service.Endponits, otTracer opentracing.Tracer, zi
 		endpoints.GetUserEP,
 		decodeGetUserRequest,
 		encodeResponse,
-		append(options, kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "GetUser", logger)))...,
-	))
+		opts...
+	)).Methods("GET")
+
 	// m.Handle("/login", kitTransport.NewServer(
 	// 	endpoints.LoginEP,
 	// 	decodeLoginRequest,
@@ -41,6 +46,7 @@ func NewHTTPHandler(endpoints service.Endponits, otTracer opentracing.Tracer, zi
 	// ))
 
 	m.Handle("/metrics", promhttp.Handler())
+	m.Handle("/test", &S{})
 	return m
 }
 
@@ -51,4 +57,13 @@ func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 		Code: common.Error.Code(),
 		Msg:  err.Error(),
 	})
+}
+
+type S struct {
+}
+
+func (s *S) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("ok")
+
+	w.Write([]byte("ok"))
 }

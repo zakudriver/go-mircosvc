@@ -3,6 +3,7 @@ package transport
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
@@ -12,6 +13,7 @@ import (
 
 func decodeGetUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
+	fmt.Println(vars)
 	value, ok := vars["UID"]
 	if !ok {
 		return nil, common.ErrRouteArgs

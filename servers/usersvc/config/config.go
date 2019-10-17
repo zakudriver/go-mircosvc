@@ -1,12 +1,13 @@
 package config
 
 import (
+	"fmt"
 	"github.com/Zhan9Yunhua/blog-svr/utils"
 	"strconv"
 )
 
 type config struct {
-	ServiceName string `env:"SERVICE_NAME=user_svc"`
+	ServiceName  string `env:"SERVICE_NAME=user_svc"`
 	LogPath      string `env:"LOG_PATH=./usersvc.log"`
 	HttpPort     string `env:"HTTP_PORT=5001"`
 	GrpcPort     string `env:"GRPC_PORT=5002"`
@@ -47,4 +48,5 @@ func initConfig() {
 		panic(err)
 	}
 	c.RetryTimeout = int(retryTimeout)
+	fmt.Printf("+%v\n", *c)
 }
