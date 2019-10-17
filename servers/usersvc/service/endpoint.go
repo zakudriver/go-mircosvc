@@ -4,12 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/Zhan9Yunhua/blog-svr/common"
-	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/ratelimit"
 	"github.com/go-kit/kit/tracing/opentracing"
 	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
-	"github.com/sony/gobreaker"
 	"golang.org/x/time/rate"
 	"time"
 
@@ -27,8 +25,10 @@ func NewEndpoints(svc IUserService, otTracer stdopentracing.Tracer, zipkinTracer
 	var getUserEndpoint endpoint.Endpoint
 	{
 		getUserEndpoint = MakeGetUserEndpoint(svc)
+
+		// middleware.RateLimitterMiddleware()
 		getUserEndpoint = ratelimit.NewErroringLimiter(rate.NewLimiter(rate.Every(time.Second), 1))(getUserEndpoint)
-		getUserEndpoint = circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{}))(getUserEndpoint)
+		// getUserEndpoint = circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{}))(getUserEndpoint)
 		getUserEndpoint = opentracing.TraceServer(otTracer, "GetUser")(getUserEndpoint)
 		getUserEndpoint = kitZipkin.TraceEndpoint(zipkinTracer, "GetUser")(getUserEndpoint)
 		// sumEndpoint = LoggingMiddleware(log.With(logger, "method", "Sum"))(sumEndpoint)

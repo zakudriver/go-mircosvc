@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	"time"
@@ -20,19 +21,19 @@ var (
 func NewPrometheusMiddleware() ServiceMiddleware {
 	requestCount := kitPrometheus.NewCounterFrom(prometheus.CounterOpts{
 		Namespace: "user_space",
-		Subsystem: "user_service",
+		Subsystem: "usersvc",
 		Name:      "request_count",
 		Help:      "Number of requests received.",
 	}, fieldKeys)
 	requestLatency := kitPrometheus.NewSummaryFrom(prometheus.SummaryOpts{
 		Namespace: "user_space",
-		Subsystem: "user_service",
+		Subsystem: "usersvc",
 		Name:      "request_latency_microseconds",
 		Help:      "Total duration of requests in microseconds.",
 	}, fieldKeys)
 	countResult := kitPrometheus.NewSummaryFrom(prometheus.SummaryOpts{
 		Namespace: "user_space",
-		Subsystem: "user_service",
+		Subsystem: "usersvc",
 		Name:      "count_result",
 		Help:      "The result of each count method.",
 	}, []string{})
@@ -49,14 +50,14 @@ type prometheusMiddleware struct {
 	service.IUserService
 }
 
-func (pm prometheusMiddleware) GetUser(s string) (output string, err error) {
+func (pm prometheusMiddleware) GetUser(ctx context.Context, s string) (output string, err error) {
 	defer func(begin time.Time) {
 		lvs := []string{"method", "get_user", "error", fmt.Sprint(err != nil)}
 		pm.requestCount.With(lvs...).Add(1)
 		pm.requestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	output, err = pm.IUserService.GetUser(s)
+	output, err = pm.IUserService.GetUser(ctx, s)
 	return
 }
 
