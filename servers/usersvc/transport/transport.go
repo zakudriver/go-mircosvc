@@ -27,6 +27,7 @@ func NewHTTPHandler(endpoints endpoints.Endponits, otTracer opentracing.Tracer, 
 	}
 
 	m := mux.NewRouter()
+	m.Handle("/metrics", promhttp.Handler())
 	{
 		ops := append(opts,
 			kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "usersvc_GetUser",
@@ -41,7 +42,6 @@ func NewHTTPHandler(endpoints endpoints.Endponits, otTracer opentracing.Tracer, 
 	// 	append(options, kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Login", logger)))...,
 	// ))
 
-	m.Handle("/metrics", promhttp.Handler())
 	return m
 }
 
