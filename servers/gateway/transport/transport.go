@@ -3,8 +3,10 @@ package transport
 import (
 	"context"
 	"github.com/Zhan9Yunhua/blog-svr/servers/gateway/config"
-	userSvcSer "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
-	userSvcTransport "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/transport"
+	usersvcEndpoints "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
+
+	usersvcSer "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
+	usersvcTransport "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/transport"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/sd"
@@ -25,21 +27,21 @@ func MakeHandler(ctx context.Context, etcdClient etcdv3.Client, tracer opentraci
 	conf := config.GetConfig()
 	r := mux.NewRouter()
 	{
-		endpoints := userSvcSer.Endponits{}
-		ins, err := etcdv3.NewInstancer(etcdClient, "/user_svc", logger)
+		endpoints := usersvcEndpoints.Endponits{}
+		ins, err := etcdv3.NewInstancer(etcdClient, "/usersvc", logger)
 		if err != nil {
 			logger.Log(err)
 		}
 
 		{
-			factory := userSvcFactory(userSvcSer.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
+			factory := usersvcFactory(usersvcEndpoints.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
 			endpointer := sd.NewEndpointer(ins, factory, logger)
 			balancer := lb.NewRoundRobin(endpointer)
 
 			retry := lb.Retry(conf.RetryMax, time.Duration(conf.RetryTimeout), balancer)
 			endpoints.GetUserEP = retry
 		}
-		r.PathPrefix("/user").Handler(http.StripPrefix("/user", userSvcTransport.NewHTTPHandler(endpoints, tracer,
+		r.PathPrefix("/usersvc").Handler(http.StripPrefix("/usersvc", usersvcTransport.NewHTTPHandler(endpoints, tracer,
 			zipkinTracer, logger)))
 	}
 
@@ -62,14 +64,14 @@ func MakeHandler(ctx context.Context, etcdClient etcdv3.Client, tracer opentraci
 // 	return makeEndpoint(svc), nil
 // }
 
-func userSvcFactory(makeEndpoint func(service userSvcSer.IUserService) endpoint.Endpoint, tracer opentracing.Tracer,
+func usersvcFactory(makeEndpoint func(service usersvcSer.IUserService) endpoint.Endpoint, tracer opentracing.Tracer,
 	zipkinTracer *zipkin.Tracer, logger log.Logger) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc.Dial(instance, grpc.WithInsecure())
 		if err != nil {
 			return nil, nil, err
 		}
-		service := userSvcTransport.NewGRPCClient(conn, tracer, zipkinTracer, logger)
+		service := usersvcTransport.NewGRPCClient(conn, tracer, zipkinTracer, logger)
 		endpoint := makeEndpoint(service)
 
 		return endpoint, conn, nil

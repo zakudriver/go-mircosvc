@@ -30,8 +30,8 @@ func NewHTTPHandler(endpoints endpoints.Endponits, otTracer opentracing.Tracer, 
 	m.Handle("/metrics", promhttp.Handler())
 	{
 		ops := append(opts,
-			kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "usersvc_GetUser",
-				logger)))
+			kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "usersvc_GetUser", logger)),
+		)
 		m.Handle("/{UID}", makeHandler(endpoints.GetUserEP, decodeGetUserRequest, encodeResponse, ops)).Methods("GET")
 	}
 

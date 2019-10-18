@@ -20,7 +20,7 @@ services:
     ports:
       - 9090:9090
     volumes:
-      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - $PWD/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
 #    networks:
 #      - net
 

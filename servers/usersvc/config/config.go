@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/Zhan9Yunhua/blog-svr/utils"
 	"strconv"
 )
@@ -47,4 +48,5 @@ func initConfig() {
 		panic(err)
 	}
 	c.RetryTimeout = int(retryTimeout)
+	fmt.Printf("%+v\n",c)
 }

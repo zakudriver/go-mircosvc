@@ -24,7 +24,7 @@ func main() {
 	logger := logger.NewLogger(conf.LogPath)
 
 	tracer := opentracing.GlobalTracer()
-	zipkinTracer := zipkin.NewZipkin(logger, conf.ZipkinAddr, "localhost:"+conf.HttpPort, conf.ServiceName)
+	zipkinTracer := zipkin.NewZipkin(logger, "", "localhost:"+conf.HttpPort, conf.ServiceName)
 
 	// etcdClient := etcd.NewEtcd(conf.EtcdHost + ":" + conf.EtcdPort)
 
