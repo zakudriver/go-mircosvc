@@ -2,6 +2,7 @@ package endpoints
 
 import (
 	"context"
+	"fmt"
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
 	"github.com/Zhan9Yunhua/blog-svr/shared/middleware"
@@ -59,12 +60,11 @@ func NewEndpoints(svc service.IUserService, logger log.Logger, otTracer stdopent
 
 func (e Endponits) GetUser(ctx context.Context, uid string) (string, error) {
 	r, err := e.GetUserEP(ctx, uid)
-
 	if err != nil {
 		return "", err
 	}
 	response := r.(string)
-	return response, err
+	return response, nil
 }
 
 func handleEndpointMiddleware(endpoint endpoint.Endpoint, middlewares ...endpoint.Middleware) endpoint.Endpoint {
@@ -77,9 +77,14 @@ func handleEndpointMiddleware(endpoint endpoint.Endpoint, middlewares ...endpoin
 
 func MakeGetUserEndpoint(svc service.IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(GetUserRequest)
+		fmt.Printf("%+v\n", request)
+		req, ok := request.(GetUserRequest)
+		if !ok {
+			return nil, nil
+		}
 
-		name, err := svc.GetUser(ctx, req.UID)
+		fmt.Println(req.Uid)
+		name, err := svc.GetUser(ctx, req.Uid)
 		if err != nil {
 			return nil, err
 		}

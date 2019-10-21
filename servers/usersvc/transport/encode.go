@@ -28,5 +28,5 @@ func encodeResponse(_ context.Context, w http.ResponseWriter, response interface
 
 func encodeGRPCGetUserResponse(_ context.Context, response interface{}) (interface{}, error) {
 	resp := response.(endpoints.GetUserRequest)
-	return &userPb.GetUserRequest{Uid: resp.UID}, nil
+	return &userPb.GetUserRequest{Uid: resp.Uid}, nil
 }

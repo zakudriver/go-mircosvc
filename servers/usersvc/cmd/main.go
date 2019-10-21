@@ -10,13 +10,21 @@ import (
 	"github.com/Zhan9Yunhua/blog-svr/shared/logger"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/reflection"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/Zhan9Yunhua/blog-svr/shared/zipkin"
+	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
+	sharedZipkin "github.com/Zhan9Yunhua/blog-svr/shared/zipkin"
+	kitGrpc "github.com/go-kit/kit/transport/grpc"
 	"github.com/opentracing/opentracing-go"
+	"github.com/openzipkin/zipkin-go"
+	healthgrpc "google.golang.org/grpc/health/grpc_health_v1"
 )
 
 func main() {
@@ -24,7 +32,7 @@ func main() {
 	logger := logger.NewLogger(conf.LogPath)
 
 	tracer := opentracing.GlobalTracer()
-	zipkinTracer := zipkin.NewZipkin(logger, "", "localhost:"+conf.HttpPort, conf.ServiceName)
+	zipkinTracer := sharedZipkin.NewZipkin(logger, "", "localhost:"+conf.HttpPort, conf.ServiceName)
 
 	// etcdClient := etcd.NewEtcd(conf.EtcdHost + ":" + conf.EtcdPort)
 
@@ -35,7 +43,12 @@ func main() {
 	handle := transport.NewHTTPHandler(ep, tracer, zipkinTracer, logger)
 
 	errs := make(chan error, 1)
+
+	hs := health.NewServer()
+	hs.SetServingStatus(conf.ServiceName, healthgrpc.HealthCheckResponse_SERVING)
+
 	go httpServer(logger, fmt.Sprintf(":%s", conf.HttpPort), handle, errs)
+	go grpcServer(ep, tracer, zipkinTracer, conf.GrpcPort, hs, logger, errs)
 
 	go func() {
 		c := make(chan os.Signal)
@@ -57,6 +70,24 @@ func httpServer(logger log.Logger, addr string, handler http.Handler, errs chan 
 		logger.Log("listen: %s\n", err)
 	}
 	errs <- err
+}
+
+func grpcServer(endpoints endpoints.Endponits, tracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
+	port string, hs *health.Server, logger log.Logger, errs chan error) {
+	p := fmt.Sprintf(":%s", port)
+	listener, err := net.Listen("tcp", p)
+	if err != nil {
+		level.Error(logger).Log("protocol", "GRPC", "listen", port, "err", err)
+		os.Exit(1)
+	}
+
+	var server *grpc.Server
+	level.Info(logger).Log("protocol", "GRPC", "protocol", "GRPC", "exposed", port)
+	server = grpc.NewServer(grpc.UnaryInterceptor(kitGrpc.Interceptor))
+	userPb.RegisterUserSvcServer(server, transport.MakeGRPCServer(endpoints, tracer, zipkinTracer, logger))
+	healthgrpc.RegisterHealthServer(server, hs)
+	reflection.Register(server)
+	errs <- server.Serve(listener)
 }
 
 func accessControl(h http.Handler) http.Handler {

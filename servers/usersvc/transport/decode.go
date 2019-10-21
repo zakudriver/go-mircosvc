@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/Zhan9Yunhua/blog-svr/common"
-	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -16,7 +15,7 @@ func decodeGetUserRequest(_ context.Context, r *http.Request) (interface{}, erro
 	if !ok {
 		return nil, common.ErrRouteArgs
 	}
-	return endpoints.GetUserRequest{UID: value}, nil
+	return endpoints.GetUserRequest{Uid: value}, nil
 }
 
 func decodeLoginRequest(_ context.Context, r *http.Request) (interface{}, error) {
@@ -28,6 +27,6 @@ func decodeLoginRequest(_ context.Context, r *http.Request) (interface{}, error)
 }
 
 func decodeGRPCGetUserRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req := grpcReq.(*userPb.GetUserRequest)
-	return endpoints.GetUserRequest{UID: req.Uid}, nil
+	// req := grpcReq.(*userPb.GetUserRequest)
+	return endpoints.GetUserRequest{Uid: grpcReq.(string)}, nil
 }
