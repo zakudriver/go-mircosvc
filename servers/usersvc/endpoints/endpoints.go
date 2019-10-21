@@ -59,7 +59,7 @@ func NewEndpoints(svc service.IUserService, logger log.Logger, otTracer stdopent
 }
 
 func (e Endponits) GetUser(ctx context.Context, uid string) (string, error) {
-	r, err := e.GetUserEP(ctx, GetUserRequest{uid: uid})
+	r, err := e.GetUserEP(ctx, GetUserRequest{Uid: uid})
 	if err != nil {
 		return "", err
 	}
@@ -84,7 +84,7 @@ func MakeGetUserEndpoint(svc service.IUserService) endpoint.Endpoint {
 		}
 
 		fmt.Println("get")
-		name, err := svc.GetUser(ctx, req.uid)
+		name, err := svc.GetUser(ctx, req.Uid)
 		if err != nil {
 			return nil, err
 		}

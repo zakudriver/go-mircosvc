@@ -42,7 +42,7 @@ func main() {
 
 	handle := transport.NewHTTPHandler(ep, tracer, zipkinTracer, logger)
 
-	errs := make(chan error, 1)
+	errs := make(chan error, 2)
 
 	hs := health.NewServer()
 	hs.SetServingStatus(conf.ServiceName, healthgrpc.HealthCheckResponse_SERVING)
@@ -84,7 +84,7 @@ func grpcServer(endpoints endpoints.Endponits, tracer opentracing.Tracer, zipkin
 	var server *grpc.Server
 	level.Info(logger).Log("protocol", "GRPC", "protocol", "GRPC", "exposed", port)
 	server = grpc.NewServer(grpc.UnaryInterceptor(kitGrpc.Interceptor))
-	userPb.RegisterUserSvcServer(server, transport.MakeGRPCServer(endpoints, tracer, zipkinTracer, logger))
+	userPb.RegisterUsersvcServer(server, transport.MakeGRPCServer(endpoints, tracer, zipkinTracer, logger))
 	healthgrpc.RegisterHealthServer(server, hs)
 	reflection.Register(server)
 	errs <- server.Serve(listener)

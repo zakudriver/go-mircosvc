@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
+
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
 	"github.com/gorilla/mux"
-	"net/http"
 )
 
 func decodeGetUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
@@ -17,7 +18,7 @@ func decodeGetUserRequest(_ context.Context, r *http.Request) (interface{}, erro
 	if !ok {
 		return nil, common.ErrRouteArgs
 	}
-	return endpoints.GetUserRequest{uid: value}, nil
+	return endpoints.GetUserRequest{Uid: value}, nil
 }
 
 func decodeLoginRequest(_ context.Context, r *http.Request) (interface{}, error) {
@@ -33,7 +34,7 @@ func decodeGRPCGetUserResponse(_ context.Context, grpcReply interface{}) (interf
 	if !ok {
 		return nil, errors.New("interface conversion error")
 	}
-	return endpoints.GetUserRequest{uid: r.Uid}, nil
+	return endpoints.GetUserRequest{Uid: r.Uid}, nil
 }
 
 func decodeGRPCGetUserRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {

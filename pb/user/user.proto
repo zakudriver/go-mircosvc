@@ -2,8 +2,7 @@ syntax = "proto3";
 
 package pb;
 
-// The Addsvc service definition.
-service UserSvc {
+service Usersvc {
 
     rpc GetUser (GetUserRequest) returns (GetUserReply) {
     }
@@ -13,11 +12,11 @@ service UserSvc {
 }
 
 message GetUserRequest {
-    string Uid = 1;
+    string uid = 1;
 }
 
 message GetUserReply {
-    string Uid = 1;
+    string uid = 1;
 }
 
 //message LoginRequest {

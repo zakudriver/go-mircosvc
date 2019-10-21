@@ -6,7 +6,6 @@ networks:
 
 services:
   etcd:
-#    build: ./Dockerfile.etcd
     image: xieyanze/etcd3:latest
     container_name: micro-etcd
     ports:

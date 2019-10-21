@@ -25,7 +25,7 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type GetUserRequest struct {
-	Uid                  string   `protobuf:"bytes,1,opt,name=Uid,proto3" json:"Uid,omitempty"`
+	Uid                  string   `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -64,7 +64,7 @@ func (m *GetUserRequest) GetUid() string {
 }
 
 type GetUserReply struct {
-	Uid                  string   `protobuf:"bytes,1,opt,name=Uid,proto3" json:"Uid,omitempty"`
+	Uid                  string   `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -114,11 +114,11 @@ var fileDescriptor_116e343673f7ffaf = []byte{
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2a, 0x2d, 0x4e, 0x2d,
 	0xd2, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x2a, 0x48, 0x52, 0x52, 0xe2, 0xe2, 0x73, 0x4f,
 	0x2d, 0x09, 0x2d, 0x4e, 0x2d, 0x0a, 0x4a, 0x2d, 0x2c, 0x4d, 0x2d, 0x2e, 0x11, 0x12, 0xe0, 0x62,
-	0x0e, 0xcd, 0x4c, 0x91, 0x60, 0x54, 0x60, 0xd4, 0xe0, 0x0c, 0x02, 0x31, 0x95, 0x14, 0xb8, 0x78,
-	0xe0, 0x6a, 0x0a, 0x72, 0x2a, 0x31, 0x55, 0x18, 0xd9, 0x70, 0xb1, 0x83, 0xa4, 0x83, 0xcb, 0x92,
+	0x2e, 0xcd, 0x4c, 0x91, 0x60, 0x54, 0x60, 0xd4, 0xe0, 0x0c, 0x02, 0x31, 0x95, 0x14, 0xb8, 0x78,
+	0xe0, 0x6a, 0x0a, 0x72, 0x2a, 0x31, 0x55, 0x18, 0xd9, 0x70, 0xb1, 0x83, 0xa4, 0x8b, 0xcb, 0x92,
 	0x85, 0x0c, 0xb9, 0xd8, 0xa1, 0x8a, 0x85, 0x84, 0xf4, 0x0a, 0x92, 0xf4, 0x50, 0x4d, 0x97, 0x12,
 	0x40, 0x11, 0x2b, 0xc8, 0xa9, 0x54, 0x62, 0x48, 0x62, 0x03, 0x3b, 0xc7, 0x18, 0x10, 0x00, 0x00,
-	0xff, 0xff, 0x52, 0xae, 0x37, 0x9f, 0x9c, 0x00, 0x00, 0x00,
+	0xff, 0xff, 0x98, 0xc3, 0x28, 0x05, 0x9c, 0x00, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -129,72 +129,72 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// UserSvcClient is the client API for UserSvc service.
+// UsersvcClient is the client API for Usersvc service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type UserSvcClient interface {
+type UsersvcClient interface {
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserReply, error)
 }
 
-type userSvcClient struct {
+type usersvcClient struct {
 	cc *grpc.ClientConn
 }
 
-func NewUserSvcClient(cc *grpc.ClientConn) UserSvcClient {
-	return &userSvcClient{cc}
+func NewUsersvcClient(cc *grpc.ClientConn) UsersvcClient {
+	return &usersvcClient{cc}
 }
 
-func (c *userSvcClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserReply, error) {
+func (c *usersvcClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserReply, error) {
 	out := new(GetUserReply)
-	err := c.cc.Invoke(ctx, "/pb.UserSvc/GetUser", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pb.Usersvc/GetUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// UserSvcServer is the server API for UserSvc service.
-type UserSvcServer interface {
+// UsersvcServer is the server API for Usersvc service.
+type UsersvcServer interface {
 	GetUser(context.Context, *GetUserRequest) (*GetUserReply, error)
 }
 
-// UnimplementedUserSvcServer can be embedded to have forward compatible implementations.
-type UnimplementedUserSvcServer struct {
+// UnimplementedUsersvcServer can be embedded to have forward compatible implementations.
+type UnimplementedUsersvcServer struct {
 }
 
-func (*UnimplementedUserSvcServer) GetUser(ctx context.Context, req *GetUserRequest) (*GetUserReply, error) {
+func (*UnimplementedUsersvcServer) GetUser(ctx context.Context, req *GetUserRequest) (*GetUserReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
 
-func RegisterUserSvcServer(s *grpc.Server, srv UserSvcServer) {
-	s.RegisterService(&_UserSvc_serviceDesc, srv)
+func RegisterUsersvcServer(s *grpc.Server, srv UsersvcServer) {
+	s.RegisterService(&_Usersvc_serviceDesc, srv)
 }
 
-func _UserSvc_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Usersvc_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserSvcServer).GetUser(ctx, in)
+		return srv.(UsersvcServer).GetUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pb.UserSvc/GetUser",
+		FullMethod: "/pb.Usersvc/GetUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserSvcServer).GetUser(ctx, req.(*GetUserRequest))
+		return srv.(UsersvcServer).GetUser(ctx, req.(*GetUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _UserSvc_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.UserSvc",
-	HandlerType: (*UserSvcServer)(nil),
+var _Usersvc_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "pb.Usersvc",
+	HandlerType: (*UsersvcServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetUser",
-			Handler:    _UserSvc_GetUser_Handler,
+			Handler:    _Usersvc_GetUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

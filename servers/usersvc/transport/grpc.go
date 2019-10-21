@@ -2,6 +2,8 @@ package transport
 
 import (
 	"context"
+	"time"
+
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
@@ -11,7 +13,6 @@ import (
 	"golang.org/x/time/rate"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"time"
 
 	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
@@ -26,12 +27,12 @@ type grpcServer struct {
 	getUser kitGrpcTransport.Handler `json:""`
 }
 
-func (s *grpcServer) GetUser(ctx context.Context, req *userPb.GetUserRequest) (rep *userPb.GetUserReply, err error) {
+func (s *grpcServer) GetUser(ctx context.Context, req *userPb.GetUserRequest) (*userPb.GetUserReply, error) {
 	_, rp, err := s.getUser.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, grpcEncodeError(err)
 	}
-	rep = rp.(*userPb.GetUserReply)
+	rep := rp.(*userPb.GetUserReply)
 	return rep, nil
 }
 
@@ -49,7 +50,7 @@ func NewGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTra
 	{
 		getUserEndpoint = kitGrpcTransport.NewClient(
 			conn,
-			"pb.UserSvc",
+			"pb.Usersvc",
 			"GetUser",
 			encodeGRPCGetUserRequest,
 			decodeGRPCGetUserResponse,
@@ -66,7 +67,7 @@ func NewGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTra
 }
 
 func MakeGRPCServer(endpoints endpoints.Endponits, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
-	logger log.Logger) (req userPb.UserSvcServer) {
+	logger log.Logger) userPb.UsersvcServer {
 	zipkinServer := kitZipkin.GRPCServerTrace(zipkinTracer)
 
 	options := []kitGrpcTransport.ServerOption{
