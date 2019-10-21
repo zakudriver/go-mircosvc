@@ -1,7 +1,7 @@
 package endpoints
 
 type GetUserRequest struct {
-	Uid string `json:"uid"`
+	uid string `json:"uid"`
 }
 
 type LoginRequest struct {

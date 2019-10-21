@@ -59,10 +59,11 @@ func NewEndpoints(svc service.IUserService, logger log.Logger, otTracer stdopent
 }
 
 func (e Endponits) GetUser(ctx context.Context, uid string) (string, error) {
-	r, err := e.GetUserEP(ctx, uid)
+	r, err := e.GetUserEP(ctx, GetUserRequest{uid: uid})
 	if err != nil {
 		return "", err
 	}
+	fmt.Println(r)
 	response := r.(string)
 	return response, nil
 }
@@ -77,17 +78,18 @@ func handleEndpointMiddleware(endpoint endpoint.Endpoint, middlewares ...endpoin
 
 func MakeGetUserEndpoint(svc service.IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		fmt.Printf("%+v\n", request)
 		req, ok := request.(GetUserRequest)
 		if !ok {
 			return nil, nil
 		}
 
-		fmt.Println(req.Uid)
-		name, err := svc.GetUser(ctx, req.Uid)
+		fmt.Println("get")
+		name, err := svc.GetUser(ctx, req.uid)
 		if err != nil {
 			return nil, err
 		}
+
+		fmt.Println("req.Uid")
 		data := map[string]interface{}{
 			"id": name,
 		}

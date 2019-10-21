@@ -3,7 +3,9 @@ package transport
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/Zhan9Yunhua/blog-svr/common"
+	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -15,7 +17,7 @@ func decodeGetUserRequest(_ context.Context, r *http.Request) (interface{}, erro
 	if !ok {
 		return nil, common.ErrRouteArgs
 	}
-	return endpoints.GetUserRequest{Uid: value}, nil
+	return endpoints.GetUserRequest{uid: value}, nil
 }
 
 func decodeLoginRequest(_ context.Context, r *http.Request) (interface{}, error) {
@@ -26,7 +28,18 @@ func decodeLoginRequest(_ context.Context, r *http.Request) (interface{}, error)
 	return request, nil
 }
 
+func decodeGRPCGetUserResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	r, ok := grpcReply.(*userPb.GetUserReply)
+	if !ok {
+		return nil, errors.New("interface conversion error")
+	}
+	return endpoints.GetUserRequest{uid: r.Uid}, nil
+}
+
 func decodeGRPCGetUserRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	// req := grpcReq.(*userPb.GetUserRequest)
-	return endpoints.GetUserRequest{Uid: grpcReq.(string)}, nil
+	r, ok := grpcReq.(*userPb.GetUserReply)
+	if !ok {
+		return nil, errors.New("interface conversion error")
+	}
+	return endpoints.GetUserRequest{Uid: r.Uid}, nil
 }

@@ -8,19 +8,18 @@ import (
 	"github.com/go-kit/kit/ratelimit"
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
 	kitGrpcTransport "github.com/go-kit/kit/transport/grpc"
+	"golang.org/x/time/rate"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
-	"github.com/openzipkin/zipkin-go"
-	"golang.org/x/time/rate"
-	"google.golang.org/grpc"
 	"time"
 
 	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
+	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 	kitGrpctransport "github.com/go-kit/kit/transport/grpc"
 	"github.com/opentracing/opentracing-go"
+	"github.com/openzipkin/zipkin-go"
+	"google.golang.org/grpc"
 )
 
 type grpcServer struct {
@@ -52,17 +51,13 @@ func NewGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTra
 			conn,
 			"pb.UserSvc",
 			"GetUser",
-			decodeGRPCGetUserRequest,
-			encodeGRPCGetUserResponse,
+			encodeGRPCGetUserRequest,
+			decodeGRPCGetUserResponse,
 			userPb.GetUserReply{},
 			append(options, kitGrpctransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,
 		).Endpoint()
 		getUserEndpoint = kitOpentracing.TraceClient(otTracer, "GetUser")(getUserEndpoint)
 		getUserEndpoint = limiter(getUserEndpoint)
-		// getUserEndpoint = circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{
-		// 	Name:    "GetUser",
-		// 	Timeout: 30 * time.Second,
-		// }))(getUserEndpoint)
 	}
 
 	return endpoints.Endponits{
@@ -75,29 +70,18 @@ func MakeGRPCServer(endpoints endpoints.Endponits, otTracer opentracing.Tracer, 
 	zipkinServer := kitZipkin.GRPCServerTrace(zipkinTracer)
 
 	options := []kitGrpcTransport.ServerOption{
-		kitGrpcTransport.ServerErrorLogger(logger),
 		zipkinServer,
 	}
 
 	return &grpcServer{
 		getUser: kitGrpcTransport.NewServer(
 			endpoints.GetUserEP,
-			decodeGRPCSumRequest,
-			encodeGRPCSumResponse,
+			decodeGRPCGetUserRequest,
+			encodeGRPCGetUserResponse,
 			append(options, kitGrpcTransport.ServerBefore(kitOpentracing.GRPCToContext(otTracer, "GetUser",
 				logger)))...,
 		),
 	}
-}
-
-func decodeGRPCSumRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	// req := grpcReq.(*pb.SumRequest)
-	return endpoints.GetUserRequest{Uid: grpcReq.(string)}, nil
-}
-
-func encodeGRPCSumResponse(_ context.Context, grpcReply interface{}) (res interface{}, err error) {
-	// reply := grpcReply.(endpoints.SumResponse)
-	return &userPb.GetUserReply{Uid: grpcReply.(string)}, nil;
 }
 
 func grpcEncodeError(err error) error {
