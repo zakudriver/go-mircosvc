@@ -16,7 +16,7 @@ import (
 	kitTransport "github.com/go-kit/kit/transport/http"
 )
 
-func userSvcFactory(ctx context.Context, method, path string) sd.Factory {
+func svcFactory(method, path string) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		if !strings.HasPrefix(instance, "http") {
 			instance = "http://" + instance
