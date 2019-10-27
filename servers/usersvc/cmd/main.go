@@ -2,23 +2,24 @@ package main
 
 import (
 	"fmt"
+	"net"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/config"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/middleware"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/transport"
-	"github.com/Zhan9Yunhua/blog-svr/shared/etcd"
+	sharedEtcd "github.com/Zhan9Yunhua/blog-svr/shared/etcd"
 	"github.com/Zhan9Yunhua/blog-svr/shared/logger"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/reflection"
-	"net"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 
 	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
 	sharedZipkin "github.com/Zhan9Yunhua/blog-svr/shared/zipkin"
@@ -35,8 +36,9 @@ func main() {
 	tracer := opentracing.GlobalTracer()
 	zipkinTracer := sharedZipkin.NewZipkin(logger, "", "localhost:"+conf.HttpPort, conf.ServiceName)
 
-	etcdClient := etcd.NewEtcd(conf.EtcdHost + ":" + conf.EtcdPort)
-	etcdClient.Register()
+	etcdClient := sharedEtcd.NewEtcd(conf.EtcdHost + ":" + conf.EtcdPort)
+	register := sharedEtcd.Register("/usersvc", "localhost:5002", etcdClient, logger)
+	defer register.Register()
 
 	svc := service.NewUserService()
 	svc = middleware.MakeServiceMiddleware(svc)
