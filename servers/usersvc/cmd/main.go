@@ -7,6 +7,7 @@ import (
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/middleware"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/transport"
+	"github.com/Zhan9Yunhua/blog-svr/shared/etcd"
 	"github.com/Zhan9Yunhua/blog-svr/shared/logger"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -34,7 +35,8 @@ func main() {
 	tracer := opentracing.GlobalTracer()
 	zipkinTracer := sharedZipkin.NewZipkin(logger, "", "localhost:"+conf.HttpPort, conf.ServiceName)
 
-	// etcdClient := etcd.NewEtcd(conf.EtcdHost + ":" + conf.EtcdPort)
+	etcdClient := etcd.NewEtcd(conf.EtcdHost + ":" + conf.EtcdPort)
+	etcdClient.Register()
 
 	svc := service.NewUserService()
 	svc = middleware.MakeServiceMiddleware(svc)

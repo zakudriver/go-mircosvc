@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/Zhan9Yunhua/blog-svr/common"
@@ -29,6 +30,7 @@ func encodeResponse(_ context.Context, w http.ResponseWriter, response interface
 
 func encodeGRPCGetUserRequest(_ context.Context, request interface{}) (interface{}, error) {
 	r, ok := request.(endpoints.GetUserRequest)
+	fmt.Println("encodeGRPCGetUserRequest", request)
 	if !ok {
 		return nil, errors.New("interface conversion error")
 	}

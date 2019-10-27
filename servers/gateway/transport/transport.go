@@ -31,7 +31,7 @@ func MakeHandler(ctx context.Context, etcdClient etcdv3.Client, tracer opentraci
 		// }
 
 		{
-			factory, _ := usersvcfactory("localhost:5002", usersvcEndpoints.MakeGetUserEndpoint, tracer,
+			factory, _ := usersvcfactory(":5002", usersvcEndpoints.MakeGetUserEndpoint, tracer,
 				zipkinTracer,
 				logger)
 			// endpointer := sd.NewEndpointer(ins, factory, logger)

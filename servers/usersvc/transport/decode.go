@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/Zhan9Yunhua/blog-svr/common"
@@ -30,6 +31,7 @@ func decodeLoginRequest(_ context.Context, r *http.Request) (interface{}, error)
 }
 
 func decodeGRPCGetUserResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	fmt.Println("decodeGRPCGetUserResponse", grpcReply)
 	r, ok := grpcReply.(*userPb.GetUserReply)
 	if !ok {
 		return nil, errors.New("interface conversion error")
