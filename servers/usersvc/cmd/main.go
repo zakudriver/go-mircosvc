@@ -37,8 +37,10 @@ func main() {
 	zipkinTracer := sharedZipkin.NewZipkin(logger, "", "localhost:"+conf.HttpPort, conf.ServiceName)
 
 	etcdClient := sharedEtcd.NewEtcd(conf.EtcdHost + ":" + conf.EtcdPort)
-	register := sharedEtcd.Register("/usersvc", "localhost:5002", etcdClient, logger)
-	defer register.Register()
+	httpRegister := sharedEtcd.Register("/usersvc", "localhost:5001", etcdClient, logger)
+	grpcRegister := sharedEtcd.Register("/usersvc", "localhost:5002", etcdClient, logger)
+	defer httpRegister.Register()
+	defer grpcRegister.Register()
 
 	svc := service.NewUserService()
 	svc = middleware.MakeServiceMiddleware(svc)
