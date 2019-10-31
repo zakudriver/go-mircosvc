@@ -12,7 +12,7 @@ type config struct {
 	GrpcPort     string `env:"GRPC_PORT=5002"`
 	ZipkinAddr   string `env:"ZIPKIN_ADDR=http://localhost:9411/api/v2/spans"`
 	RETRYMAX     string `env:"RETRY_MAX=3"`
-	RETRYTIMEOUT string `env:"RETRY_TIMEOUT=10000"`
+	RETRYTIMEOUT string `env:"RETRY_TIMEOUT=30000"`
 	EtcdHost     string `env:"ETCD_HOST=localhost"`
 	EtcdPort     string `env:"ETCD_PORT=2379"`
 	RetryMax     int

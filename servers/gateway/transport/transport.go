@@ -2,11 +2,6 @@ package transport
 
 import (
 	"context"
-	"io"
-	"net/http"
-	"time"
-
-	"github.com/Zhan9Yunhua/blog-svr/servers/gateway/config"
 	usersvcEndpoints "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
 	usersvcSer "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
 	usersvcTransport "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/transport"
@@ -14,36 +9,37 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/sd"
 	"github.com/go-kit/kit/sd/etcdv3"
-	"github.com/go-kit/kit/sd/lb"
 	"github.com/gorilla/mux"
 	"github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
 	"google.golang.org/grpc"
+	"io"
+	"net/http"
 )
 
 func MakeHandler(ctx context.Context, etcdClient etcdv3.Client, tracer opentracing.Tracer,
 	zipkinTracer *zipkin.Tracer,
 	logger log.Logger) http.Handler {
-	conf := config.GetConfig()
+	// conf := config.GetConfig()
 	r := mux.NewRouter()
 	{
 		endpoints := usersvcEndpoints.Endponits{}
-		ins, err := etcdv3.NewInstancer(etcdClient, "/usersvc", logger)
-		if err != nil {
-			logger.Log(err)
-		}
 
 		{
-			// factory, _ := usersvcfactory(":5002", usersvcEndpoints.MakeGetUserEndpoint, tracer,
-			// 	zipkinTracer,
-			// 	logger)
-			factory := usersvcFactory(usersvcEndpoints.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
-			endpointer := sd.NewEndpointer(ins, factory, logger)
-			balancer := lb.NewRoundRobin(endpointer)
+			factory, _ := usersvcfactory("localhost:5002", usersvcEndpoints.MakeGetUserEndpoint, tracer,
+				zipkinTracer,
+				logger)
+			// ins, err := etcdv3.NewInstancer(etcdClient, "/usersvc", logger)
+			// if err != nil {
+			// 	logger.Log(err)
+			// }
+			// factory := usersvcFactory(usersvcEndpoints.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
+			// endpointer := sd.NewEndpointer(ins, factory, logger)
+			// balancer := lb.NewRoundRobin(endpointer)
 
-			retry := lb.Retry(conf.RetryMax, time.Duration(conf.RetryTimeout), balancer)
-			// endpoints.GetUserEP = factory
-			endpoints.GetUserEP = retry
+			// retry := lb.Retry(conf.RetryMax, time.Duration(conf.RetryTimeout), balancer)
+			endpoints.GetUserEP = factory
+			// endpoints.GetUserEP = retry
 		}
 		r.PathPrefix("/usersvc").Handler(http.StripPrefix("/usersvc", usersvcTransport.NewHTTPHandler(endpoints, tracer,
 			zipkinTracer, logger)))

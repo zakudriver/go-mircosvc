@@ -37,9 +37,9 @@ func main() {
 	zipkinTracer := sharedZipkin.NewZipkin(logger, "", "localhost:"+conf.HttpPort, conf.ServiceName)
 
 	etcdClient := sharedEtcd.NewEtcd(conf.EtcdHost + ":" + conf.EtcdPort)
-	httpRegister := sharedEtcd.Register("/usersvc", "localhost:5001", etcdClient, logger)
-	grpcRegister := sharedEtcd.Register("/usersvc", "localhost:5002", etcdClient, logger)
-	defer httpRegister.Register()
+	// httpRegister := sharedEtcd.Register("/usersvc", "localhost:5001", etcdClient, logger)
+	grpcRegister := sharedEtcd.Register("/usersvc", "127.0.0.1:5002", etcdClient, logger)
+	// defer httpRegister.Register()
 	defer grpcRegister.Register()
 
 	svc := service.NewUserService()
@@ -53,7 +53,7 @@ func main() {
 	hs := health.NewServer()
 	hs.SetServingStatus(conf.ServiceName, healthgrpc.HealthCheckResponse_SERVING)
 
-	go httpServer(logger, fmt.Sprintf(":%s", conf.HttpPort), handle, errs)
+	go httpServer(logger, conf.HttpPort, handle, errs)
 	go grpcServer(ep, tracer, zipkinTracer, conf.GrpcPort, hs, logger, errs)
 
 	go func() {
@@ -65,10 +65,12 @@ func main() {
 	level.Info(logger).Log("serviceName", conf.ServiceName, "terminated", <-errs)
 }
 
-func httpServer(logger log.Logger, addr string, handler http.Handler, errs chan error) {
+func httpServer(logger log.Logger, port string, handler http.Handler, errs chan error) {
 	http.Handle("/", accessControl(handler))
+
+	p := fmt.Sprintf(":%s", port)
 	svr := &http.Server{
-		Addr:    addr,
+		Addr:    p,
 		Handler: handler,
 	}
 	err := svr.ListenAndServe()
@@ -87,11 +89,12 @@ func grpcServer(endpoints endpoints.Endponits, tracer opentracing.Tracer, zipkin
 		os.Exit(1)
 	}
 
-	var server *grpc.Server
 	level.Info(logger).Log("protocol", "GRPC", "protocol", "GRPC", "exposed", port)
-	server = grpc.NewServer(grpc.UnaryInterceptor(kitGrpc.Interceptor))
+
+	server := grpc.NewServer(grpc.UnaryInterceptor(kitGrpc.Interceptor))
+
 	userPb.RegisterUsersvcServer(server, transport.MakeGRPCServer(endpoints, tracer, zipkinTracer, logger))
-	healthgrpc.RegisterHealthServer(server, hs)
+	// healthgrpc.RegisterHealthServer(server, hs)
 	reflection.Register(server)
 	errs <- server.Serve(listener)
 }

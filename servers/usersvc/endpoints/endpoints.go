@@ -2,8 +2,6 @@ package endpoints
 
 import (
 	"context"
-	"fmt"
-	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
 	"github.com/Zhan9Yunhua/blog-svr/shared/middleware"
 	"github.com/go-kit/kit/circuitbreaker"
@@ -63,9 +61,8 @@ func (e Endponits) GetUser(ctx context.Context, uid string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(r)
-	response := r.(string)
-	return response, nil
+	response := r.(GetUserRequest)
+	return response.Uid, nil
 }
 
 func handleEndpointMiddleware(endpoint endpoint.Endpoint, middlewares ...endpoint.Middleware) endpoint.Endpoint {
@@ -83,17 +80,12 @@ func MakeGetUserEndpoint(svc service.IUserService) endpoint.Endpoint {
 			return nil, nil
 		}
 
-		fmt.Println("get")
 		name, err := svc.GetUser(ctx, req.Uid)
 		if err != nil {
 			return nil, err
 		}
 
-		fmt.Println("req.Uid")
-		data := map[string]interface{}{
-			"id": name,
-		}
+		return GetUserResponse{Name: name}, nil
 
-		return common.Response{Code: common.OK.Code(), Msg: "ok", Data: data,}, nil
 	}
 }

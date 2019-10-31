@@ -4,12 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"net/http"
-
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
+	"net/http"
 )
 
 func encodeResponseSetCookie(_ context.Context, w http.ResponseWriter, response interface{}) error {
@@ -30,7 +28,6 @@ func encodeResponse(_ context.Context, w http.ResponseWriter, response interface
 
 func encodeGRPCGetUserRequest(_ context.Context, request interface{}) (interface{}, error) {
 	r, ok := request.(endpoints.GetUserRequest)
-	fmt.Println("encodeGRPCGetUserRequest", request)
 	if !ok {
 		return nil, errors.New("interface conversion error")
 	}
@@ -38,9 +35,9 @@ func encodeGRPCGetUserRequest(_ context.Context, request interface{}) (interface
 }
 
 func encodeGRPCGetUserResponse(_ context.Context, request interface{}) (interface{}, error) {
-	r, ok := request.(endpoints.GetUserRequest)
+	r, ok := request.(endpoints.GetUserResponse)
 	if !ok {
 		return nil, errors.New("interface conversion error")
 	}
-	return &userPb.GetUserRequest{Uid: r.Uid}, nil
+	return &userPb.GetUserReply{Uid: r.Name}, nil
 }

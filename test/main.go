@@ -1,21 +1,14 @@
 package main
 
-import (
-	"fmt"
-	"log"
-	"os"
-	"os/signal"
-	"time"
-)
+import "fmt"
 
 func main() {
 	// ch := make(chan int, 1)
-	fmt.Println("start")
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
+	type A struct {
+		Uid string
+		b   int
+	}
 
-	time.Sleep(time.Second * 5) // 假装 5 秒没准备好接收
-	s := <-c
-	fmt.Println("Signal")
-	log.Println(s)
+	var a interface{} = A{Uid: "11"}
+	fmt.Println(a.(A))
 }
