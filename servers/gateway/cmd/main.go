@@ -13,7 +13,6 @@ import (
 
 	"github.com/Zhan9Yunhua/blog-svr/servers/gateway/config"
 	"github.com/Zhan9Yunhua/blog-svr/servers/gateway/transport"
-	"github.com/Zhan9Yunhua/blog-svr/shared/etcd"
 	"github.com/Zhan9Yunhua/blog-svr/shared/logger"
 	sharedZipkin "github.com/Zhan9Yunhua/blog-svr/shared/zipkin"
 	"github.com/go-kit/kit/log"
@@ -24,6 +23,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
 
+	sharedEtcd "github.com/Zhan9Yunhua/blog-svr/shared/etcd"
 	kitTransportGrpc "github.com/go-kit/kit/transport/grpc"
 	"github.com/mwitkow/grpc-proxy/proxy"
 	"github.com/openzipkin/zipkin-go"
@@ -38,8 +38,7 @@ func main() {
 
 	tracer := opentracing.GlobalTracer()
 	zipkinTracer := sharedZipkin.NewZipkin(log, "", "localhost:"+conf.HttpPort, conf.ServiceName)
-
-	etcdClient := etcd.NewEtcd(conf.EtcdHost + ":" + conf.EtcdPort)
+	etcdClient := sharedEtcd.NewEtcd(conf.EtcdAddr)
 
 	ctx := context.Background()
 	r := transport.MakeHandler(ctx, etcdClient, tracer, zipkinTracer, log)

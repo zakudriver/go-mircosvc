@@ -46,10 +46,6 @@ func handleEtcd(addr string) (etcdv3.Client, error) {
 }
 
 func Register(prefix, addr string, etcdClient etcdv3.Client, logger log.Logger) *etcdv3.Registrar {
-	// conf := config.GetConfig()
-
-	// prefix := conf.Prefix         // known at compile time
-	// instance := conf.ServerAddr   // taken from runtime or platform, somehow
 	key := prefix + addr      // should be globally unique
 	value := "http://" + addr // based on our transport
 
@@ -63,8 +59,8 @@ func Register(prefix, addr string, etcdClient etcdv3.Client, logger log.Logger) 
 	return registrar
 }
 
-func NewInstancer(addr, prefix string, logger log.Logger) *etcdv3.Instancer {
-	ins, err := etcdv3.NewInstancer(NewEtcd(addr), prefix, logger)
+func NewInstancer(prefix string, etcdClient etcdv3.Client, logger log.Logger) *etcdv3.Instancer {
+	ins, err := etcdv3.NewInstancer(etcdClient, prefix, logger)
 	if err != nil {
 		panic(err)
 	}

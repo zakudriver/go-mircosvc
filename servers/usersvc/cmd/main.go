@@ -36,11 +36,11 @@ func main() {
 	tracer := opentracing.GlobalTracer()
 	zipkinTracer := sharedZipkin.NewZipkin(logger, "", "localhost:"+conf.HttpPort, conf.ServiceName)
 
-	etcdClient := sharedEtcd.NewEtcd(conf.EtcdHost + ":" + conf.EtcdPort)
-	// httpRegister := sharedEtcd.Register("/usersvc", "localhost:5001", etcdClient, logger)
-	grpcRegister := sharedEtcd.Register("/usersvc", "127.0.0.1:5002", etcdClient, logger)
-	// defer httpRegister.Register()
-	defer grpcRegister.Register()
+	etcdClient := sharedEtcd.NewEtcd(conf.EtcdAddr)
+	httpRegister := sharedEtcd.Register("/usersvc", "localhost:5001", etcdClient, logger)
+	// grpcRegister := sharedEtcd.Register("/usersvc", "localhost:5002", etcdClient, logger)
+	defer httpRegister.Register()
+	// defer grpcRegister.Register()
 
 	svc := service.NewUserService()
 	svc = middleware.MakeServiceMiddleware(svc)

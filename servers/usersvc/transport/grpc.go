@@ -2,15 +2,21 @@ package transport
 
 import (
 	"context"
+	"time"
+
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/ratelimit"
 	kitGrpcTransport "github.com/go-kit/kit/transport/grpc"
+	"golang.org/x/time/rate"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
+	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
+	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 	"github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
 	"google.golang.org/grpc"
@@ -31,12 +37,11 @@ func (s *grpcServer) GetUser(ctx context.Context, req *userPb.GetUserRequest) (*
 
 func NewGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
 	logger log.Logger) service.IUserService {
-	// limiter := ratelimit.NewErroringLimiter(rate.NewLimiter(rate.Every(time.Second), 100))
-	// zipkinClient := kitZipkin.GRPCClientTrace(zipkinTracer)
-	//
-	// options := []kitGrpcTransport.ClientOption{
-	// 	zipkinClient,
-	// }
+	limiter := ratelimit.NewErroringLimiter(rate.NewLimiter(rate.Every(time.Second), 100))
+
+	options := []kitGrpcTransport.ClientOption{
+		kitZipkin.GRPCClientTrace(zipkinTracer),
+	}
 
 	var getUserEndpoint endpoint.Endpoint
 	{
@@ -47,10 +52,10 @@ func NewGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTra
 			encodeGRPCGetUserRequest,
 			decodeGRPCGetUserResponse,
 			userPb.GetUserReply{},
-			// append(options, kitGrpctransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,
+			append(options, kitGrpcTransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,
 		).Endpoint()
-		// getUserEndpoint = kitOpentracing.TraceClient(otTracer, "GetUser")(getUserEndpoint)
-		// getUserEndpoint = limiter(getUserEndpoint)
+		getUserEndpoint = kitOpentracing.TraceClient(otTracer, "GetUser")(getUserEndpoint)
+		getUserEndpoint = limiter(getUserEndpoint)
 	}
 
 	return endpoints.Endponits{
@@ -60,19 +65,18 @@ func NewGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTra
 
 func MakeGRPCServer(endpoints endpoints.Endponits, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
 	logger log.Logger) userPb.UsersvcServer {
-	// zipkinServer := kitZipkin.GRPCServerTrace(zipkinTracer)
-	//
-	// options := []kitGrpcTransport.ServerOption{
-	// 	zipkinServer,
-	// }
+
+	options := []kitGrpcTransport.ServerOption{
+		kitZipkin.GRPCServerTrace(zipkinTracer),
+	}
 
 	return &grpcServer{
 		getUser: kitGrpcTransport.NewServer(
 			endpoints.GetUserEP,
 			decodeGRPCGetUserRequest,
 			encodeGRPCGetUserResponse,
-			// append(options, kitGrpcTransport.ServerBefore(kitOpentracing.GRPCToContext(otTracer, "GetUser",
-			// 	logger)))...,
+			append(options, kitGrpcTransport.ServerBefore(kitOpentracing.GRPCToContext(otTracer, "GetUser",
+				logger)))...,
 		),
 	}
 }

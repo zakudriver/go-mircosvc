@@ -13,8 +13,7 @@ type config struct {
 	ZipkinAddr   string `env:"ZIPKIN_ADDR=localhost:9411"`
 	RETRYMAX     string `env:"RETRY_MAX=3"`
 	RETRYTIMEOUT string `env:"RETRY_TIMEOUT=30000"`
-	EtcdHost     string `env:"ETCD_HOST=localhost"`
-	EtcdPort     string `env:"ETCD_PORT=2379"`
+	EtcdAddr     string `env:"ETCD_HOST=localhost:2379"`
 	RetryMax     int
 	RetryTimeout int
 }
