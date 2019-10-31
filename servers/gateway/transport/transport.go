@@ -1,35 +1,32 @@
 package transport
 
 import (
-	"context"
 	"io"
 	"net/http"
 	"time"
 
-	"github.com/Zhan9Yunhua/blog-svr/servers/gateway/config"
 	usersvcEndpoints "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
 	usersvcSer "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
 	usersvcTransport "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/transport"
+	"github.com/go-kit/kit/sd/lb"
+
 	sharedEtcd "github.com/Zhan9Yunhua/blog-svr/shared/etcd"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/sd"
 	"github.com/go-kit/kit/sd/etcdv3"
-	"github.com/go-kit/kit/sd/lb"
 	"github.com/gorilla/mux"
 	"github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
 	"google.golang.org/grpc"
 )
 
-func MakeHandler(ctx context.Context, etcdClient etcdv3.Client, tracer opentracing.Tracer,
+func MakeHandler(etcdClient etcdv3.Client, tracer opentracing.Tracer,
 	zipkinTracer *zipkin.Tracer,
 	logger log.Logger) http.Handler {
-	conf := config.GetConfig()
 	r := mux.NewRouter()
 	{
 		endpoints := usersvcEndpoints.Endponits{}
-
 		{
 			// factory, _ := usersvcfactory("localhost:5002", usersvcEndpoints.MakeGetUserEndpoint, tracer,
 			// 	zipkinTracer,
@@ -40,8 +37,7 @@ func MakeHandler(ctx context.Context, etcdClient etcdv3.Client, tracer opentraci
 			factory := usersvcFactory(usersvcEndpoints.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
 			endpointer := sd.NewEndpointer(ins, factory, logger)
 			balancer := lb.NewRoundRobin(endpointer)
-
-			retry := lb.Retry(conf.RetryMax, time.Duration(conf.RetryTimeout), balancer)
+			retry := lb.Retry(3, 3*time.Second, balancer)
 			endpoints.GetUserEP = retry
 		}
 		r.PathPrefix("/usersvc").Handler(http.StripPrefix("/usersvc", usersvcTransport.NewHTTPHandler(endpoints, tracer,
@@ -74,8 +70,6 @@ func usersvcFactory(makeEndpoint func(service usersvcSer.IUserService) endpoint.
 			return nil, nil, err
 		}
 		service := usersvcTransport.NewGRPCClient(conn, tracer, zipkinTracer, logger)
-		endpoint := makeEndpoint(service)
-
-		return endpoint, conn, nil
+		return makeEndpoint(service), conn, nil
 	}
 }

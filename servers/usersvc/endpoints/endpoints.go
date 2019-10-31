@@ -86,6 +86,5 @@ func MakeGetUserEndpoint(svc service.IUserService) endpoint.Endpoint {
 		}
 
 		return GetUserResponse{Name: name}, nil
-
 	}
 }

@@ -40,8 +40,7 @@ func main() {
 	zipkinTracer := sharedZipkin.NewZipkin(log, "", "localhost:"+conf.HttpPort, conf.ServiceName)
 	etcdClient := sharedEtcd.NewEtcd(conf.EtcdAddr)
 
-	ctx := context.Background()
-	r := transport.MakeHandler(ctx, etcdClient, tracer, zipkinTracer, log)
+	r := transport.MakeHandler( etcdClient, tracer, zipkinTracer, log)
 
 	errs := make(chan error, 2)
 	go httpServer(log, conf.HttpPort, r, errs)

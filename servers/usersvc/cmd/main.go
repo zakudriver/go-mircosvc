@@ -37,23 +37,23 @@ func main() {
 	zipkinTracer := sharedZipkin.NewZipkin(logger, "", "localhost:"+conf.HttpPort, conf.ServiceName)
 
 	etcdClient := sharedEtcd.NewEtcd(conf.EtcdAddr)
-	httpRegister := sharedEtcd.Register("/usersvc", "localhost:5001", etcdClient, logger)
-	// grpcRegister := sharedEtcd.Register("/usersvc", "localhost:5002", etcdClient, logger)
-	defer httpRegister.Register()
-	// defer grpcRegister.Register()
+	// httpRegister := sharedEtcd.Register("/usersvc", "localhost:5001", etcdClient, logger)
+	grpcRegister := sharedEtcd.Register("/usersvc", "localhost:"+conf.GrpcPort, etcdClient, logger)
+	// defer httpRegister.Register()
+	defer grpcRegister.Register()
 
 	svc := service.NewUserService()
 	svc = middleware.MakeServiceMiddleware(svc)
 	ep := endpoints.NewEndpoints(svc, logger, tracer, zipkinTracer)
 
-	handle := transport.NewHTTPHandler(ep, tracer, zipkinTracer, logger)
+	// handle := transport.NewHTTPHandler(ep, tracer, zipkinTracer, logger)
 
 	errs := make(chan error, 2)
 
 	hs := health.NewServer()
 	hs.SetServingStatus(conf.ServiceName, healthgrpc.HealthCheckResponse_SERVING)
 
-	go httpServer(logger, conf.HttpPort, handle, errs)
+	// go httpServer(logger, conf.HttpPort, handle, errs)
 	go grpcServer(ep, tracer, zipkinTracer, conf.GrpcPort, hs, logger, errs)
 
 	go func() {

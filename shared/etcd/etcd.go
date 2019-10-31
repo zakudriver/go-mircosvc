@@ -46,8 +46,8 @@ func handleEtcd(addr string) (etcdv3.Client, error) {
 }
 
 func Register(prefix, addr string, etcdClient etcdv3.Client, logger log.Logger) *etcdv3.Registrar {
-	key := prefix + addr      // should be globally unique
-	value := "http://" + addr // based on our transport
+	key := prefix + addr // should be globally unique
+	value := addr        // based on our transport
 
 	registrar := etcdv3.NewRegistrar(etcdClient, etcdv3.Service{
 		Key:   key,
