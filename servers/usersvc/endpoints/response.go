@@ -1,6 +1,6 @@
 package endpoints
 
-type GetUserResponse struct {
-	Name string `json:"name"`
-	Err  error  `json:"err"`
+type LoginResponse struct {
+	Username string `json:"username" validator:"required||string=[6|10]"`
+	Password string `json:"password" validator:"required||string=[6|10]"`
 }

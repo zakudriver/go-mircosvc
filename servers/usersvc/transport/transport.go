@@ -18,12 +18,12 @@ import (
 	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 )
 
-func NewHTTPHandler(endpoints endpoints.Endponits, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
+func NewHTTPHandler(endpoints *endpoints.Endponits, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
 	logger log.Logger) http.Handler {
 
 	opts := []kitTransport.ServerOption{
 		kitTransport.ServerErrorEncoder(encodeError),
-		kitZipkin.HTTPServerTrace(zipkinTracer,kitZipkin.Name("usersvc-transport")),
+		kitZipkin.HTTPServerTrace(zipkinTracer, kitZipkin.Name("usersvc-transport")),
 	}
 
 	m := mux.NewRouter()
@@ -35,12 +35,12 @@ func NewHTTPHandler(endpoints endpoints.Endponits, otTracer opentracing.Tracer, 
 		m.Handle("/{UID}", makeHandler(endpoints.GetUserEP, decodeGetUserRequest, encodeResponse, ops)).Methods("GET")
 	}
 
-	// m.Handle("/login", kitTransport.NewServer(
-	// 	endpoints.LoginEP,
-	// 	decodeLoginRequest,
-	// 	encodeResponseSetCookie,
-	// 	append(options, kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Login", logger)))...,
-	// ))
+	{
+		ops := append(opts,
+			kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "usersvc_Login", logger)),
+		)
+		m.Handle("/login", makeHandler(endpoints.LoginEP, decodeLoginRequest, encodeResponse, ops)).Methods("POST")
+	}
 
 	return m
 }

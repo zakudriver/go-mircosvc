@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
+	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
 	"github.com/go-kit/kit/metrics"
 	kitPrometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-type ServiceMiddleware func(servicer service.IUserService) service.IUserService
+type ServiceMiddleware func(servicer endpoints.IUserService) endpoints.IUserService
 
-func MakeServiceMiddleware(s service.IUserService) service.IUserService {
+func MakeServiceMiddleware(s endpoints.IUserService) endpoints.IUserService {
 	mids := []ServiceMiddleware{
-		NewPrometheusMiddleware(),
+		NewPrometheusMiddleware,
 	}
 	for _, m := range mids {
 		s = m(s)
@@ -28,7 +28,7 @@ var (
 	fieldKeys = []string{"method", "error"}
 )
 
-func NewPrometheusMiddleware() ServiceMiddleware {
+func NewPrometheusMiddleware(next endpoints.IUserService) endpoints.IUserService {
 	requestCount := kitPrometheus.NewCounterFrom(prometheus.CounterOpts{
 		Namespace: "user_space",
 		Subsystem: "usersvc",
@@ -47,17 +47,14 @@ func NewPrometheusMiddleware() ServiceMiddleware {
 		Name:      "count_result",
 		Help:      "The result of each count method.",
 	}, []string{})
-
-	return func(next service.IUserService) service.IUserService {
-		return prometheusMiddleware{requestCount, requestLatency, countResult, next}
-	}
+	return prometheusMiddleware{requestCount, requestLatency, countResult, next}
 }
 
 type prometheusMiddleware struct {
 	requestCount   metrics.Counter
 	requestLatency metrics.Histogram
 	countResult    metrics.Histogram
-	service.IUserService
+	endpoints.IUserService
 }
 
 func (pm prometheusMiddleware) GetUser(ctx context.Context, s string) (output string, err error) {

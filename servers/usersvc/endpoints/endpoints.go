@@ -2,7 +2,9 @@ package endpoints
 
 import (
 	"context"
-	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
+	"errors"
+	"fmt"
+	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/Zhan9Yunhua/blog-svr/shared/middleware"
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
@@ -19,12 +21,20 @@ import (
 
 type Endponits struct {
 	GetUserEP endpoint.Endpoint
-	// LoginEP    endpoints.Endpoint
+	LoginEP   endpoint.Endpoint
 	// SendCodeEP endpoints.Endpoint
 }
 
-func NewEndpoints(svc service.IUserService, logger log.Logger, otTracer stdopentracing.Tracer,
-	zipkinTracer *zipkin.Tracer) Endponits {
+func handleEndpointMiddleware(endpoint endpoint.Endpoint, middlewares ...endpoint.Middleware) endpoint.Endpoint {
+	for _, m := range middlewares {
+		endpoint = m(endpoint)
+	}
+
+	return endpoint
+}
+
+func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.Tracer,
+	zipkinTracer *zipkin.Tracer) *Endponits {
 	var middlewares []endpoint.Middleware
 	{
 		limiter := rate.NewLimiter(rate.Every(time.Second*1), 10)
@@ -47,17 +57,31 @@ func NewEndpoints(svc service.IUserService, logger log.Logger, otTracer stdopent
 			opentracing.TraceServer(otTracer, method),
 			kitZipkin.TraceEndpoint(zipkinTracer, method),
 		)
-
 		getUserEndpoint = handleEndpointMiddleware(getUserEndpoint, mids...)
 	}
 
-	return Endponits{
+	var loginEndpoint endpoint.Endpoint
+	{
+		method := "Login"
+		loginEndpoint = MakeLoginEndpoint(svc)
+
+		mids := append(
+			middlewares,
+			middleware.LoggingMiddleware(log.With(logger, "method", method)),
+			opentracing.TraceServer(otTracer, method),
+			kitZipkin.TraceEndpoint(zipkinTracer, method),
+		)
+		loginEndpoint = handleEndpointMiddleware(loginEndpoint, mids...)
+	}
+
+	return &Endponits{
 		GetUserEP: getUserEndpoint,
+		LoginEP:   loginEndpoint,
 	}
 }
 
-func (e Endponits) GetUser(ctx context.Context, uid string) (string, error) {
-	r, err := e.GetUserEP(ctx, GetUserRequest{Uid: uid})
+func (e *Endponits) GetUser(ctx context.Context, uid string) (string, error) {
+	r, err := e.GetUserEP(ctx, uid)
 	if err != nil {
 		return "", err
 	}
@@ -65,15 +89,16 @@ func (e Endponits) GetUser(ctx context.Context, uid string) (string, error) {
 	return response.Uid, nil
 }
 
-func handleEndpointMiddleware(endpoint endpoint.Endpoint, middlewares ...endpoint.Middleware) endpoint.Endpoint {
-	for _, m := range middlewares {
-		endpoint = m(endpoint)
+func (e *Endponits) Login(ctx context.Context, request LoginRequest) (LoginResponse, error) {
+	r, err := e.GetUserEP(ctx, request)
+	if err != nil {
+		return LoginResponse{}, err
 	}
-
-	return endpoint
+	response := r.(LoginResponse)
+	return response, nil
 }
 
-func MakeGetUserEndpoint(svc service.IUserService) endpoint.Endpoint {
+func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(GetUserRequest)
 		if !ok {
@@ -85,6 +110,23 @@ func MakeGetUserEndpoint(svc service.IUserService) endpoint.Endpoint {
 			return nil, err
 		}
 
-		return GetUserResponse{Name: name}, nil
+		return common.Response{Data: name}, nil
+	}
+}
+
+func MakeLoginEndpoint(svc IUserService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		fmt.Println(request)
+		req, ok := request.(LoginRequest)
+		if !ok {
+			return nil, errors.New("MakeLoginEndpoint: interface conversion error")
+		}
+
+		res, err := svc.Login(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+
+		return common.Response{Data: res}, nil
 	}
 }

@@ -8,13 +8,9 @@ type RequestUrlParams struct {
 	Param string `json:"param"`
 }
 
-// 响应数据
-type ResponseData = interface{}
-
 // 相应格式
 type Response struct {
-	Code int32        `json:"code"`
-	Msg  string       `json:"msg"`
-	Data ResponseData `json:"data"`
+	Code int32       `json:"code"`
+	Msg  string      `json:"msg"`
+	Data interface{} `json:"data"`
 }
-

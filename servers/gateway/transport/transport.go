@@ -6,7 +6,6 @@ import (
 	"time"
 
 	usersvcEndpoints "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
-	usersvcSer "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/service"
 	usersvcTransport "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/transport"
 	"github.com/go-kit/kit/sd/lb"
 
@@ -25,15 +24,12 @@ func MakeHandler(etcdClient etcdv3.Client, tracer opentracing.Tracer,
 	zipkinTracer *zipkin.Tracer,
 	logger log.Logger) http.Handler {
 	r := mux.NewRouter()
-	{
-		endpoints := usersvcEndpoints.Endponits{}
-		{
-			// factory, _ := usersvcfactory("localhost:5002", usersvcEndpoints.MakeGetUserEndpoint, tracer,
-			// 	zipkinTracer,
-			// 	logger)
-			// endpoints.GetUserEP = factory
-			ins := sharedEtcd.NewInstancer("/usersvc", etcdClient, logger)
 
+	// user endpoint
+	{
+		endpoints := &usersvcEndpoints.Endponits{}
+		{
+			ins := sharedEtcd.NewInstancer("/usersvc", etcdClient, logger)
 			factory := usersvcFactory(usersvcEndpoints.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
 			endpointer := sd.NewEndpointer(ins, factory, logger)
 			balancer := lb.NewRoundRobin(endpointer)
@@ -44,32 +40,22 @@ func MakeHandler(etcdClient etcdv3.Client, tracer opentracing.Tracer,
 			zipkinTracer, logger)))
 	}
 
+	// article endpoint
+	{
+
+	}
+
 	return r
 }
 
-func usersvcfactory(
-	addr string,
-	makeEndpoint func(service usersvcSer.IUserService) endpoint.Endpoint,
-	tracer opentracing.Tracer,
-	zipkinTracer *zipkin.Tracer,
-	logger log.Logger) (endpoint.Endpoint, error) {
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
-	if err != nil {
-		return nil, err
-	}
-	svc := usersvcTransport.NewGRPCClient(conn, tracer, zipkinTracer, logger)
-
-	return makeEndpoint(svc), nil
-}
-
-func usersvcFactory(makeEndpoint func(service usersvcSer.IUserService) endpoint.Endpoint, tracer opentracing.Tracer,
+func usersvcFactory(makeEndpoint func(service usersvcEndpoints.IUserService) endpoint.Endpoint, tracer opentracing.Tracer,
 	zipkinTracer *zipkin.Tracer, logger log.Logger) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		conn, err := grpc.Dial(instance, grpc.WithInsecure())
 		if err != nil {
 			return nil, nil, err
 		}
-		service := usersvcTransport.NewGRPCClient(conn, tracer, zipkinTracer, logger)
+		service := usersvcTransport.MakeGRPCClient(conn, tracer, zipkinTracer, logger)
 		return makeEndpoint(service), conn, nil
 	}
 }
