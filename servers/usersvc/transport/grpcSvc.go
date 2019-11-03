@@ -31,7 +31,7 @@ func MakeGRPCServer(endpoints *endpoints.Endponits, otTracer opentracing.Tracer,
 		login: kitGrpcTransport.NewServer(
 			endpoints.LoginEP,
 			decodeGRPCLoginRequest,
-			encodeGRPCGetUserResponse,
+			encodeGRPCLoginResponse,
 			append(options, kitGrpcTransport.ServerBefore(kitOpentracing.GRPCToContext(otTracer, "Login",
 				logger)))...,
 		),

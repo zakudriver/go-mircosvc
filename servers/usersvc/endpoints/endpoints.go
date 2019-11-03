@@ -3,7 +3,8 @@ package endpoints
 import (
 	"context"
 	"errors"
-	"fmt"
+	"time"
+
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	"github.com/Zhan9Yunhua/blog-svr/shared/middleware"
 	"github.com/go-kit/kit/circuitbreaker"
@@ -12,7 +13,6 @@ import (
 	"github.com/go-kit/kit/tracing/opentracing"
 	"github.com/sony/gobreaker"
 	"golang.org/x/time/rate"
-	"time"
 
 	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 	stdopentracing "github.com/opentracing/opentracing-go"
@@ -90,7 +90,7 @@ func (e *Endponits) GetUser(ctx context.Context, uid string) (string, error) {
 }
 
 func (e *Endponits) Login(ctx context.Context, request LoginRequest) (LoginResponse, error) {
-	r, err := e.GetUserEP(ctx, request)
+	r, err := e.LoginEP(ctx, request)
 	if err != nil {
 		return LoginResponse{}, err
 	}
@@ -102,12 +102,12 @@ func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(GetUserRequest)
 		if !ok {
-			return nil, nil
+			return nil, errors.New("MakeGetUserEndpoint: interface conversion error")
 		}
 
 		name, err := svc.GetUser(ctx, req.Uid)
 		if err != nil {
-			return nil, err
+			return nil, errors.New("get user error")
 		}
 
 		return common.Response{Data: name}, nil
@@ -116,7 +116,6 @@ func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
 
 func MakeLoginEndpoint(svc IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		fmt.Println(request)
 		req, ok := request.(LoginRequest)
 		if !ok {
 			return nil, errors.New("MakeLoginEndpoint: interface conversion error")
@@ -124,7 +123,7 @@ func MakeLoginEndpoint(svc IUserService) endpoint.Endpoint {
 
 		res, err := svc.Login(ctx, req)
 		if err != nil {
-			return nil, err
+			return nil, errors.New("login error")
 		}
 
 		return common.Response{Data: res}, nil

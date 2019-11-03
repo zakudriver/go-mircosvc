@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
+
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
 	"github.com/gorilla/mux"
-	"net/http"
 )
 
 // GerUser
@@ -52,4 +53,12 @@ func decodeGRPCLoginRequest(_ context.Context, grpcReq interface{}) (interface{}
 		return nil, errors.New("decodeGRPCLoginRequest: interface conversion error")
 	}
 	return endpoints.LoginRequest{Username: req.Username, Password: req.Password}, nil
+}
+
+func decodeGRPCLoginResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	r, ok := grpcReply.(*userPb.LoginReply)
+	if !ok {
+		return nil, errors.New("decodeGRPCLoginResponse: interface conversion error")
+	}
+	return endpoints.LoginResponse{Username: r.Username}, nil
 }

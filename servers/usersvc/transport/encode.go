@@ -7,6 +7,7 @@ import (
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
+	"fmt"
 	"net/http"
 )
 
@@ -50,4 +51,13 @@ func encodeGRPCLoginRequest(_ context.Context, request interface{}) (interface{}
 		return nil, errors.New("encodeGRPCLoginRequest: interface conversion error")
 	}
 	return &userPb.LoginRequest{Username: req.Username, Password: req.Password}, nil
+}
+
+func encodeGRPCLoginResponse(_ context.Context, request interface{}) (interface{}, error) {
+	r, ok := request.(common.Response)
+	if !ok {
+		return nil, errors.New("encodeGRPCLoginResponse: interface conversion error")
+	}
+	fmt.Println(r.Data)
+	return &userPb.LoginReply{Avatar:"111"}, nil
 }

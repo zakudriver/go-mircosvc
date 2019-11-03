@@ -50,7 +50,7 @@ func MakeGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTr
 			"pb.Usersvc",
 			"Login",
 			encodeGRPCLoginRequest,
-			decodeGRPCGetUserResponse,
+			decodeGRPCLoginResponse,
 			userPb.LoginReply{},
 			append(options, kitGrpcTransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,
 		).Endpoint()

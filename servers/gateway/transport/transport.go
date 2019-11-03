@@ -28,13 +28,20 @@ func MakeHandler(etcdClient etcdv3.Client, tracer opentracing.Tracer,
 	// user endpoint
 	{
 		endpoints := &usersvcEndpoints.Endponits{}
+		ins := sharedEtcd.NewInstancer("/usersvc", etcdClient, logger)
 		{
-			ins := sharedEtcd.NewInstancer("/usersvc", etcdClient, logger)
 			factory := usersvcFactory(usersvcEndpoints.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
 			endpointer := sd.NewEndpointer(ins, factory, logger)
 			balancer := lb.NewRoundRobin(endpointer)
 			retry := lb.Retry(3, 3*time.Second, balancer)
 			endpoints.GetUserEP = retry
+		}
+		{
+			factory := usersvcFactory(usersvcEndpoints.MakeLoginEndpoint, tracer, zipkinTracer, logger)
+			endpointer := sd.NewEndpointer(ins, factory, logger)
+			balancer := lb.NewRoundRobin(endpointer)
+			retry := lb.Retry(3, 3*time.Second, balancer)
+			endpoints.LoginEP= retry
 		}
 		r.PathPrefix("/usersvc").Handler(http.StripPrefix("/usersvc", usersvcTransport.NewHTTPHandler(endpoints, tracer,
 			zipkinTracer, logger)))
@@ -42,7 +49,6 @@ func MakeHandler(etcdClient etcdv3.Client, tracer opentracing.Tracer,
 
 	// article endpoint
 	{
-
 	}
 
 	return r
