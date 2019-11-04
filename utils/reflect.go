@@ -126,3 +126,27 @@ func ParseEnvForTag(a interface{}, tagName string) (err error) {
 
 	return
 }
+
+// Struct kv copy from -> to
+func StructCopy(from interface{}, to interface{}) error {
+	fromValue := reflect.ValueOf(from)
+	if fromValue.Kind() == reflect.Ptr && fromValue.Elem().Kind() == reflect.Struct {
+		fromValue = fromValue.Elem()
+	} else if fromValue.Kind() != reflect.Struct {
+		return errors.New("from must be struct or struct point")
+	}
+
+	toValue := reflect.ValueOf(to)
+	if toValue.Kind() == reflect.Ptr && toValue.Elem().Kind() == reflect.Struct {
+		toValue = toValue.Elem()
+	} else if toValue.Kind() != reflect.Struct {
+		return errors.New("to must be struct or struct point")
+	}
+
+	fromKeyMap := make(map[string]bool)
+	for i := 0; i < fromValue.NumField(); i++ {
+		fromKeyMap[fromValue.Type().Field(i).Name] = true
+	}
+
+	return nil
+}

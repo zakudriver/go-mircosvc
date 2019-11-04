@@ -25,12 +25,21 @@ type Endponits struct {
 	// SendCodeEP endpoints.Endpoint
 }
 
-func handleEndpointMiddleware(endpoint endpoint.Endpoint, middlewares ...endpoint.Middleware) endpoint.Endpoint {
-	for _, m := range middlewares {
-		endpoint = m(endpoint)
+func (e *Endponits) GetUser(ctx context.Context, uid string) (string, error) {
+	r, err := e.GetUserEP(ctx, uid)
+	if err != nil {
+		return "", err
 	}
 
-	return endpoint
+	return r.(string), nil
+}
+
+func (e *Endponits) Login(ctx context.Context, request LoginRequest) (LoginResponse, error) {
+	r, err := e.LoginEP(ctx, request)
+	if err != nil {
+		return LoginResponse{}, err
+	}
+	return r.(LoginResponse), nil
 }
 
 func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.Tracer,
@@ -80,24 +89,6 @@ func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.T
 	}
 }
 
-func (e *Endponits) GetUser(ctx context.Context, uid string) (string, error) {
-	r, err := e.GetUserEP(ctx, uid)
-	if err != nil {
-		return "", err
-	}
-	response := r.(GetUserRequest)
-	return response.Uid, nil
-}
-
-func (e *Endponits) Login(ctx context.Context, request LoginRequest) (LoginResponse, error) {
-	r, err := e.LoginEP(ctx, request)
-	if err != nil {
-		return LoginResponse{}, err
-	}
-	response := r.(LoginResponse)
-	return response, nil
-}
-
 func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(GetUserRequest)
@@ -107,7 +98,7 @@ func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
 
 		name, err := svc.GetUser(ctx, req.Uid)
 		if err != nil {
-			return nil, errors.New("get user error")
+			return nil, err
 		}
 
 		return common.Response{Data: name}, nil
@@ -128,4 +119,12 @@ func MakeLoginEndpoint(svc IUserService) endpoint.Endpoint {
 
 		return common.Response{Data: res}, nil
 	}
+}
+
+func handleEndpointMiddleware(endpoint endpoint.Endpoint, middlewares ...endpoint.Middleware) endpoint.Endpoint {
+	for _, m := range middlewares {
+		endpoint = m(endpoint)
+	}
+
+	return endpoint
 }

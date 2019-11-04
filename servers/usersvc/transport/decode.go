@@ -27,7 +27,7 @@ func decodeGRPCGetUserRequest(_ context.Context, grpcReq interface{}) (interface
 	if !ok {
 		return nil, errors.New("decodeGRPCGetUserRequest: interface conversion error")
 	}
-	return endpoints.GetUserRequest{Uid: r.Uid}, nil
+	return endpoints.GetUserRequest{Uid:r.Uid}, nil
 }
 
 func decodeGRPCGetUserResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
@@ -35,7 +35,7 @@ func decodeGRPCGetUserResponse(_ context.Context, grpcReply interface{}) (interf
 	if !ok {
 		return nil, errors.New("decodeGRPCGetUserResponse: interface conversion error")
 	}
-	return endpoints.GetUserRequest{Uid: r.Uid}, nil
+	return r.Uid, nil
 }
 
 // Login
