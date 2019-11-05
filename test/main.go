@@ -14,11 +14,12 @@ func main() {
 	}
 
 	type B struct {
-		Uid string
+		// Uid string
+		b   int
 	}
 
 	a := A{"aaa", 11}
 	b := &B{}
-	fmt.Println(utils.StructCopy(a, 11))
+	fmt.Println(utils.StructCopy(a, b))
 	fmt.Println(b)
 }
