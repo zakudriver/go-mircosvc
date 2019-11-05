@@ -9,6 +9,7 @@ import (
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
+	"github.com/Zhan9Yunhua/blog-svr/utils"
 )
 
 func encodeResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
@@ -55,13 +56,18 @@ func encodeGRPCLoginRequest(_ context.Context, request interface{}) (interface{}
 }
 
 func encodeGRPCLoginResponse(_ context.Context, request interface{}) (interface{}, error) {
-	r, ok := request.(common.Response)
+	res, ok := request.(common.Response)
 	if !ok {
 		return nil, errors.New("encodeGRPCLoginResponse: interface conversion error")
 	}
-	data, ok := r.Data.(endpoints.LoginResponse)
+	data, ok := res.Data.(endpoints.LoginResponse)
 	if !ok {
 		return nil, errors.New("encodeGRPCLoginResponse: interface conversion error")
 	}
-	return &userPb.LoginReply{Username: data.Username}, nil
+
+	r := &userPb.LoginReply{}
+	if err := utils.StructCopy(data, r); err != nil {
+		return nil, err
+	}
+	return r, nil
 }

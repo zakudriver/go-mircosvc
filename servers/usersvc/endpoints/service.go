@@ -22,5 +22,5 @@ func (svc *UserService) GetUser(_ context.Context, uid string) (string, error) {
 }
 
 func (svc *UserService) Login(_ context.Context, req LoginRequest) (LoginResponse, error) {
-	return LoginResponse{Username: req.Username}, nil
+	return LoginResponse{Username: req.Username, Id: 11, Avatar: "ava", RoleID: 12, RecentTime: "time"}, nil
 }

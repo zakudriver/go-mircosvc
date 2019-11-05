@@ -137,11 +137,9 @@ func StructCopy(from interface{}, to interface{}) error {
 	}
 
 	toValue := reflect.ValueOf(to)
-	// if toValue.Kind() == reflect.Ptr && toValue.Elem().Kind() == reflect.Struct {
-	// 	toValue = toValue.Elem()
-	// } else if toValue.Kind() != reflect.Struct {
-	// 	return errors.New("to must be struct or struct point")
-	// }
+	if toValue.Kind() != reflect.Ptr || toValue.Elem().Kind() != reflect.Struct {
+		return errors.New("to must be struct point")
+	}
 
 	fromKeyMap := make(map[string]reflect.Kind)
 	for i := 0; i < fromValue.NumField(); i++ {

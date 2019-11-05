@@ -9,6 +9,7 @@ import (
 	"github.com/Zhan9Yunhua/blog-svr/common"
 	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
 	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
+	"github.com/Zhan9Yunhua/blog-svr/utils"
 	"github.com/gorilla/mux"
 )
 
@@ -27,7 +28,7 @@ func decodeGRPCGetUserRequest(_ context.Context, grpcReq interface{}) (interface
 	if !ok {
 		return nil, errors.New("decodeGRPCGetUserRequest: interface conversion error")
 	}
-	return endpoints.GetUserRequest{Uid:r.Uid}, nil
+	return endpoints.GetUserRequest{Uid: r.Uid}, nil
 }
 
 func decodeGRPCGetUserResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
@@ -56,9 +57,14 @@ func decodeGRPCLoginRequest(_ context.Context, grpcReq interface{}) (interface{}
 }
 
 func decodeGRPCLoginResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
-	r, ok := grpcReply.(*userPb.LoginReply)
+	reply, ok := grpcReply.(*userPb.LoginReply)
 	if !ok {
 		return nil, errors.New("decodeGRPCLoginResponse: interface conversion error")
 	}
-	return endpoints.LoginResponse{Username: r.Username}, nil
+
+	r := &endpoints.LoginResponse{}
+	if err := utils.StructCopy(reply, r); err != nil {
+		return nil, err
+	}
+	return *r, nil
 }
