@@ -6,11 +6,11 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/kum0/blog-svr/common"
 	userPb "github.com/kum0/blog-svr/pb/user"
 	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	"github.com/kum0/blog-svr/utils"
-	"github.com/gorilla/mux"
 )
 
 // GerUser
@@ -32,11 +32,11 @@ func decodeGRPCGetUserRequest(_ context.Context, grpcReq interface{}) (interface
 }
 
 func decodeGRPCGetUserResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
-	r, ok := grpcReply.(*userPb.GetUserReply)
+	rp, ok := grpcReply.(*userPb.GetUserReply)
 	if !ok {
 		return nil, errors.New("decodeGRPCGetUserResponse: interface conversion error")
 	}
-	return r.Uid, nil
+	return rp.Uid, nil
 }
 
 // Login
@@ -57,14 +57,32 @@ func decodeGRPCLoginRequest(_ context.Context, grpcReq interface{}) (interface{}
 }
 
 func decodeGRPCLoginResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
-	reply, ok := grpcReply.(*userPb.LoginReply)
+	rp, ok := grpcReply.(*userPb.LoginReply)
 	if !ok {
 		return nil, errors.New("decodeGRPCLoginResponse: interface conversion error")
 	}
 
 	r := &endpoints.LoginResponse{}
-	if err := utils.StructCopy(reply, r); err != nil {
+	if err := utils.StructCopy(rp, r); err != nil {
 		return nil, err
 	}
 	return *r, nil
+}
+
+// SendCode
+func decodeGRPCSendCodeResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	rp, ok := grpcReply.(*userPb.SendCodeReply)
+	if !ok {
+		return nil, errors.New("decodeGRPCSendCodeResponse: interface conversion error")
+	}
+
+	r := &endpoints.SendCodeResponse{}
+	if err := utils.StructCopy(rp, r); err != nil {
+		return nil, err
+	}
+	return *r, nil
+}
+
+func decodeGRPCSendCodeRequest(_ context.Context, grpcrequest interface{}) (interface{}, error) {
+	return nil, nil
 }

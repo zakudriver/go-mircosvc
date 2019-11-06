@@ -71,3 +71,21 @@ func encodeGRPCLoginResponse(_ context.Context, request interface{}) (interface{
 	}
 	return r, nil
 }
+
+// SendCode
+func encodeGRPCSendCodeRequest(_ context.Context, request interface{}) (interface{}, error) {
+	return nil, nil
+}
+
+func encodeGRPCSendCodeResponse(_ context.Context, request interface{}) (interface{}, error) {
+	res, ok := request.(common.Response)
+	if !ok {
+		return nil, errors.New("encodeGRPCSendCodeResponse: interface conversion error")
+	}
+
+	r := &userPb.SendCodeReply{}
+	if err := utils.StructCopy(res, r); err != nil {
+		return nil, err
+	}
+	return r, nil
+}

@@ -14,21 +14,13 @@ type Email struct {
 	Sender   string
 }
 
-type EmailConf struct {
-	From     string `json:"From"`
-	AuthCode string `json:"AuthCode"`
-	Host     string `json:"Host"`
-	Port     int    `json:"Port"`
-	Sender   string `json:"Sender"`
-}
-
-func NewEmail(conf EmailConf) *Email {
+func NewEmail(from, authCode, host, sender string, port int) *Email {
 	return &Email{
-		From:     conf.From,
-		AuthCode: conf.AuthCode,
-		Host:     conf.Host,
-		Port:     conf.Port,
-		Sender:   conf.Sender,
+		from,
+		authCode,
+		host,
+		port,
+		sender,
 	}
 }
 

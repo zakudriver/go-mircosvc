@@ -26,28 +26,28 @@ type Endponits struct {
 }
 
 func (e *Endponits) GetUser(ctx context.Context, uid string) (string, error) {
-	r, err := e.GetUserEP(ctx, uid)
+	res, err := e.GetUserEP(ctx, uid)
 	if err != nil {
 		return "", err
 	}
 
-	return r.(string), nil
+	return res.(string), nil
 }
 
 func (e *Endponits) Login(ctx context.Context, request LoginRequest) (LoginResponse, error) {
-	r, err := e.LoginEP(ctx, request)
+	res, err := e.LoginEP(ctx, request)
 	if err != nil {
 		return LoginResponse{}, err
 	}
-	return r.(LoginResponse), nil
+	return res.(LoginResponse), nil
 }
 
-func (e *Endponits) SendCode(ctx context.Context) error {
-	_, err := e.SendCodeEP(ctx, nil)
+func (e *Endponits) SendCode(ctx context.Context) (SendCodeResponse, error) {
+	res, err := e.SendCodeEP(ctx, nil)
 	if err != nil {
-		return err
+		return SendCodeResponse{}, err
 	}
-	return nil
+	return res.(SendCodeResponse), nil
 }
 
 func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.Tracer,
@@ -122,7 +122,7 @@ func MakeLoginEndpoint(svc IUserService) endpoint.Endpoint {
 
 		res, err := svc.Login(ctx, req)
 		if err != nil {
-			return nil, errors.New("login error")
+			return nil, err
 		}
 
 		return common.Response{Data: res}, nil
@@ -131,14 +131,9 @@ func MakeLoginEndpoint(svc IUserService) endpoint.Endpoint {
 
 func MakeSendCodeEndpoint(svc IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req, ok := request.(LoginRequest)
-		if !ok {
-			return nil, errors.New("MakeLoginEndpoint: interface conversion error")
-		}
-
-		res, err := svc.Login(ctx, req)
+		res, err := svc.SendCode(ctx)
 		if err != nil {
-			return nil, errors.New("login error")
+			return nil, err
 		}
 
 		return common.Response{Data: res}, nil

@@ -37,6 +37,10 @@ func MakeHandler(etcdClient etcdv3.Client, tracer opentracing.Tracer,
 			factory := usersvcFactory(usersvcEndpoints.MakeLoginEndpoint, tracer, zipkinTracer, logger)
 			endpoints.LoginEP = makeEndpoint(factory, ins, logger)
 		}
+		{
+			factory := usersvcFactory(usersvcEndpoints.MakeSendCodeEndpoint, tracer, zipkinTracer, logger)
+			endpoints.SendCodeEP = makeEndpoint(factory, ins, logger)
+		}
 		r.PathPrefix("/usersvc").Handler(http.StripPrefix("/usersvc", usersvcTransport.NewHTTPHandler(endpoints, tracer,
 			zipkinTracer, logger)))
 	}

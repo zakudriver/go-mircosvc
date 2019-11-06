@@ -3,18 +3,18 @@ package transport
 import (
 	"time"
 
-	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/ratelimit"
 	kitGrpcTransport "github.com/go-kit/kit/transport/grpc"
+	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	"golang.org/x/time/rate"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	userPb "github.com/kum0/blog-svr/pb/user"
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
 	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
+	userPb "github.com/kum0/blog-svr/pb/user"
 	"github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
 	"google.golang.org/grpc"
@@ -30,37 +30,56 @@ func MakeGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTr
 
 	var getUserEndpoint endpoint.Endpoint
 	{
+		method := "GetUser"
 		getUserEndpoint = kitGrpcTransport.NewClient(
 			conn,
 			"pb.Usersvc",
-			"GetUser",
+			method,
 			encodeGRPCGetUserRequest,
 			decodeGRPCGetUserResponse,
 			userPb.GetUserReply{},
 			append(options, kitGrpcTransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,
 		).Endpoint()
-		getUserEndpoint = kitOpentracing.TraceClient(otTracer, "GetUser")(getUserEndpoint)
+		getUserEndpoint = kitOpentracing.TraceClient(otTracer, method)(getUserEndpoint)
 		getUserEndpoint = limiter(getUserEndpoint)
 	}
 
 	var loginEndpoint endpoint.Endpoint
 	{
+		method := "Login"
 		loginEndpoint = kitGrpcTransport.NewClient(
 			conn,
 			"pb.Usersvc",
-			"Login",
+			method,
 			encodeGRPCLoginRequest,
 			decodeGRPCLoginResponse,
 			userPb.LoginReply{},
 			append(options, kitGrpcTransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,
 		).Endpoint()
-		loginEndpoint = kitOpentracing.TraceClient(otTracer, "Login")(loginEndpoint)
+		loginEndpoint = kitOpentracing.TraceClient(otTracer, method)(loginEndpoint)
 		loginEndpoint = limiter(loginEndpoint)
 	}
 
+	var sendCodeEndpoint endpoint.Endpoint
+	{
+		method := "SendCode"
+		sendCodeEndpoint = kitGrpcTransport.NewClient(
+			conn,
+			"pb.Usersvc",
+			method,
+			encodeGRPCSendCodeRequest,
+			decodeGRPCSendCodeResponse,
+			userPb.SendCodeReply{},
+			append(options, kitGrpcTransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,
+		).Endpoint()
+		sendCodeEndpoint = kitOpentracing.TraceClient(otTracer, method)(sendCodeEndpoint)
+		sendCodeEndpoint = limiter(sendCodeEndpoint)
+	}
+
 	return &endpoints.Endponits{
-		GetUserEP: getUserEndpoint,
-		LoginEP:   loginEndpoint,
+		GetUserEP:  getUserEndpoint,
+		LoginEP:    loginEndpoint,
+		SendCodeEP: sendCodeEndpoint,
 	}
 }
 

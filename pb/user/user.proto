@@ -9,6 +9,9 @@ service Usersvc {
 
     rpc Login (LoginRequest) returns (LoginReply) {
     }
+
+    rpc SendCode (SendCodeRequest) returns (SendCodeReply) {
+    }
 }
 
 message GetUserRequest {
@@ -31,4 +34,11 @@ message LoginReply {
     int32 roleID = 4;
     string recentTime = 5;
     string createdTime = 6;
+}
+
+message SendCodeRequest {
+}
+
+message SendCodeReply {
+    string codeID = 1;
 }

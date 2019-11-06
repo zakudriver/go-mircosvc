@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/kum0/blog-svr/shared/db"
-	"github.com/kum0/blog-svr/shared/email"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/kum0/blog-svr/shared/db"
+	"github.com/kum0/blog-svr/shared/email"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -46,7 +47,7 @@ func main() {
 	{
 		mdb := db.NewMysql("", "", "", "")
 		rd := db.NewRedis("", "", 0, 0)
-		email := email.NewEmail(conf.Email)
+		email := email.NewEmail("", "", "", "", 0)
 		svc = endpoints.NewUserService(mdb, rd, email)
 		svc = middleware.MakeServiceMiddleware(svc)
 	}
