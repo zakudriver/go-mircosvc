@@ -3,8 +3,8 @@ package transport
 import (
 	"context"
 	"errors"
-	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
-	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
+	userPb "github.com/kum0/blog-svr/pb/user"
+	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	"github.com/go-kit/kit/log"
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
 	kitZipkin "github.com/go-kit/kit/tracing/zipkin"

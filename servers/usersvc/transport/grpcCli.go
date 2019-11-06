@@ -3,7 +3,7 @@ package transport
 import (
 	"time"
 
-	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
+	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/ratelimit"
@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
+	userPb "github.com/kum0/blog-svr/pb/user"
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
 	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 	"github.com/opentracing/opentracing-go"

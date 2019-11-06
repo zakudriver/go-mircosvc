@@ -1,10 +1,9 @@
-module github.com/Zhan9Yunhua/blog-svr
+module github.com/kum0/blog-svr
 
 go 1.12
 
 require (
 	github.com/VividCortex/gohistogram v1.0.0 // indirect
-	github.com/Zhan9Yunhua/logger v0.0.0-20190429041551-fbc2f63be669
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5 // indirect
 	github.com/coreos/bbolt v1.3.3 // indirect
 	github.com/coreos/etcd v3.3.13+incompatible // indirect

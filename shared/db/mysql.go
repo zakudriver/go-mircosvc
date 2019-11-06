@@ -5,27 +5,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Zhan9Yunhua/logger"
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type MysqlConf struct {
-	Username   string `yaml:"Username"`
-	Password   string `yaml:"Password"`
-	Host       string `yaml:"Host"`
-	Port       int    `yaml:"Port"`
-	AuthSource string `yaml:"AuthSource"`
-}
-
-func NewMysql(conf MysqlConf) *sql.DB {
-	host := fmt.Sprintf("%s:%s@%s(%s:%d)/%s?parseTime=true", conf.Username, conf.Password, "tcp", conf.Host,
-		conf.Port, conf.AuthSource)
+func NewMysql(username, password, addr, authSource string) *sql.DB {
+	host := fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=true", username, password, "tcp", addr, authSource)
 
 	db, err := sql.Open("mysql", host)
 	if err != nil {
-		// fmt.Printf("Open mysql failed,err:%v\n", err)
-		logger.Errorf("Open mysql failed,err:%v\n", err)
-		return nil
+		panic(fmt.Sprintf("Open mysql failed,err:%v\n", err))
 	}
 
 	db.SetConnMaxLifetime(100 * time.Second)

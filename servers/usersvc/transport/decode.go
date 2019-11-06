@@ -6,10 +6,10 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/Zhan9Yunhua/blog-svr/common"
-	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
-	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
-	"github.com/Zhan9Yunhua/blog-svr/utils"
+	"github.com/kum0/blog-svr/common"
+	userPb "github.com/kum0/blog-svr/pb/user"
+	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
+	"github.com/kum0/blog-svr/utils"
 	"github.com/gorilla/mux"
 )
 

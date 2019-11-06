@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/Zhan9Yunhua/blog-svr/utils"
+	"github.com/kum0/blog-svr/utils"
 	"strconv"
 )
 

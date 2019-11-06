@@ -3,8 +3,8 @@ package transport
 import (
 	"context"
 	"encoding/json"
-	"github.com/Zhan9Yunhua/blog-svr/common"
-	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
+	"github.com/kum0/blog-svr/common"
+	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"

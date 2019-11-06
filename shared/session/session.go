@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Zhan9Yunhua/blog-svr/common"
+	"github.com/kum0/blog-svr/common"
 	"github.com/gomodule/redigo/redis"
 )
 

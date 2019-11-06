@@ -5,12 +5,12 @@ import (
 	"errors"
 	"time"
 
-	"github.com/Zhan9Yunhua/blog-svr/common"
-	"github.com/Zhan9Yunhua/blog-svr/shared/middleware"
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/tracing/opentracing"
+	"github.com/kum0/blog-svr/common"
+	"github.com/kum0/blog-svr/shared/middleware"
 	"github.com/sony/gobreaker"
 	"golang.org/x/time/rate"
 
@@ -20,9 +20,9 @@ import (
 )
 
 type Endponits struct {
-	GetUserEP endpoint.Endpoint
-	LoginEP   endpoint.Endpoint
-	// SendCodeEP endpoints.Endpoint
+	GetUserEP  endpoint.Endpoint
+	LoginEP    endpoint.Endpoint
+	SendCodeEP endpoint.Endpoint
 }
 
 func (e *Endponits) GetUser(ctx context.Context, uid string) (string, error) {
@@ -40,6 +40,14 @@ func (e *Endponits) Login(ctx context.Context, request LoginRequest) (LoginRespo
 		return LoginResponse{}, err
 	}
 	return r.(LoginResponse), nil
+}
+
+func (e *Endponits) SendCode(ctx context.Context) error {
+	_, err := e.SendCodeEP(ctx, nil)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.Tracer,
@@ -106,6 +114,22 @@ func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
 }
 
 func MakeLoginEndpoint(svc IUserService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req, ok := request.(LoginRequest)
+		if !ok {
+			return nil, errors.New("MakeLoginEndpoint: interface conversion error")
+		}
+
+		res, err := svc.Login(ctx, req)
+		if err != nil {
+			return nil, errors.New("login error")
+		}
+
+		return common.Response{Data: res}, nil
+	}
+}
+
+func MakeSendCodeEndpoint(svc IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(LoginRequest)
 		if !ok {

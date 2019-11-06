@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
+	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	"github.com/go-kit/kit/metrics"
 	kitPrometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/prometheus/client_golang/prometheus"

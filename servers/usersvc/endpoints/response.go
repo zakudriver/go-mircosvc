@@ -8,3 +8,7 @@ type LoginResponse struct {
 	RecentTime  string `json:"recentTime"`
 	CreatedTime string `json:"createdTime"`
 }
+
+type SendCodeResponse struct {
+	CodeID string `json:"codeID"`
+}

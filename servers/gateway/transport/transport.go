@@ -5,16 +5,16 @@ import (
 	"net/http"
 	"time"
 
-	usersvcEndpoints "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
-	usersvcTransport "github.com/Zhan9Yunhua/blog-svr/servers/usersvc/transport"
 	"github.com/go-kit/kit/sd/lb"
+	usersvcEndpoints "github.com/kum0/blog-svr/servers/usersvc/endpoints"
+	usersvcTransport "github.com/kum0/blog-svr/servers/usersvc/transport"
 
-	sharedEtcd "github.com/Zhan9Yunhua/blog-svr/shared/etcd"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/sd"
 	"github.com/go-kit/kit/sd/etcdv3"
 	"github.com/gorilla/mux"
+	sharedEtcd "github.com/kum0/blog-svr/shared/etcd"
 	"github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
 	"google.golang.org/grpc"
@@ -31,17 +31,11 @@ func MakeHandler(etcdClient etcdv3.Client, tracer opentracing.Tracer,
 		ins := sharedEtcd.NewInstancer("/usersvc", etcdClient, logger)
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
-			endpointer := sd.NewEndpointer(ins, factory, logger)
-			balancer := lb.NewRoundRobin(endpointer)
-			retry := lb.Retry(3, 3*time.Second, balancer)
-			endpoints.GetUserEP = retry
+			endpoints.GetUserEP = makeEndpoint(factory, ins, logger)
 		}
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeLoginEndpoint, tracer, zipkinTracer, logger)
-			endpointer := sd.NewEndpointer(ins, factory, logger)
-			balancer := lb.NewRoundRobin(endpointer)
-			retry := lb.Retry(3, 3*time.Second, balancer)
-			endpoints.LoginEP= retry
+			endpoints.LoginEP = makeEndpoint(factory, ins, logger)
 		}
 		r.PathPrefix("/usersvc").Handler(http.StripPrefix("/usersvc", usersvcTransport.NewHTTPHandler(endpoints, tracer,
 			zipkinTracer, logger)))
@@ -64,4 +58,10 @@ func usersvcFactory(makeEndpoint func(service usersvcEndpoints.IUserService) end
 		service := usersvcTransport.MakeGRPCClient(conn, tracer, zipkinTracer, logger)
 		return makeEndpoint(service), conn, nil
 	}
+}
+
+func makeEndpoint(factory sd.Factory, ins *etcdv3.Instancer, logger log.Logger) endpoint.Endpoint {
+	endpointer := sd.NewEndpointer(ins, factory, logger)
+	balancer := lb.NewRoundRobin(endpointer)
+	return lb.Retry(3, 3*time.Second, balancer)
 }

@@ -2,27 +2,29 @@ package main
 
 import (
 	"fmt"
+	"github.com/kum0/blog-svr/shared/db"
+	"github.com/kum0/blog-svr/shared/email"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/config"
-	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/endpoints"
-	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/middleware"
-	"github.com/Zhan9Yunhua/blog-svr/servers/usersvc/transport"
-	sharedEtcd "github.com/Zhan9Yunhua/blog-svr/shared/etcd"
-	"github.com/Zhan9Yunhua/blog-svr/shared/logger"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+	"github.com/kum0/blog-svr/servers/usersvc/config"
+	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
+	"github.com/kum0/blog-svr/servers/usersvc/middleware"
+	"github.com/kum0/blog-svr/servers/usersvc/transport"
+	sharedEtcd "github.com/kum0/blog-svr/shared/etcd"
+	"github.com/kum0/blog-svr/shared/logger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/reflection"
 
-	userPb "github.com/Zhan9Yunhua/blog-svr/pb/user"
-	sharedZipkin "github.com/Zhan9Yunhua/blog-svr/shared/zipkin"
 	kitGrpc "github.com/go-kit/kit/transport/grpc"
+	userPb "github.com/kum0/blog-svr/pb/user"
+	sharedZipkin "github.com/kum0/blog-svr/shared/zipkin"
 	"github.com/opentracing/opentracing-go"
 	healthgrpc "google.golang.org/grpc/health/grpc_health_v1"
 )
@@ -40,14 +42,20 @@ func main() {
 		defer register.Register()
 	}
 
-	svc := endpoints.NewUserService()
-	svc = middleware.MakeServiceMiddleware(svc)
+	var svc endpoints.IUserService
+	{
+		mdb := db.NewMysql("", "", "", "")
+		rd := db.NewRedis("", "", 0, 0)
+		email := email.NewEmail(conf.Email)
+		svc = endpoints.NewUserService(mdb, rd, email)
+		svc = middleware.MakeServiceMiddleware(svc)
+	}
 	ep := endpoints.NewEndpoints(svc, logger, tracer, zipkinTracer)
 
-	errs := make(chan error, 1)
 	hs := health.NewServer()
 	hs.SetServingStatus(conf.ServiceName, healthgrpc.HealthCheckResponse_SERVING)
 
+	errs := make(chan error, 1)
 	go grpcServer(transport.MakeGRPCServer(ep, tracer, zipkinTracer, logger), conf.GrpcPort, hs, logger, errs)
 
 	go func() {
