@@ -7,13 +7,13 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/kum0/blog-svr/servers/gateway/config"
 	"github.com/kum0/blog-svr/servers/gateway/transport"
 	sharedEtcd "github.com/kum0/blog-svr/shared/etcd"
 	"github.com/kum0/blog-svr/shared/logger"
 	sharedZipkin "github.com/kum0/blog-svr/shared/zipkin"
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
 	"github.com/opentracing/opentracing-go"
 )
 
@@ -22,7 +22,7 @@ func main() {
 	log := logger.NewLogger(conf.LogPath)
 
 	tracer := opentracing.GlobalTracer()
-	zipkinTracer := sharedZipkin.NewZipkin(log, "", "localhost:"+conf.HttpPort, conf.ServiceName)
+	zipkinTracer := sharedZipkin.NewZipkin(log, conf.ZipkinAddr, "localhost:"+conf.HttpPort, conf.ServiceName)
 	etcdClient := sharedEtcd.NewEtcd(conf.EtcdAddr)
 
 	r := transport.MakeHandler(etcdClient, tracer, zipkinTracer, log)

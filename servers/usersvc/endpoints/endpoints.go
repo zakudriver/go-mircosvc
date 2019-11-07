@@ -91,9 +91,24 @@ func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.T
 		loginEndpoint = handleEndpointMiddleware(loginEndpoint, mids...)
 	}
 
+	var sendCodeEndpoint endpoint.Endpoint
+	{
+		method := "SendCode"
+		sendCodeEndpoint = MakeSendCodeEndpoint(svc)
+
+		mids := append(
+			middlewares,
+			middleware.LoggingMiddleware(log.With(logger, "method", method)),
+			opentracing.TraceServer(otTracer, method),
+			kitZipkin.TraceEndpoint(zipkinTracer, method),
+		)
+		sendCodeEndpoint = handleEndpointMiddleware(sendCodeEndpoint, mids...)
+	}
+
 	return &Endponits{
-		GetUserEP: getUserEndpoint,
-		LoginEP:   loginEndpoint,
+		GetUserEP:  getUserEndpoint,
+		LoginEP:    loginEndpoint,
+		SendCodeEP: sendCodeEndpoint,
 	}
 }
 

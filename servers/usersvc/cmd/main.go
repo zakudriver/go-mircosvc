@@ -35,7 +35,7 @@ func main() {
 	logger := logger.NewLogger(conf.LogPath)
 
 	tracer := opentracing.GlobalTracer()
-	zipkinTracer := sharedZipkin.NewZipkin(logger, "", "localhost:"+conf.HttpPort, conf.ServiceName)
+	zipkinTracer := sharedZipkin.NewZipkin(logger, conf.ZipkinAddr, "localhost:"+conf.HttpPort, conf.ServiceName)
 
 	{
 		etcdClient := sharedEtcd.NewEtcd(conf.EtcdAddr)
@@ -45,9 +45,9 @@ func main() {
 
 	var svc endpoints.IUserService
 	{
-		mdb := db.NewMysql("", "", "", "")
-		rd := db.NewRedis("", "", 0, 0)
-		email := email.NewEmail("", "", "", "", 0)
+		mdb := db.NewMysql(conf.MysqlUsername, conf.MysqlPassword, conf.MysqlAddr, conf.MysqlAuthsource)
+		rd := db.NewRedis(conf.RedisAddr, conf.RedisPassword, conf.RedisMaxIdle, conf.RedisMaxActive)
+		email := email.NewEmail(conf.EmailFrom, conf.EmailAuthCode, conf.EmailHost, conf.EmailSender, conf.EmailPort)
 		svc = endpoints.NewUserService(mdb, rd, email)
 		svc = middleware.MakeServiceMiddleware(svc)
 	}

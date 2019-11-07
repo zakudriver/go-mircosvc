@@ -84,5 +84,5 @@ func decodeGRPCSendCodeResponse(_ context.Context, grpcReply interface{}) (inter
 }
 
 func decodeGRPCSendCodeRequest(_ context.Context, grpcrequest interface{}) (interface{}, error) {
-	return nil, nil
+	return grpcrequest, nil
 }

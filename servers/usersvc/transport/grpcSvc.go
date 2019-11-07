@@ -3,7 +3,6 @@ package transport
 import (
 	"context"
 	"errors"
-
 	"github.com/go-kit/kit/log"
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
 	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
