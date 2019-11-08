@@ -17,12 +17,11 @@ import (
 	sharedEtcd "github.com/kum0/blog-svr/shared/etcd"
 	"github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
+	zipkinGrpc "github.com/openzipkin/zipkin-go/middleware/grpc"
 	"google.golang.org/grpc"
 )
 
-func MakeHandler(etcdClient etcdv3.Client, tracer opentracing.Tracer,
-	zipkinTracer *zipkin.Tracer,
-	logger log.Logger) http.Handler {
+func MakeHandler(etcdClient etcdv3.Client, tracer opentracing.Tracer, zipkinTracer *zipkin.Tracer, logger log.Logger) http.Handler {
 	r := mux.NewRouter()
 
 	// user endpoint
@@ -31,15 +30,15 @@ func MakeHandler(etcdClient etcdv3.Client, tracer opentracing.Tracer,
 		ins := sharedEtcd.NewInstancer("/usersvc", etcdClient, logger)
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
-			endpoints.GetUserEP = makeEndpoint(factory, ins, logger)
+			endpoints.GetUserEP = makeEndpoint(factory, zipkinTracer, "GetUser", ins, logger)
 		}
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeLoginEndpoint, tracer, zipkinTracer, logger)
-			endpoints.LoginEP = makeEndpoint(factory, ins, logger)
+			endpoints.LoginEP = makeEndpoint(factory, zipkinTracer, "Login", ins, logger)
 		}
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeSendCodeEndpoint, tracer, zipkinTracer, logger)
-			endpoints.SendCodeEP = makeEndpoint(factory, ins, logger)
+			endpoints.SendCodeEP = makeEndpoint(factory, zipkinTracer, "SenCode", ins, logger)
 		}
 		r.PathPrefix("/usersvc").Handler(http.StripPrefix("/usersvc", usersvcTransport.NewHTTPHandler(endpoints, tracer,
 			zipkinTracer, logger)))
@@ -55,7 +54,8 @@ func MakeHandler(etcdClient etcdv3.Client, tracer opentracing.Tracer,
 func usersvcFactory(makeEndpoint func(service usersvcEndpoints.IUserService) endpoint.Endpoint, tracer opentracing.Tracer,
 	zipkinTracer *zipkin.Tracer, logger log.Logger) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
-		conn, err := grpc.Dial(instance, grpc.WithInsecure())
+		conn, err := grpc.Dial(instance, grpc.WithInsecure(), grpc.WithStatsHandler(zipkinGrpc.NewClientHandler(
+			zipkinTracer)))
 		if err != nil {
 			return nil, nil, err
 		}
@@ -64,8 +64,11 @@ func usersvcFactory(makeEndpoint func(service usersvcEndpoints.IUserService) end
 	}
 }
 
-func makeEndpoint(factory sd.Factory, ins *etcdv3.Instancer, logger log.Logger) endpoint.Endpoint {
+func makeEndpoint(factory sd.Factory, zipkinTracer *zipkin.Tracer, method string, ins *etcdv3.Instancer,
+	logger log.Logger) endpoint.Endpoint {
 	endpointer := sd.NewEndpointer(ins, factory, logger)
 	balancer := lb.NewRoundRobin(endpointer)
-	return lb.Retry(3, 3*time.Second, balancer)
+	ep := lb.Retry(3, 3*time.Second, balancer)
+	// return kitZipkin.TraceEndpoint(zipkinTracer, method)(ep)
+	return ep
 }

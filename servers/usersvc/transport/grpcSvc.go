@@ -19,7 +19,6 @@ func MakeGRPCServer(endpoints *endpoints.Endponits, otTracer opentracing.Tracer,
 	options := []kitGrpcTransport.ServerOption{
 		kitZipkin.GRPCServerTrace(zipkinTracer),
 	}
-
 	return &grpcServer{
 		getUser: kitGrpcTransport.NewServer(
 			endpoints.GetUserEP,

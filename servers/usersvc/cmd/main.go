@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/openzipkin/zipkin-go"
 	"net"
 	"net/http"
 	"os"
@@ -28,6 +29,8 @@ import (
 	sharedZipkin "github.com/kum0/blog-svr/shared/zipkin"
 	"github.com/opentracing/opentracing-go"
 	healthgrpc "google.golang.org/grpc/health/grpc_health_v1"
+
+	zipkinGrpc "github.com/openzipkin/zipkin-go/middleware/grpc"
 )
 
 func main() {
@@ -35,7 +38,7 @@ func main() {
 	logger := logger.NewLogger(conf.LogPath)
 
 	tracer := opentracing.GlobalTracer()
-	zipkinTracer := sharedZipkin.NewZipkin(logger, conf.ZipkinAddr, "localhost:"+conf.HttpPort, conf.ServiceName)
+	zipkinTracer := sharedZipkin.NewZipkin(logger, "", "localhost:"+conf.GrpcPort, conf.ServiceName)
 
 	{
 		etcdClient := sharedEtcd.NewEtcd(conf.EtcdAddr)
@@ -57,7 +60,7 @@ func main() {
 	hs.SetServingStatus(conf.ServiceName, healthgrpc.HealthCheckResponse_SERVING)
 
 	errs := make(chan error, 1)
-	go grpcServer(transport.MakeGRPCServer(ep, tracer, zipkinTracer, logger), conf.GrpcPort, hs, logger, errs)
+	go grpcServer(transport.MakeGRPCServer(ep, tracer, zipkinTracer, logger), conf.GrpcPort, zipkinTracer, hs, logger, errs)
 
 	go func() {
 		c := make(chan os.Signal)
@@ -68,7 +71,9 @@ func main() {
 	level.Info(logger).Log("serviceName", conf.ServiceName, "terminated", <-errs)
 }
 
-func grpcServer(grpcsvc userPb.UsersvcServer, port string, hs *health.Server, logger log.Logger, errs chan error) {
+func grpcServer(grpcsvc userPb.UsersvcServer, port string, zipkinTracer *zipkin.Tracer, hs *health.Server,
+	logger log.Logger,
+	errs chan error) {
 	p := fmt.Sprintf(":%s", port)
 	listener, err := net.Listen("tcp", p)
 	if err != nil {
@@ -77,7 +82,9 @@ func grpcServer(grpcsvc userPb.UsersvcServer, port string, hs *health.Server, lo
 	}
 	level.Info(logger).Log("protocol", "GRPC", "protocol", "GRPC", "exposed", port)
 
-	server := grpc.NewServer(grpc.UnaryInterceptor(kitGrpc.Interceptor))
+	server := grpc.NewServer(grpc.UnaryInterceptor(kitGrpc.Interceptor),
+		grpc.StatsHandler(zipkinGrpc.NewServerHandler(zipkinTracer)),
+	)
 	userPb.RegisterUsersvcServer(server, grpcsvc)
 	healthgrpc.RegisterHealthServer(server, hs)
 	reflection.Register(server)

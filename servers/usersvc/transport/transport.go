@@ -23,7 +23,7 @@ func NewHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipki
 
 	opts := []kitTransport.ServerOption{
 		kitTransport.ServerErrorEncoder(encodeError),
-		kitZipkin.HTTPServerTrace(zipkinTracer, kitZipkin.Name("usersvc-transport")),
+		kitZipkin.HTTPServerTrace(zipkinTracer),
 	}
 
 	m := mux.NewRouter()
@@ -31,14 +31,14 @@ func NewHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipki
 
 	{
 		ops := append(opts,
-			kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "usersvc_Login", logger)),
+			kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Login", logger)),
 		)
 		m.Handle("/login", makeHandler(eps.LoginEP, decodeLoginRequest, encodeResponse, ops)).Methods("POST")
 	}
 
 	{
 		ops := append(opts,
-			kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "usersvc_SendCode", logger)),
+			kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "SendCode", logger)),
 		)
 		m.Handle("/code", makeHandler(eps.SendCodeEP, func(_ context.Context, req *http.Request) (interface{},
 			error) {
@@ -49,7 +49,7 @@ func NewHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipki
 
 	{
 		ops := append(opts,
-			kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "usersvc_GetUser", logger)),
+			kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "GetUser", logger)),
 		)
 		m.Handle("/{UID}", makeHandler(eps.GetUserEP, decodeGetUserRequest, encodeResponse, ops)).Methods("GET")
 	}

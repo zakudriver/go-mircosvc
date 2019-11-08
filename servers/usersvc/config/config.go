@@ -6,11 +6,12 @@ import (
 )
 
 type config struct {
-	ServiceName  string `env:"SERVICE_NAME=usersvc"`
-	LogPath      string `env:"LOG_PATH=./usersvc.log"`
-	HttpPort     string `env:"HTTP_PORT=5001"`
-	GrpcPort     string `env:"GRPC_PORT=5002"`
+	ServiceName string `env:"SERVICE_NAME=usersvc"`
+	LogPath     string `env:"LOG_PATH=./usersvc.log"`
+	// HttpPort    string `env:"HTTP_PORT=5001"`
+	GrpcPort    string `env:"GRPC_PORT=5002"`
 	ZipkinAddr   string `env:"ZIPKIN_ADDR=http://localhost:9411/api/v2/spans"`
+	// ZipkinAddr   string `env:"ZIPKIN_ADDR=http://172.20.0.1:9411/api/v2/spans"`
 	RETRYMAX     string `env:"RETRY_MAX=3"`
 	RetryMax     int
 	RETRYTIMEOUT string `env:"RETRY_TIMEOUT=30000"`

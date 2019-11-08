@@ -22,10 +22,14 @@ func main() {
 	log := logger.NewLogger(conf.LogPath)
 
 	tracer := opentracing.GlobalTracer()
-	zipkinTracer := sharedZipkin.NewZipkin(log, conf.ZipkinAddr, "localhost:"+conf.HttpPort, conf.ServiceName)
+	zipkinTracer := sharedZipkin.NewZipkin(log, "", "localhost:"+conf.HttpPort, conf.ServiceName)
 	etcdClient := sharedEtcd.NewEtcd(conf.EtcdAddr)
 
 	r := transport.MakeHandler(etcdClient, tracer, zipkinTracer, log)
+
+	// serverMiddleware := zipkinHttp.NewServerMiddleware(
+	// 	zipkinTracer, zipkinHttp.TagResponseSize(true),
+	// )
 
 	errs := make(chan error, 1)
 	go httpServer(log, conf.HttpPort, r, errs)
