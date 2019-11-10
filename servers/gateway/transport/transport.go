@@ -17,7 +17,6 @@ import (
 	sharedEtcd "github.com/kum0/blog-svr/shared/etcd"
 	"github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
-	zipkinGrpc "github.com/openzipkin/zipkin-go/middleware/grpc"
 	"google.golang.org/grpc"
 )
 
@@ -54,8 +53,7 @@ func MakeHandler(etcdClient etcdv3.Client, tracer opentracing.Tracer, zipkinTrac
 func usersvcFactory(makeEndpoint func(service usersvcEndpoints.IUserService) endpoint.Endpoint, tracer opentracing.Tracer,
 	zipkinTracer *zipkin.Tracer, logger log.Logger) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
-		conn, err := grpc.Dial(instance, grpc.WithInsecure(), grpc.WithStatsHandler(zipkinGrpc.NewClientHandler(
-			zipkinTracer)))
+		conn, err := grpc.Dial(instance, grpc.WithInsecure())
 		if err != nil {
 			return nil, nil, err
 		}

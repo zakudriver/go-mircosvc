@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -16,14 +14,5 @@ func IsExist(path string) bool {
 		return true
 	}
 	return false
-}
-
-func ReadYamlFile(filePath string, out interface{}) error {
-	b, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		return err
-	}
-
-	return yaml.Unmarshal(b, out)
 }
 

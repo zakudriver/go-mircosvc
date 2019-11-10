@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/openzipkin/zipkin-go"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/openzipkin/zipkin-go"
 
 	"github.com/kum0/blog-svr/shared/db"
 	"github.com/kum0/blog-svr/shared/email"
@@ -28,9 +29,8 @@ import (
 	userPb "github.com/kum0/blog-svr/pb/user"
 	sharedZipkin "github.com/kum0/blog-svr/shared/zipkin"
 	"github.com/opentracing/opentracing-go"
-	healthgrpc "google.golang.org/grpc/health/grpc_health_v1"
-
 	zipkinGrpc "github.com/openzipkin/zipkin-go/middleware/grpc"
+	healthgrpc "google.golang.org/grpc/health/grpc_health_v1"
 )
 
 func main() {
@@ -38,7 +38,7 @@ func main() {
 	logger := logger.NewLogger(conf.LogPath)
 
 	tracer := opentracing.GlobalTracer()
-	zipkinTracer := sharedZipkin.NewZipkin(logger, "", "localhost:"+conf.GrpcPort, conf.ServiceName)
+	zipkinTracer := sharedZipkin.NewZipkin(logger, conf.ZipkinAddr, "localhost:"+conf.GrpcPort, conf.ServiceName)
 
 	{
 		etcdClient := sharedEtcd.NewEtcd(conf.EtcdAddr)

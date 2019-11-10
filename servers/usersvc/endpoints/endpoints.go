@@ -70,9 +70,9 @@ func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.T
 
 		mids := append(
 			middlewares,
-			middleware.LoggingMiddleware(log.With(logger, "method", method)),
 			opentracing.TraceServer(otTracer, method),
 			kitZipkin.TraceEndpoint(zipkinTracer, method),
+			middleware.LoggingMiddleware(log.With(logger, "method", method)),
 		)
 		getUserEndpoint = handleEndpointMiddleware(getUserEndpoint, mids...)
 	}
@@ -81,12 +81,11 @@ func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.T
 	{
 		method := "Login"
 		loginEndpoint = MakeLoginEndpoint(svc)
-
 		mids := append(
 			middlewares,
-			middleware.LoggingMiddleware(log.With(logger, "method", method)),
 			opentracing.TraceServer(otTracer, method),
 			kitZipkin.TraceEndpoint(zipkinTracer, method),
+			middleware.LoggingMiddleware(log.With(logger, "method", method)),
 		)
 		loginEndpoint = handleEndpointMiddleware(loginEndpoint, mids...)
 	}
@@ -98,9 +97,9 @@ func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.T
 
 		mids := append(
 			middlewares,
-			middleware.LoggingMiddleware(log.With(logger, "method", method)),
 			opentracing.TraceServer(otTracer, method),
 			kitZipkin.TraceEndpoint(zipkinTracer, method),
+			middleware.LoggingMiddleware(log.With(logger, "method", method)),
 		)
 		sendCodeEndpoint = handleEndpointMiddleware(sendCodeEndpoint, mids...)
 	}
