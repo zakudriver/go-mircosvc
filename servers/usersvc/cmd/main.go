@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/opentracing/opentracing-go"
 	"net"
 	"net/http"
 	"os"
@@ -28,7 +29,7 @@ import (
 	kitGrpc "github.com/go-kit/kit/transport/grpc"
 	userPb "github.com/kum0/blog-svr/pb/user"
 	sharedZipkin "github.com/kum0/blog-svr/shared/zipkin"
-	"github.com/opentracing/opentracing-go"
+	zipkinot "github.com/openzipkin-contrib/zipkin-go-opentracing"
 	zipkinGrpc "github.com/openzipkin/zipkin-go/middleware/grpc"
 	healthgrpc "google.golang.org/grpc/health/grpc_health_v1"
 )
@@ -37,8 +38,12 @@ func main() {
 	conf := config.GetConfig()
 	logger := logger.NewLogger(conf.LogPath)
 
+	zipkinTracer, reporter := sharedZipkin.NewZipkin(logger, conf.ZipkinAddr, "localhost:"+conf.GrpcPort,
+		conf.ServiceName)
+	defer reporter.Close()
+
+	opentracing.SetGlobalTracer(zipkinot.Wrap(zipkinTracer))
 	tracer := opentracing.GlobalTracer()
-	zipkinTracer := sharedZipkin.NewZipkin(logger, conf.ZipkinAddr, "localhost:"+conf.GrpcPort, conf.ServiceName)
 
 	{
 		etcdClient := sharedEtcd.NewEtcd(conf.EtcdAddr)
@@ -60,7 +65,8 @@ func main() {
 	hs.SetServingStatus(conf.ServiceName, healthgrpc.HealthCheckResponse_SERVING)
 
 	errs := make(chan error, 1)
-	go grpcServer(transport.MakeGRPCServer(ep, tracer, zipkinTracer, logger), conf.GrpcPort, zipkinTracer, hs, logger, errs)
+	go grpcServer(transport.MakeGRPCServer(ep, tracer, zipkinTracer, logger), conf.GrpcPort, zipkinTracer, hs, logger,
+		errs)
 
 	go func() {
 		c := make(chan os.Signal)

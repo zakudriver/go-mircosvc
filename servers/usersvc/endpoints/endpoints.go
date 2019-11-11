@@ -3,20 +3,18 @@ package endpoints
 import (
 	"context"
 	"errors"
-	"time"
-
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/tracing/opentracing"
+	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 	"github.com/kum0/blog-svr/common"
 	"github.com/kum0/blog-svr/shared/middleware"
-	"github.com/sony/gobreaker"
-	"golang.org/x/time/rate"
-
-	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 	stdopentracing "github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
+	"github.com/sony/gobreaker"
+	"golang.org/x/time/rate"
+	"time"
 )
 
 type Endponits struct {
@@ -25,21 +23,21 @@ type Endponits struct {
 	SendCodeEP endpoint.Endpoint
 }
 
-func (e *Endponits) GetUser(ctx context.Context, uid string) (string, error) {
+func (e *Endponits) GetUser(ctx context.Context, uid string) (*GetUserResponse, error) {
 	res, err := e.GetUserEP(ctx, uid)
 	if err != nil {
-		return "", err
+		return new(GetUserResponse), err
 	}
 
-	return res.(string), nil
+	return res.(*GetUserResponse), nil
 }
 
-func (e *Endponits) Login(ctx context.Context, request LoginRequest) (LoginResponse, error) {
+func (e *Endponits) Login(ctx context.Context, request LoginRequest) (*LoginResponse, error) {
 	res, err := e.LoginEP(ctx, request)
 	if err != nil {
-		return LoginResponse{}, err
+		return new(LoginResponse), err
 	}
-	return res.(LoginResponse), nil
+	return res.(*LoginResponse), nil
 }
 
 func (e *Endponits) SendCode(ctx context.Context) (SendCodeResponse, error) {
@@ -50,8 +48,7 @@ func (e *Endponits) SendCode(ctx context.Context) (SendCodeResponse, error) {
 	return res.(SendCodeResponse), nil
 }
 
-func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.Tracer,
-	zipkinTracer *zipkin.Tracer) *Endponits {
+func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.Tracer, zipkinTracer *zipkin.Tracer) *Endponits {
 	var middlewares []endpoint.Middleware
 	{
 		limiter := rate.NewLimiter(rate.Every(time.Second*1), 10)
@@ -113,28 +110,28 @@ func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.T
 
 func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req, ok := request.(GetUserRequest)
+		req, ok := request.(string)
 		if !ok {
 			return nil, errors.New("MakeGetUserEndpoint: interface conversion error")
 		}
 
-		name, err := svc.GetUser(ctx, req.Uid)
+		r, err := svc.GetUser(ctx, req)
 		if err != nil {
 			return nil, err
 		}
 
-		return common.Response{Data: name}, nil
+		return common.Response{Data: r}, nil
 	}
 }
 
 func MakeLoginEndpoint(svc IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req, ok := request.(LoginRequest)
+		req, ok := request.(*LoginRequest)
 		if !ok {
 			return nil, errors.New("MakeLoginEndpoint: interface conversion error")
 		}
 
-		res, err := svc.Login(ctx, req)
+		res, err := svc.Login(ctx, *req)
 		if err != nil {
 			return nil, err
 		}

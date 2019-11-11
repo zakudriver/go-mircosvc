@@ -1,5 +1,9 @@
 package endpoints
 
+type GetUserResponse struct {
+	Uid string `json:"uid"`
+}
+
 type LoginResponse struct {
 	Id          int32  `json:"id"`
 	Username    string `json:"username"`

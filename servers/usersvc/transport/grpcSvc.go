@@ -3,6 +3,7 @@ package transport
 import (
 	"context"
 	"errors"
+	"github.com/kum0/blog-svr/common"
 
 	"github.com/go-kit/kit/log"
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
@@ -37,7 +38,7 @@ func MakeGRPCServer(endpoints *endpoints.Endponits, otTracer opentracing.Tracer,
 		),
 		sendCode: kitGrpcTransport.NewServer(
 			endpoints.SendCodeEP,
-			decodeGRPCSendCodeRequest,
+			common.DecodeEmpty,
 			encodeGRPCSendCodeResponse,
 			append(options, kitGrpcTransport.ServerBefore(kitOpentracing.GRPCToContext(otTracer, "SendCode",
 				logger)))...,

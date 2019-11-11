@@ -4,17 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"net/http"
-
 	"github.com/kum0/blog-svr/common"
 	userPb "github.com/kum0/blog-svr/pb/user"
 	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	"github.com/kum0/blog-svr/utils"
+	"net/http"
 )
-
-func encodeResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
-	return json.NewEncoder(w).Encode(response)
-}
 
 func encodeResponseSetCookie(_ context.Context, w http.ResponseWriter, response interface{}) error {
 	cookie := &http.Cookie{
@@ -39,11 +34,16 @@ func encodeGRPCGetUserRequest(_ context.Context, request interface{}) (interface
 }
 
 func encodeGRPCGetUserResponse(_ context.Context, request interface{}) (interface{}, error) {
-	r, ok := request.(common.Response)
+	res, ok := request.(common.Response)
 	if !ok {
 		return nil, errors.New("encodeGRPCGetUserResponse: interface conversion error")
 	}
-	return &userPb.GetUserReply{Uid: r.Data.(string)}, nil
+
+	r := &userPb.GetUserReply{}
+	if err := utils.StructCopy(res.Data, r); err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
 // Login
@@ -69,10 +69,6 @@ func encodeGRPCLoginResponse(_ context.Context, request interface{}) (interface{
 }
 
 // SendCode
-func encodeGRPCSendCodeRequest(_ context.Context, request interface{}) (interface{}, error) {
-	return nil, nil
-}
-
 func encodeGRPCSendCodeResponse(_ context.Context, request interface{}) (interface{}, error) {
 	res, ok := request.(common.Response)
 	if !ok {

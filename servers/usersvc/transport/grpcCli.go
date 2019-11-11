@@ -1,6 +1,7 @@
 package transport
 
 import (
+	"github.com/kum0/blog-svr/common"
 	"time"
 
 	"github.com/go-kit/kit/endpoint"
@@ -67,7 +68,7 @@ func MakeGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTr
 			conn,
 			"pb.Usersvc",
 			method,
-			encodeGRPCSendCodeRequest,
+			common.EncodeEmpty,
 			decodeGRPCSendCodeResponse,
 			userPb.SendCodeReply{},
 			append(options, kitGrpcTransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,

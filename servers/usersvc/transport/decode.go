@@ -2,25 +2,23 @@ package transport
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"net/http"
-
 	"github.com/gorilla/mux"
 	"github.com/kum0/blog-svr/common"
 	userPb "github.com/kum0/blog-svr/pb/user"
 	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	"github.com/kum0/blog-svr/utils"
+	"net/http"
 )
 
 // GerUser
 func decodeGetUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
-	value, ok := vars["UID"]
+	uid, ok := vars["UID"]
 	if !ok {
 		return nil, common.ErrRouteArgs
 	}
-	return endpoints.GetUserRequest{Uid: value}, nil
+	return uid, nil
 }
 
 func decodeGRPCGetUserRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
@@ -28,7 +26,7 @@ func decodeGRPCGetUserRequest(_ context.Context, grpcReq interface{}) (interface
 	if !ok {
 		return nil, errors.New("decodeGRPCGetUserRequest: interface conversion error")
 	}
-	return endpoints.GetUserRequest{Uid: r.Uid}, nil
+	return r.Uid, nil
 }
 
 func decodeGRPCGetUserResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
@@ -36,24 +34,21 @@ func decodeGRPCGetUserResponse(_ context.Context, grpcReply interface{}) (interf
 	if !ok {
 		return nil, errors.New("decodeGRPCGetUserResponse: interface conversion error")
 	}
-	return rp.Uid, nil
+
+	r := &endpoints.GetUserResponse{}
+	if err := utils.StructCopy(rp, r); err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
 // Login
-func decodeLoginRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var request endpoints.LoginRequest
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return nil, err
-	}
-	return request, nil
-}
-
 func decodeGRPCLoginRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req, ok := grpcReq.(*userPb.LoginRequest)
 	if !ok {
 		return nil, errors.New("decodeGRPCLoginRequest: interface conversion error")
 	}
-	return endpoints.LoginRequest{Username: req.Username, Password: req.Password}, nil
+	return &endpoints.LoginRequest{Username: req.Username, Password: req.Password}, nil
 }
 
 func decodeGRPCLoginResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
@@ -66,7 +61,7 @@ func decodeGRPCLoginResponse(_ context.Context, grpcReply interface{}) (interfac
 	if err := utils.StructCopy(rp, r); err != nil {
 		return nil, err
 	}
-	return *r, nil
+	return r, nil
 }
 
 // SendCode
@@ -83,6 +78,3 @@ func decodeGRPCSendCodeResponse(_ context.Context, grpcReply interface{}) (inter
 	return *r, nil
 }
 
-func decodeGRPCSendCodeRequest(_ context.Context, grpcrequest interface{}) (interface{}, error) {
-	return grpcrequest, nil
-}

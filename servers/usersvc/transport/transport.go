@@ -8,7 +8,6 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
-	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 	kitTransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/kum0/blog-svr/common"
@@ -16,6 +15,8 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 )
 
 func NewHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
@@ -30,16 +31,17 @@ func NewHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipki
 	m.Handle("/metrics", promhttp.Handler())
 
 	{
-		handler := makeHandler(eps.LoginEP, decodeLoginRequest, encodeResponse,
+		handler := makeHandler(eps.LoginEP, common.DecodeCommonJsonRequest(&endpoints.LoginRequest{}),
+			common.EncodeResponse,
 			append(opts, kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Login", logger)),
 			))
 		m.Handle("/login", handler).Methods("POST")
 	}
 
 	{
-		handler := makeHandler(eps.SendCodeEP, func(_ context.Context, req *http.Request) (interface{}, error) {
-			return nil, nil
-		}, encodeResponse,
+		handler := makeHandler(eps.SendCodeEP,
+			common.DecodeEmptyHttpRequest,
+			common.EncodeResponse,
 			append(opts,
 				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "SendCode", logger)),
 			))
@@ -47,7 +49,7 @@ func NewHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipki
 	}
 
 	{
-		handler := makeHandler(eps.GetUserEP, decodeGetUserRequest, encodeResponse,
+		handler := makeHandler(eps.GetUserEP, decodeGetUserRequest, common.EncodeResponse,
 			append(opts,
 				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "GetUser", logger)),
 			))

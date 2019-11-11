@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	"github.com/go-kit/kit/metrics"
 	kitPrometheus "github.com/go-kit/kit/metrics/prometheus"
+	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -57,7 +57,7 @@ type prometheusMiddleware struct {
 	endpoints.IUserService
 }
 
-func (pm prometheusMiddleware) GetUser(ctx context.Context, s string) (output string, err error) {
+func (pm prometheusMiddleware) GetUser(ctx context.Context, s string) (output *endpoints.GetUserResponse, err error) {
 	defer func(begin time.Time) {
 		lvs := []string{"method", "get_user", "error", fmt.Sprint(err != nil)}
 		pm.requestCount.With(lvs...).Add(1)

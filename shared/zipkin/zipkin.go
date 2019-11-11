@@ -1,28 +1,18 @@
 package zipkin
 
 import (
-	l "log"
-	"os"
-
-	"github.com/openzipkin/zipkin-go/reporter"
-
 	"github.com/go-kit/kit/log"
 	"github.com/openzipkin/zipkin-go"
-	zipkinReporterHttp "github.com/openzipkin/zipkin-go/reporter/http"
-	zipkinReporterLog "github.com/openzipkin/zipkin-go/reporter/log"
+	"github.com/openzipkin/zipkin-go/reporter"
+	zipkinHttp "github.com/openzipkin/zipkin-go/reporter/http"
+	"os"
 )
 
-func NewZipkin(logger log.Logger, zipkinAddr, svcAddr, svcName string) *zipkin.Tracer {
+func NewZipkin(logger log.Logger, zipkinAddr, svcAddr, svcName string) (*zipkin.Tracer, reporter.Reporter) {
 	var (
-		reporter reporter.Reporter
+		isNoopTracer = (zipkinAddr == "")
+		reporter     = zipkinHttp.NewReporter(zipkinAddr)
 	)
-
-	if zipkinAddr == "" {
-		reporter = zipkinReporterLog.NewReporter(l.New(os.Stderr, "", l.LstdFlags))
-	} else {
-		reporter = zipkinReporterHttp.NewReporter(zipkinAddr)
-	}
-	defer reporter.Close()
 
 	zkEndpoint, err := zipkin.NewEndpoint(svcName, svcAddr)
 	if err != nil {
@@ -31,12 +21,12 @@ func NewZipkin(logger log.Logger, zipkinAddr, svcAddr, svcName string) *zipkin.T
 	zipkinTracer, err := zipkin.NewTracer(
 		reporter,
 		zipkin.WithLocalEndpoint(zkEndpoint),
-		// zipkin.WithNoopTracer(true),
+		zipkin.WithNoopSpan(isNoopTracer),
 	)
 	if err != nil {
 		logger.Log("zipkin NewTracer", err)
 		os.Exit(0)
 	}
 
-	return zipkinTracer
+	return zipkinTracer, reporter
 }

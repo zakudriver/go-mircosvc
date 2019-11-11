@@ -13,8 +13,8 @@ import (
 )
 
 type IUserService interface {
-	GetUser(context.Context, string) (string, error)
-	Login(context.Context, LoginRequest) (LoginResponse, error)
+	GetUser(context.Context, string) (*GetUserResponse, error)
+	Login(context.Context, LoginRequest) (*LoginResponse, error)
 	SendCode(context.Context) (SendCodeResponse, error)
 }
 
@@ -36,12 +36,12 @@ type UserService struct {
 	validator *validator.Validator
 }
 
-func (svc *UserService) GetUser(_ context.Context, uid string) (string, error) {
-	return strings.ToUpper(uid), nil
+func (svc *UserService) GetUser(_ context.Context, uid string) (*GetUserResponse, error) {
+	return &GetUserResponse{strings.ToUpper(uid)}, nil
 }
 
-func (svc *UserService) Login(_ context.Context, req LoginRequest) (LoginResponse, error) {
-	return LoginResponse{Username: req.Username, Id: 11, Avatar: "ava", RoleID: 12, RecentTime: "time"}, nil
+func (svc *UserService) Login(_ context.Context, req LoginRequest) (*LoginResponse, error) {
+	return &LoginResponse{Username: req.Username, Id: 11, Avatar: "ava", RoleID: 12, RecentTime: "time"}, nil
 }
 
 func (svc *UserService) SendCode(_ context.Context) (SendCodeResponse, error) {
