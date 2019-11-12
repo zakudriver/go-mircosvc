@@ -21,6 +21,7 @@ type Endponits struct {
 	GetUserEP  endpoint.Endpoint
 	LoginEP    endpoint.Endpoint
 	SendCodeEP endpoint.Endpoint
+	RegisterEP endpoint.Endpoint
 }
 
 func (e *Endponits) GetUser(ctx context.Context, uid string) (*GetUserResponse, error) {
@@ -48,6 +49,14 @@ func (e *Endponits) SendCode(ctx context.Context) (*SendCodeResponse, error) {
 	return res.(*SendCodeResponse), nil
 }
 
+func (e *Endponits) Register(ctx context.Context, request RegisterRequest) error {
+	_, err := e.RegisterEP(ctx, request)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.Tracer, zipkinTracer *zipkin.Tracer) *Endponits {
 	var middlewares []endpoint.Middleware
 	{
@@ -60,51 +69,11 @@ func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.T
 		)
 	}
 
-	var getUserEndpoint endpoint.Endpoint
-	{
-		method := "GetUser"
-		getUserEndpoint = MakeGetUserEndpoint(svc)
-
-		mids := append(
-			middlewares,
-			opentracing.TraceServer(otTracer, method),
-			kitZipkin.TraceEndpoint(zipkinTracer, method),
-			middleware.LoggingMiddleware(log.With(logger, "method", method)),
-		)
-		getUserEndpoint = handleEndpointMiddleware(getUserEndpoint, mids...)
-	}
-
-	var loginEndpoint endpoint.Endpoint
-	{
-		method := "Login"
-		loginEndpoint = MakeLoginEndpoint(svc)
-		mids := append(
-			middlewares,
-			opentracing.TraceServer(otTracer, method),
-			kitZipkin.TraceEndpoint(zipkinTracer, method),
-			middleware.LoggingMiddleware(log.With(logger, "method", method)),
-		)
-		loginEndpoint = handleEndpointMiddleware(loginEndpoint, mids...)
-	}
-
-	var sendCodeEndpoint endpoint.Endpoint
-	{
-		method := "SendCode"
-		sendCodeEndpoint = MakeSendCodeEndpoint(svc)
-
-		mids := append(
-			middlewares,
-			opentracing.TraceServer(otTracer, method),
-			kitZipkin.TraceEndpoint(zipkinTracer, method),
-			middleware.LoggingMiddleware(log.With(logger, "method", method)),
-		)
-		sendCodeEndpoint = handleEndpointMiddleware(sendCodeEndpoint, mids...)
-	}
-
 	return &Endponits{
-		GetUserEP:  getUserEndpoint,
-		LoginEP:    loginEndpoint,
-		SendCodeEP: sendCodeEndpoint,
+		GetUserEP:  makeEndpoint(MakeGetUserEndpoint(svc), "GetUser", logger, otTracer, zipkinTracer, middlewares),
+		LoginEP:    makeEndpoint(MakeLoginEndpoint(svc), "Login", logger, otTracer, zipkinTracer, middlewares),
+		SendCodeEP: makeEndpoint(MakeSendCodeEndpoint(svc), "SendCode", logger, otTracer, zipkinTracer, middlewares),
+		RegisterEP: makeEndpoint(MakeRegisterEndpoint(svc), "Register", logger, otTracer, zipkinTracer, middlewares),
 	}
 }
 
@@ -147,14 +116,45 @@ func MakeSendCodeEndpoint(svc IUserService) endpoint.Endpoint {
 			return nil, err
 		}
 
-		return common.Response{Data: res}, nil
+		return common.Response{Data: res, Msg: "验证码发送成功"}, nil
 	}
 }
 
-func handleEndpointMiddleware(endpoint endpoint.Endpoint, middlewares ...endpoint.Middleware) endpoint.Endpoint {
-	for _, m := range middlewares {
-		endpoint = m(endpoint)
+func MakeRegisterEndpoint(svc IUserService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req, ok := request.(*RegisterRequest)
+		if !ok {
+			return nil, errors.New("MakeRegisterEndpoint: interface conversion error")
+		}
+
+		err := svc.Register(ctx, *req)
+		if err != nil {
+			return nil, err
+		}
+
+		return common.Response{Msg: "注册成功"}, nil
+	}
+}
+
+func makeEndpoint(
+	ep endpoint.Endpoint,
+	method string,
+	logger log.Logger,
+	otTracer stdopentracing.Tracer,
+	zipkinTracer *zipkin.Tracer,
+	middlewares []endpoint.Middleware,
+) endpoint.Endpoint {
+
+	mids := append(
+		middlewares,
+		opentracing.TraceServer(otTracer, method),
+		kitZipkin.TraceEndpoint(zipkinTracer, method),
+		middleware.LoggingMiddleware(log.With(logger, "method", method)),
+	)
+
+	for _, m := range mids {
+		ep = m(ep)
 	}
 
-	return endpoint
+	return ep
 }

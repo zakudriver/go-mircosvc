@@ -12,6 +12,9 @@ service Usersvc {
 
     rpc SendCode (SendCodeRequest) returns (SendCodeReply) {
     }
+
+    rpc Register (RegisterRequest) returns (RegisterReply) {
+    }
 }
 
 message GetUserRequest {
@@ -41,4 +44,13 @@ message SendCodeRequest {
 
 message SendCodeReply {
     string codeID = 1;
+}
+
+message RegisterRequest {
+    string username = 1;
+    string password = 2;
+    int32 codeID = 3;
+}
+
+message RegisterReply {
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/kum0/blog-svr/common"
+	"google.golang.org/grpc/status"
 
 	"github.com/go-kit/kit/log"
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
@@ -21,26 +22,34 @@ func MakeGRPCServer(endpoints *endpoints.Endponits, otTracer opentracing.Tracer,
 	options := []kitGrpcTransport.ServerOption{
 		kitZipkin.GRPCServerTrace(zipkinTracer),
 	}
+
 	return &grpcServer{
 		getUser: kitGrpcTransport.NewServer(
 			endpoints.GetUserEP,
 			decodeGRPCGetUserRequest,
-			encodeGRPCGetUserResponse,
+			common.EncodeGRPCResponse(new(userPb.GetUserReply)),
 			append(options, kitGrpcTransport.ServerBefore(kitOpentracing.GRPCToContext(otTracer, "GetUser",
 				logger)))...,
 		),
 		login: kitGrpcTransport.NewServer(
 			endpoints.LoginEP,
 			decodeGRPCLoginRequest,
-			encodeGRPCLoginResponse,
+			common.EncodeGRPCResponse(new(userPb.LoginReply)),
 			append(options, kitGrpcTransport.ServerBefore(kitOpentracing.GRPCToContext(otTracer, "Login",
 				logger)))...,
 		),
 		sendCode: kitGrpcTransport.NewServer(
 			endpoints.SendCodeEP,
 			common.DecodeEmpty,
-			encodeGRPCSendCodeResponse,
+			common.EncodeGRPCResponse(new(userPb.SendCodeReply)),
 			append(options, kitGrpcTransport.ServerBefore(kitOpentracing.GRPCToContext(otTracer, "SendCode",
+				logger)))...,
+		),
+		register: kitGrpcTransport.NewServer(
+			endpoints.RegisterEP,
+			decodeGRPCRegisterRequest,
+			common.EncodeEmpty,
+			append(options, kitGrpcTransport.ServerBefore(kitOpentracing.GRPCToContext(otTracer, "Register",
 				logger)))...,
 		),
 	}
@@ -50,6 +59,7 @@ type grpcServer struct {
 	getUser  kitGrpcTransport.Handler `json:""`
 	login    kitGrpcTransport.Handler `json:""`
 	sendCode kitGrpcTransport.Handler `json:""`
+	register kitGrpcTransport.Handler `json:""`
 }
 
 func (gs *grpcServer) GetUser(ctx context.Context, req *userPb.GetUserRequest) (*userPb.GetUserReply, error) {
@@ -88,4 +98,28 @@ func (gs *grpcServer) SendCode(ctx context.Context, req *userPb.SendCodeRequest)
 		return nil, errors.New("*userPb.SendCodeReply")
 	}
 	return rep, nil
+}
+
+func (gs *grpcServer) Register(ctx context.Context, req *userPb.RegisterRequest) (*userPb.RegisterReply, error) {
+	_, _, err := gs.register.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, grpcEncodeError(err)
+	}
+
+	return new(userPb.RegisterReply), nil
+}
+
+func grpcEncodeError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	st, ok := status.FromError(err)
+	if ok {
+		// return status.Error(st.Code(), st.Message())
+		return errors.New(st.Message())
+	}
+
+	// return status.Error(codes.Internal, "internal server error")
+	return err
 }

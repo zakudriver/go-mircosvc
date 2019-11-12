@@ -1,11 +1,8 @@
 package transport
 
 import (
-	"context"
-	"encoding/json"
 	"net/http"
 
-	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
 	kitTransport "github.com/go-kit/kit/transport/http"
@@ -19,11 +16,10 @@ import (
 	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 )
 
-func NewHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
+func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
 	logger log.Logger) http.Handler {
-
 	opts := []kitTransport.ServerOption{
-		kitTransport.ServerErrorEncoder(encodeError),
+		kitTransport.ServerErrorEncoder(common.EncodeError),
 		kitZipkin.HTTPServerTrace(zipkinTracer),
 	}
 
@@ -31,53 +27,47 @@ func NewHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipki
 	m.Handle("/metrics", promhttp.Handler())
 
 	{
-		handler := makeHandler(eps.LoginEP, common.DecodeCommonJsonRequest(&endpoints.LoginRequest{}),
+		handler := kitTransport.NewServer(
+			eps.LoginEP,
+			common.DecodeCommonJsonRequest(new(endpoints.LoginRequest)),
 			common.EncodeResponse,
-			append(opts, kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Login", logger)),
-			))
+			append(opts, kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Login", logger)))...,
+		)
 		m.Handle("/login", handler).Methods("POST")
 	}
 
 	{
-		handler := makeHandler(eps.SendCodeEP,
+		handler := kitTransport.NewServer(
+			eps.SendCodeEP,
 			common.DecodeEmptyHttpRequest,
 			common.EncodeResponse,
 			append(opts,
-				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "SendCode", logger)),
-			))
+				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "SendCode", logger)))...,
+		)
 		m.Handle("/code", handler).Methods("GET")
 	}
 
 	{
-		handler := makeHandler(eps.GetUserEP, decodeGetUserRequest, common.EncodeResponse,
+		handler := kitTransport.NewServer(
+			eps.RegisterEP,
+			common.DecodeCommonJsonRequest(new(endpoints.RegisterRequest)),
+			common.EncodeResponse,
 			append(opts,
-				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "GetUser", logger)),
-			))
+				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Register", logger)))...,
+		)
+		m.Handle("/register", handler).Methods("POST")
+	}
+
+	{
+		handler := kitTransport.NewServer(
+			eps.GetUserEP,
+			decodeGetUserRequest,
+			common.EncodeResponse,
+			append(opts,
+				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "GetUser", logger)))...,
+		)
 		m.Handle("/{UID}", handler).Methods("GET")
 	}
 
 	return m
-}
-
-func makeHandler(
-	endpoint endpoint.Endpoint,
-	dec kitTransport.DecodeRequestFunc,
-	enc kitTransport.EncodeResponseFunc,
-	ops []kitTransport.ServerOption,
-) *kitTransport.Server {
-	return kitTransport.NewServer(
-		endpoint,
-		dec,
-		enc,
-		ops...,
-	)
-}
-
-func encodeError(_ context.Context, err error, w http.ResponseWriter) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-
-	json.NewEncoder(w).Encode(common.Response{
-		Code: common.Error.Code(),
-		Msg:  err.Error(),
-	})
 }

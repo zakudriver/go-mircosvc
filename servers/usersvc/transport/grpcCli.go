@@ -7,17 +7,14 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/ratelimit"
-	kitGrpcTransport "github.com/go-kit/kit/transport/grpc"
-	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
-	"golang.org/x/time/rate"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
 	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
+	kitGrpcTransport "github.com/go-kit/kit/transport/grpc"
 	userPb "github.com/kum0/blog-svr/pb/user"
+	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	"github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
+	"golang.org/x/time/rate"
 	"google.golang.org/grpc"
 )
 
@@ -77,22 +74,27 @@ func MakeGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTr
 		sendCodeEndpoint = limiter(sendCodeEndpoint)
 	}
 
+	var registerEndpoint endpoint.Endpoint
+	{
+		method := "Register"
+		registerEndpoint = kitGrpcTransport.NewClient(
+			conn,
+			"pb.Usersvc",
+			method,
+			encodeGRPCRegisterRequest,
+			decodeGRPCRegisterResponse,
+			userPb.RegisterReply{},
+			append(options, kitGrpcTransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,
+		).Endpoint()
+		registerEndpoint = kitOpentracing.TraceClient(otTracer, method)(registerEndpoint)
+		registerEndpoint = limiter(registerEndpoint)
+	}
+
 	return &endpoints.Endponits{
 		GetUserEP:  getUserEndpoint,
 		LoginEP:    loginEndpoint,
 		SendCodeEP: sendCodeEndpoint,
+		RegisterEP: registerEndpoint,
 	}
 }
 
-func grpcEncodeError(err error) error {
-	if err == nil {
-		return nil
-	}
-
-	st, ok := status.FromError(err)
-	if ok {
-		return status.Error(st.Code(), st.Message())
-	}
-
-	return status.Error(codes.Internal, "internal server error")
-}

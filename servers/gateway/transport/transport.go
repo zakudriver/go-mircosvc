@@ -29,17 +29,21 @@ func MakeHandler(etcdClient etcdv3.Client, tracer opentracing.Tracer, zipkinTrac
 		ins := sharedEtcd.NewInstancer("/usersvc", etcdClient, logger)
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
-			endpoints.GetUserEP = makeEndpoint(factory, zipkinTracer, "GetUser", ins, logger)
+			endpoints.GetUserEP = makeEndpoint(factory, ins, logger)
 		}
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeLoginEndpoint, tracer, zipkinTracer, logger)
-			endpoints.LoginEP = makeEndpoint(factory, zipkinTracer, "Login", ins, logger)
+			endpoints.LoginEP = makeEndpoint(factory, ins, logger)
+		}
+		{
+			factory := usersvcFactory(usersvcEndpoints.MakeRegisterEndpoint, tracer, zipkinTracer, logger)
+			endpoints.RegisterEP = makeEndpoint(factory, ins, logger)
 		}
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeSendCodeEndpoint, tracer, zipkinTracer, logger)
-			endpoints.SendCodeEP = makeEndpoint(factory, zipkinTracer, "SenCode", ins, logger)
+			endpoints.SendCodeEP = makeEndpoint(factory, ins, logger)
 		}
-		r.PathPrefix("/usersvc").Handler(http.StripPrefix("/usersvc", usersvcTransport.NewHTTPHandler(endpoints, tracer,
+		r.PathPrefix("/usersvc").Handler(http.StripPrefix("/usersvc", usersvcTransport.MakeHTTPHandler(endpoints, tracer,
 			zipkinTracer, logger)))
 	}
 
@@ -62,7 +66,7 @@ func usersvcFactory(makeEndpoint func(service usersvcEndpoints.IUserService) end
 	}
 }
 
-func makeEndpoint(factory sd.Factory, zipkinTracer *zipkin.Tracer, method string, ins *etcdv3.Instancer,
+func makeEndpoint(factory sd.Factory, ins *etcdv3.Instancer,
 	logger log.Logger) endpoint.Endpoint {
 	endpointer := sd.NewEndpointer(ins, factory, logger)
 	balancer := lb.NewRoundRobin(endpointer)

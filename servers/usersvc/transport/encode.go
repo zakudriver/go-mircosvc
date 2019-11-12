@@ -7,7 +7,6 @@ import (
 	"github.com/kum0/blog-svr/common"
 	userPb "github.com/kum0/blog-svr/pb/user"
 	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
-	"github.com/kum0/blog-svr/utils"
 	"net/http"
 )
 
@@ -33,19 +32,6 @@ func encodeGRPCGetUserRequest(_ context.Context, request interface{}) (interface
 	return &userPb.GetUserRequest{Uid: r}, nil
 }
 
-func encodeGRPCGetUserResponse(_ context.Context, request interface{}) (interface{}, error) {
-	res, ok := request.(common.Response)
-	if !ok {
-		return nil, errors.New("encodeGRPCGetUserResponse: interface conversion error")
-	}
-
-	r := new(userPb.GetUserReply)
-	if err := utils.StructCopy(res.Data, r); err != nil {
-		return nil, err
-	}
-	return r, nil
-}
-
 // Login
 func encodeGRPCLoginRequest(_ context.Context, request interface{}) (interface{}, error) {
 	req, ok := request.(endpoints.LoginRequest)
@@ -55,29 +41,14 @@ func encodeGRPCLoginRequest(_ context.Context, request interface{}) (interface{}
 	return &userPb.LoginRequest{Username: req.Username, Password: req.Password}, nil
 }
 
-func encodeGRPCLoginResponse(_ context.Context, request interface{}) (interface{}, error) {
-	res, ok := request.(common.Response)
-	if !ok {
-		return nil, errors.New("encodeGRPCLoginResponse: interface conversion error")
-	}
-
-	r := new(userPb.LoginReply)
-	if err := utils.StructCopy(res.Data, r); err != nil {
-		return nil, err
-	}
-	return r, nil
-}
-
 // SendCode
-func encodeGRPCSendCodeResponse(_ context.Context, request interface{}) (interface{}, error) {
-	res, ok := request.(common.Response)
-	if !ok {
-		return nil, errors.New("encodeGRPCSendCodeResponse: interface conversion error")
-	}
+// ...
 
-	r := new(userPb.SendCodeReply)
-	if err := utils.StructCopy(res.Data, r); err != nil {
-		return nil, err
+// Register
+func encodeGRPCRegisterRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req, ok := request.(endpoints.RegisterRequest)
+	if !ok {
+		return nil, errors.New("encodeGRPCRegisterRequest: interface conversion error")
 	}
-	return r, nil
+	return &userPb.RegisterRequest{Username: req.Username, Password: req.Password, CodeID: req.CodeID}, nil
 }

@@ -61,6 +61,7 @@ func decodeGRPCLoginResponse(_ context.Context, grpcReply interface{}) (interfac
 	if err := utils.StructCopy(rp, r); err != nil {
 		return nil, err
 	}
+
 	return r, nil
 }
 
@@ -76,4 +77,27 @@ func decodeGRPCSendCodeResponse(_ context.Context, grpcReply interface{}) (inter
 		return nil, err
 	}
 	return r, nil
+}
+
+// Register
+func decodeGRPCRegisterRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req, ok := grpcReq.(*userPb.RegisterRequest)
+	if !ok {
+		return nil, errors.New("decodeGRPCRegisterRequest: interface conversion error")
+	}
+	return &endpoints.RegisterRequest{Username: req.Username, Password: req.Password, CodeID: req.CodeID}, nil
+}
+
+func decodeGRPCRegisterResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	// rp, ok := grpcReply.(*userPb.RegisterReply)
+	// if !ok {
+	// 	return nil, errors.New("decodeGRPCRegisterResponse: interface conversion error")
+	// }
+	//
+	// r := new(endpoints.RegisterResponse)
+	// if err := utils.StructCopy(rp, r); err != nil {
+	// 	return nil, err
+	// }
+	// return r, nil
+	return nil, nil
 }
