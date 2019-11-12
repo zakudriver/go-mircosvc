@@ -71,6 +71,5 @@ func makeEndpoint(factory sd.Factory, ins *etcdv3.Instancer,
 	endpointer := sd.NewEndpointer(ins, factory, logger)
 	balancer := lb.NewRoundRobin(endpointer)
 	ep := lb.Retry(3, 3*time.Second, balancer)
-	// return kitZipkin.TraceEndpoint(zipkinTracer, method)(ep)
 	return ep
 }

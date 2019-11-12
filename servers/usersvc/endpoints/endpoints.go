@@ -3,6 +3,8 @@ package endpoints
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
@@ -14,7 +16,6 @@ import (
 	"github.com/openzipkin/zipkin-go"
 	"github.com/sony/gobreaker"
 	"golang.org/x/time/rate"
-	"time"
 )
 
 type Endponits struct {
