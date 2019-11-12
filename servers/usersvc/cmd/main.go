@@ -36,9 +36,9 @@ import (
 
 func main() {
 	conf := config.GetConfig()
-	logger := logger.NewLogger(conf.LogPath)
+	log := logger.NewLogger(conf.LogPath)
 
-	zipkinTracer, reporter := sharedZipkin.NewZipkin(logger, conf.ZipkinAddr, "localhost:"+conf.GrpcPort,
+	zipkinTracer, reporter := sharedZipkin.NewZipkin(log, conf.ZipkinAddr, "localhost:"+conf.GrpcPort,
 		conf.ServiceName)
 	defer reporter.Close()
 
@@ -47,7 +47,7 @@ func main() {
 
 	{
 		etcdClient := sharedEtcd.NewEtcd(conf.EtcdAddr)
-		register := sharedEtcd.Register("/usersvc", "localhost:"+conf.GrpcPort, etcdClient, logger)
+		register := sharedEtcd.Register("/usersvc", "localhost:"+conf.GrpcPort, etcdClient, log)
 		defer register.Register()
 	}
 
@@ -59,14 +59,13 @@ func main() {
 		svc = endpoints.NewUserService(mdb, rd, email)
 		svc = middleware.MakeServiceMiddleware(svc)
 	}
-	ep := endpoints.NewEndpoints(svc, logger, tracer, zipkinTracer)
+	ep := endpoints.NewEndpoints(svc, log, tracer, zipkinTracer)
 
 	hs := health.NewServer()
 	hs.SetServingStatus(conf.ServiceName, healthgrpc.HealthCheckResponse_SERVING)
 
 	errs := make(chan error, 1)
-	go grpcServer(transport.MakeGRPCServer(ep, tracer, zipkinTracer, logger), conf.GrpcPort, zipkinTracer, hs, logger,
-		errs)
+	go grpcServer(transport.MakeGRPCServer(ep, tracer, zipkinTracer, log), conf.GrpcPort, zipkinTracer, hs, log, errs)
 
 	go func() {
 		c := make(chan os.Signal)
@@ -74,7 +73,7 @@ func main() {
 		errs <- fmt.Errorf("%s", <-c)
 	}()
 
-	level.Info(logger).Log("serviceName", conf.ServiceName, "terminated", <-errs)
+	level.Info(log).Log("serviceName", conf.ServiceName, "terminated", <-errs)
 }
 
 func grpcServer(grpcsvc userPb.UsersvcServer, port string, zipkinTracer *zipkin.Tracer, hs *health.Server,

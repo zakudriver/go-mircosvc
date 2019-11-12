@@ -26,7 +26,7 @@ type Endponits struct {
 func (e *Endponits) GetUser(ctx context.Context, uid string) (*GetUserResponse, error) {
 	res, err := e.GetUserEP(ctx, uid)
 	if err != nil {
-		return new(GetUserResponse), err
+		return nil, err
 	}
 
 	return res.(*GetUserResponse), nil
@@ -35,17 +35,17 @@ func (e *Endponits) GetUser(ctx context.Context, uid string) (*GetUserResponse, 
 func (e *Endponits) Login(ctx context.Context, request LoginRequest) (*LoginResponse, error) {
 	res, err := e.LoginEP(ctx, request)
 	if err != nil {
-		return new(LoginResponse), err
+		return nil, err
 	}
 	return res.(*LoginResponse), nil
 }
 
-func (e *Endponits) SendCode(ctx context.Context) (SendCodeResponse, error) {
+func (e *Endponits) SendCode(ctx context.Context) (*SendCodeResponse, error) {
 	res, err := e.SendCodeEP(ctx, nil)
 	if err != nil {
-		return SendCodeResponse{}, err
+		return nil, err
 	}
-	return res.(SendCodeResponse), nil
+	return res.(*SendCodeResponse), nil
 }
 
 func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.Tracer, zipkinTracer *zipkin.Tracer) *Endponits {

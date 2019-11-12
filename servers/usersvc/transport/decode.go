@@ -35,7 +35,7 @@ func decodeGRPCGetUserResponse(_ context.Context, grpcReply interface{}) (interf
 		return nil, errors.New("decodeGRPCGetUserResponse: interface conversion error")
 	}
 
-	r := &endpoints.GetUserResponse{}
+	r := new(endpoints.GetUserResponse)
 	if err := utils.StructCopy(rp, r); err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func decodeGRPCLoginResponse(_ context.Context, grpcReply interface{}) (interfac
 		return nil, errors.New("decodeGRPCLoginResponse: interface conversion error")
 	}
 
-	r := &endpoints.LoginResponse{}
+	r := new(endpoints.LoginResponse)
 	if err := utils.StructCopy(rp, r); err != nil {
 		return nil, err
 	}
@@ -71,10 +71,9 @@ func decodeGRPCSendCodeResponse(_ context.Context, grpcReply interface{}) (inter
 		return nil, errors.New("decodeGRPCSendCodeResponse: interface conversion error")
 	}
 
-	r := &endpoints.SendCodeResponse{}
+	r := new(endpoints.SendCodeResponse)
 	if err := utils.StructCopy(rp, r); err != nil {
 		return nil, err
 	}
-	return *r, nil
+	return r, nil
 }
-

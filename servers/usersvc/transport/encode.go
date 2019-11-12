@@ -39,7 +39,7 @@ func encodeGRPCGetUserResponse(_ context.Context, request interface{}) (interfac
 		return nil, errors.New("encodeGRPCGetUserResponse: interface conversion error")
 	}
 
-	r := &userPb.GetUserReply{}
+	r := new(userPb.GetUserReply)
 	if err := utils.StructCopy(res.Data, r); err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func encodeGRPCLoginResponse(_ context.Context, request interface{}) (interface{
 		return nil, errors.New("encodeGRPCLoginResponse: interface conversion error")
 	}
 
-	r := &userPb.LoginReply{}
+	r := new(userPb.LoginReply)
 	if err := utils.StructCopy(res.Data, r); err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func encodeGRPCSendCodeResponse(_ context.Context, request interface{}) (interfa
 		return nil, errors.New("encodeGRPCSendCodeResponse: interface conversion error")
 	}
 
-	r := &userPb.SendCodeReply{}
+	r := new(userPb.SendCodeReply)
 	if err := utils.StructCopy(res.Data, r); err != nil {
 		return nil, err
 	}

@@ -15,7 +15,7 @@ import (
 type IUserService interface {
 	GetUser(context.Context, string) (*GetUserResponse, error)
 	Login(context.Context, LoginRequest) (*LoginResponse, error)
-	SendCode(context.Context) (SendCodeResponse, error)
+	SendCode(context.Context) (*SendCodeResponse, error)
 }
 
 func NewUserService(db *sql.DB, redis *redis.Pool, email *email.Email) IUserService {
@@ -44,10 +44,10 @@ func (svc *UserService) Login(_ context.Context, req LoginRequest) (*LoginRespon
 	return &LoginResponse{Username: req.Username, Id: 11, Avatar: "ava", RoleID: 12, RecentTime: "time"}, nil
 }
 
-func (svc *UserService) SendCode(_ context.Context) (SendCodeResponse, error) {
+func (svc *UserService) SendCode(_ context.Context) (*SendCodeResponse, error) {
 	uuid, err := utils.NewUUID()
 	if err != nil {
-		return SendCodeResponse{}, err
+		return nil, err
 	}
 
 	code := utils.NewRand(6)
@@ -82,12 +82,12 @@ func (svc *UserService) SendCode(_ context.Context) (SendCodeResponse, error) {
 		n--
 		if c != nil {
 			close(ch)
-			return SendCodeResponse{}, c
+			return nil, c
 		}
 		if n == 0 {
 			close(ch)
 		}
 	}
 
-	return SendCodeResponse{uuid.String()}, nil
+	return &SendCodeResponse{uuid.String()}, nil
 }
