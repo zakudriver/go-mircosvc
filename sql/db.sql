@@ -5,7 +5,7 @@ CREATE TABLE `User`
 (
     `id`           int          NOT NULL AUTO_INCREMENT COMMENT '主键',
     `username`     varchar(10)  NOT NULL COMMENT '用户名',
-    `password`     varchar(32)  NOT NULL COMMENT '密码',
+    `password`     varchar(42)  NOT NULL COMMENT '密码',
     `avatar`       varchar(100) NOT NULL COMMENT '头像',
     `role_id`      int          NOT NULL DEFAULT 2 COMMENT '角色id',
     `recent_time`  timestamp             DEFAULT CURRENT_TIMESTAMP COMMENT '最近登录时间',

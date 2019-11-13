@@ -21,14 +21,14 @@ type User struct {
 // md5加密
 func (u *User) Pwd2Md5(pwd, salt string) (hash string) {
 	pwd = fmt.Sprintf("%x", md5.Sum([]byte(pwd)))
-	hash = pwd + ":" + salt + ":" + salt
-	hash = fmt.Sprintf("%x", md5.Sum([]byte(hash)))
+	hash = salt + ":" + pwd + ":" + salt
+	hash = salt + fmt.Sprintf("%x", md5.Sum([]byte(hash)))
 	return
 }
 
 // 加盐
 func (u *User) Salt() (salt string) {
-	if len(u.Password) != 32 {
+	if u.Password != "" && len(u.Password) != 42 {
 		return
 	}
 
@@ -45,6 +45,6 @@ func (u *User) VerifyPassword(pwd string) bool {
 	if pwd == "" || u.Password == "" {
 		return false
 	}
-
+	fmt.Println(u.Pwd2Md5(pwd, u.Salt()))
 	return u.Pwd2Md5(pwd, u.Salt()) == u.Password
 }

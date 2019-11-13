@@ -1,14 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type A struct {
 	a int
 }
 
 func main() {
-	var a A
-	fmt.Println(a)
+	fmt.Println(int(time.Now().Unix()))
 }
 
 func ss() *A {

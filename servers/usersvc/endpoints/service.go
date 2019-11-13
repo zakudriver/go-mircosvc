@@ -3,16 +3,14 @@ package endpoints
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/gomodule/redigo/redis"
+	"github.com/kum0/blog-svr/common"
 	"github.com/kum0/blog-svr/servers/usersvc/endpoints/model"
 	"github.com/kum0/blog-svr/shared/email"
 	"github.com/kum0/blog-svr/shared/session"
 	"github.com/kum0/blog-svr/shared/validator"
 	"github.com/kum0/blog-svr/utils"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"strings"
 )
 
@@ -47,10 +45,28 @@ func (svc *UserService) GetUser(_ context.Context, uid string) (*GetUserResponse
 
 func (svc *UserService) Login(_ context.Context, req LoginRequest) (*LoginResponse, error) {
 	if err := svc.validator.LazyValidate(req); err != nil {
-		return nil, status.New(codes.InvalidArgument, err.Error()).Err()
+		return nil, common.ArgsErr(err)
 	}
 
-	return &LoginResponse{Username: req.Username, Id: 11, Avatar: "ava", RoleID: 12, RecentTime: "time"}, nil
+	user := new(model.User)
+	sql := fmt.Sprintf("SELECT `id`, `username`, `password`, `avatar`, `role_id`, `recent_time`, `created_time`, "+
+		"`updated_time` "+
+		"FROM `User` WHERE `username`='%s'",
+		req.Username)
+	err := svc.mysql.QueryRow(sql).Scan(&user.Id, &user.Username, &user.Password, &user.Avatar, &user.RoleID,
+		&user.RecentTime, &user.CreatedTime, &user.UpdatedTime)
+	if err != nil {
+		return nil, common.ArgsErr(fmt.Sprintf("[%s]该用户名不存在", req.Username))
+	}
+
+	if user.VerifyPassword(req.Password) {
+		res := new(LoginResponse)
+		if err := utils.StructCopy(user, res); err != nil {
+			return nil, common.ArgsErr(err)
+		}
+		return res, nil
+	}
+	return nil, common.ArgsErr("密码错误")
 }
 
 func (svc *UserService) SendCode(_ context.Context) (*SendCodeResponse, error) {
@@ -102,28 +118,28 @@ func (svc *UserService) SendCode(_ context.Context) (*SendCodeResponse, error) {
 }
 
 func (svc *UserService) Register(ctx context.Context, req RegisterRequest) error {
-	conn := svc.redis.Get()
-	defer conn.Close()
+	// conn := svc.redis.Get()
+	// defer conn.Close()
 
-	code, err := redis.Int(conn.Do("GET", req.CodeID))
+	// code, err := redis.Int(conn.Do("GET", req.CodeID))
+	// if err != nil {
+	// 	return err
+	// }
+
+	// if code == int(req.CodeID) {
+	user := new(model.User)
+	pwd := user.Pwd2Md5(req.Password, user.Salt())
+
+	sql := fmt.Sprintf("INSERT INTO `User`(`username`, `password`, `avatar`) VALUES('%s', '%s', '%s')",
+		req.Username,
+		pwd, "avatar")
+	_, err := svc.mysql.Exec(sql)
 	if err != nil {
-		return err
+		return common.ArgsErr(err)
 	}
+	// } else {
+	return common.ArgsErr("验证码错误")
+	// }
 
-	if code == int(req.CodeID) {
-		user := new(model.User)
-		pwd := user.Pwd2Md5(req.Password, user.Salt())
-
-		sql := fmt.Sprintf("INSERT INTO `User`(`username`, `password`, `avatar`) VALUES('%s', '%s', '%s')",
-			req.Username,
-			pwd, "avatar")
-		_, err := svc.mysql.Exec(sql)
-		if err != nil {
-			return err
-		}
-	} else {
-		return errors.New("验证码错误")
-	}
-
-	return nil
+	// return nil
 }
