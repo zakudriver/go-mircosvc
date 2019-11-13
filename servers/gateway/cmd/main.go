@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/opentracing/opentracing-go"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/opentracing/opentracing-go"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -20,7 +21,8 @@ import (
 
 func main() {
 	conf := config.GetConfig()
-	log := logger.NewLogger(conf.LogPath)
+	log, f := logger.NewLogger(conf.LogPath)
+	defer f.Close()
 
 	zipkinTracer, reporter := sharedZipkin.NewZipkin(log, conf.ZipkinAddr, "localhost:"+conf.HttpPort,
 		conf.ServiceName)

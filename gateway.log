@@ -1,0 +1,2 @@
+ts=2019-11-13T14:41:19.432257Z caller=instancer.go:32 prefix=/usersvc instances=0
+level=info ts=2019-11-13T14:44:06.281849Z caller=main.go:47 serviceName=gateway-svc terminated=interrupt
