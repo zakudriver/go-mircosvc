@@ -11,9 +11,9 @@ import (
 	"github.com/kum0/blog-svr/shared/session"
 	"github.com/kum0/blog-svr/shared/validator"
 	"github.com/kum0/blog-svr/utils"
-	"strings"
-
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"strings"
 )
 
 type IUserService interface {
@@ -47,7 +47,7 @@ func (svc *UserService) GetUser(_ context.Context, uid string) (*GetUserResponse
 
 func (svc *UserService) Login(_ context.Context, req LoginRequest) (*LoginResponse, error) {
 	if err := svc.validator.LazyValidate(req); err != nil {
-		return nil, status.New(1, err.Error()).Err()
+		return nil, status.New(codes.InvalidArgument, err.Error()).Err()
 	}
 
 	return &LoginResponse{Username: req.Username, Id: 11, Avatar: "ava", RoleID: 12, RecentTime: "time"}, nil

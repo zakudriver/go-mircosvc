@@ -85,12 +85,12 @@ func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
 			return nil, errors.New("MakeGetUserEndpoint: interface conversion error")
 		}
 
-		r, err := svc.GetUser(ctx, req)
+		res, err := svc.GetUser(ctx, req)
 		if err != nil {
 			return nil, err
 		}
 
-		return common.Response{Data: r}, nil
+		return common.Response{Data: res}, nil
 	}
 }
 
@@ -102,11 +102,10 @@ func MakeLoginEndpoint(svc IUserService) endpoint.Endpoint {
 		}
 
 		res, err := svc.Login(ctx, *req)
-		if err != nil {
-			return nil, err
-		}
-
-		return common.Response{Data: res}, nil
+		// if err != nil {
+		// 	return nil, err
+		// }
+		return common.Response{Data: res}, err
 	}
 }
 
