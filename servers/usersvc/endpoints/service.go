@@ -118,28 +118,28 @@ func (svc *UserService) SendCode(_ context.Context) (*SendCodeResponse, error) {
 }
 
 func (svc *UserService) Register(ctx context.Context, req RegisterRequest) error {
-	// conn := svc.redis.Get()
-	// defer conn.Close()
+	conn := svc.redis.Get()
+	defer conn.Close()
 
-	// code, err := redis.Int(conn.Do("GET", req.CodeID))
-	// if err != nil {
-	// 	return err
-	// }
-
-	// if code == int(req.CodeID) {
-	user := new(model.User)
-	pwd := user.Pwd2Md5(req.Password, user.Salt())
-
-	sql := fmt.Sprintf("INSERT INTO `User`(`username`, `password`, `avatar`) VALUES('%s', '%s', '%s')",
-		req.Username,
-		pwd, "avatar")
-	_, err := svc.mysql.Exec(sql)
+	code, err := redis.Int(conn.Do("GET", req.CodeID))
 	if err != nil {
-		return common.ArgsErr(err)
+		return err
 	}
-	// } else {
-	return common.ArgsErr("验证码错误")
-	// }
 
-	// return nil
+	if code == int(req.CodeID) {
+		user := new(model.User)
+		pwd := user.Pwd2Md5(req.Password, user.Salt())
+
+		sql := fmt.Sprintf("INSERT INTO `User`(`username`, `password`, `avatar`) VALUES('%s', '%s', '%s')",
+			req.Username,
+			pwd, "avatar")
+		_, err := svc.mysql.Exec(sql)
+		if err != nil {
+			return common.ArgsErr(err)
+		}
+	} else {
+		return common.ArgsErr("验证码错误")
+	}
+
+	return nil
 }
