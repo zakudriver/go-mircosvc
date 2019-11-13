@@ -3,6 +3,7 @@ package common
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	kitTransportGrpc "github.com/go-kit/kit/transport/grpc"
 	"github.com/kum0/blog-svr/utils"
 	"net/http"
@@ -26,12 +27,12 @@ func EncodeResponse(_ context.Context, w http.ResponseWriter, response interface
 
 func EncodeGRPCResponse(a interface{}) kitTransportGrpc.EncodeResponseFunc {
 	return func(_ context.Context, response interface{}) (interface{}, error) {
-		// res, ok := response.(Response)
-		// if !ok {
-		// 	return nil, errors.New("encodeGRPCResponse: interface conversion error")
-		// }
+		res, ok := response.(Response)
+		if !ok {
+			return nil, errors.New("encodeGRPCResponse: interface conversion error")
+		}
 
-		if err := utils.StructCopy(response, a); err != nil {
+		if err := utils.StructCopy(res.Data, a); err != nil {
 			return nil, err
 		}
 		return a, nil

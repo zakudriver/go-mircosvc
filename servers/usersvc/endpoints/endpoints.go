@@ -86,11 +86,8 @@ func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
 		}
 
 		res, err := svc.GetUser(ctx, req)
-		if err != nil {
-			return nil, err
-		}
 
-		return common.Response{Data: res}, nil
+		return common.Response{Data: res}, err
 	}
 }
 
@@ -102,21 +99,16 @@ func MakeLoginEndpoint(svc IUserService) endpoint.Endpoint {
 		}
 
 		res, err := svc.Login(ctx, *req)
-		// if err != nil {
-		// 	return nil, err
-		// }
-		return common.Response{Data: res}, err
+
+		return common.Response{Data: res, Msg: "登陆成功"}, err
 	}
 }
 
 func MakeSendCodeEndpoint(svc IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		res, err := svc.SendCode(ctx)
-		if err != nil {
-			return nil, err
-		}
 
-		return common.Response{Data: res, Msg: "验证码发送成功"}, nil
+		return common.Response{Data: res, Msg: "验证码发送成功"}, err
 	}
 }
 
@@ -128,11 +120,8 @@ func MakeRegisterEndpoint(svc IUserService) endpoint.Endpoint {
 		}
 
 		err := svc.Register(ctx, *req)
-		if err != nil {
-			return nil, err
-		}
 
-		return common.Response{Msg: "注册成功"}, nil
+		return common.Response{Msg: "注册成功"}, err
 	}
 }
 

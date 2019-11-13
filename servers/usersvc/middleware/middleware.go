@@ -47,34 +47,50 @@ func NewPrometheusMiddleware(next endpoints.IUserService) endpoints.IUserService
 		Name:      "count_result",
 		Help:      "The result of each count method.",
 	}, []string{})
-	return prometheusMiddleware{requestCount, requestLatency, countResult, next}
+	return &prometheusMiddleware{requestCount, requestLatency, countResult, next}
 }
 
 type prometheusMiddleware struct {
 	requestCount   metrics.Counter
 	requestLatency metrics.Histogram
 	countResult    metrics.Histogram
-	endpoints.IUserService
+	service        endpoints.IUserService
 }
 
-func (pm prometheusMiddleware) GetUser(ctx context.Context, s string) (output *endpoints.GetUserResponse, err error) {
+func (pm *prometheusMiddleware) GetUser(ctx context.Context, req string) (res *endpoints.GetUserResponse, err error) {
 	defer func(begin time.Time) {
 		lvs := []string{"method", "get_user", "error", fmt.Sprint(err != nil)}
 		pm.requestCount.With(lvs...).Add(1)
 		pm.requestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	output, err = pm.IUserService.GetUser(ctx, s)
+	res, err = pm.service.GetUser(ctx, req)
 	return
 }
 
-// func (pm prometheusMiddleware) Login(params endpoints.LoginRequest) (data common.ResponseData, err error) {
-// 	defer func(begin time.Time) {
-// 		lvs := []string{"method", "login", "error", fmt.Sprint(err != nil)}
-// 		pm.requestCount.With(lvs...).Add(1)
-// 		pm.requestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
-// 	}(time.Now())
-//
-// 	data, err = pm.IUserService.Login(params)
-// 	return
-// }
+func (pm *prometheusMiddleware) timeDiff(method string, begin time.Time, err error) {
+	lvs := []string{"method", method, "error", fmt.Sprint(err != nil)}
+	pm.requestCount.With(lvs...).Add(1)
+	pm.requestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
+}
+
+func (pm *prometheusMiddleware) Login(ctx context.Context, req endpoints.LoginRequest) (res *endpoints.LoginResponse, err error) {
+	defer pm.timeDiff("Login", time.Now(), err)
+
+	res, err = pm.service.Login(ctx, req)
+	return
+}
+
+func (pm *prometheusMiddleware) SendCode(ctx context.Context) (res *endpoints.SendCodeResponse, err error) {
+	defer pm.timeDiff("SendCode", time.Now(), err)
+
+	res, err = pm.service.SendCode(ctx)
+	return
+}
+
+func (pm *prometheusMiddleware) Register(ctx context.Context, req endpoints.RegisterRequest) (err error) {
+	defer pm.timeDiff("Register", time.Now(), err)
+
+	err = pm.service.Register(ctx, req)
+	return
+}

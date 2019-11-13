@@ -31,7 +31,7 @@ func main() {
 
 	etcdClient := sharedEtcd.NewEtcd(conf.EtcdAddr)
 
-	r := transport.MakeHandler(etcdClient, tracer, zipkinTracer, log)
+	r := transport.MakeHandler(etcdClient, tracer, zipkinTracer, log, conf.RetryMax, conf.RetryTimeout)
 
 	errs := make(chan error, 1)
 	go httpServer(log, conf.HttpPort, r, errs)

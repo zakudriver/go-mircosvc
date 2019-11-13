@@ -21,7 +21,14 @@ import (
 	"time"
 )
 
-func MakeHandler(etcdClient etcdv3.Client, tracer opentracing.Tracer, zipkinTracer *zipkin.Tracer, logger log.Logger) http.Handler {
+func MakeHandler(
+	etcdClient etcdv3.Client,
+	tracer opentracing.Tracer,
+	zipkinTracer *zipkin.Tracer,
+	logger log.Logger,
+	retryMax int,
+	retryTimeout int,
+) http.Handler {
 	r := mux.NewRouter()
 
 	// user endpoint
@@ -30,19 +37,19 @@ func MakeHandler(etcdClient etcdv3.Client, tracer opentracing.Tracer, zipkinTrac
 		ins := sharedEtcd.NewInstancer("/usersvc", etcdClient, logger)
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
-			endpoints.GetUserEP = makeEndpoint(factory, ins, logger)
+			endpoints.GetUserEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
 		}
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeLoginEndpoint, tracer, zipkinTracer, logger)
-			endpoints.LoginEP = makeEndpoint(factory, ins, logger)
+			endpoints.LoginEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
 		}
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeRegisterEndpoint, tracer, zipkinTracer, logger)
-			endpoints.RegisterEP = makeEndpoint(factory, ins, logger)
+			endpoints.RegisterEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
 		}
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeSendCodeEndpoint, tracer, zipkinTracer, logger)
-			endpoints.SendCodeEP = makeEndpoint(factory, ins, logger)
+			endpoints.SendCodeEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
 		}
 		r.PathPrefix("/usersvc").Handler(http.StripPrefix("/usersvc", usersvcTransport.MakeHTTPHandler(endpoints, tracer,
 			zipkinTracer, logger)))
@@ -71,15 +78,21 @@ func usersvcFactory(
 	}
 }
 
-func makeEndpoint(factory sd.Factory, ins *etcdv3.Instancer, logger log.Logger) endpoint.Endpoint {
+func makeEndpoint(
+	factory sd.Factory,
+	ins *etcdv3.Instancer,
+	logger log.Logger,
+	retryMax int,
+	retryTimeout int,
+) endpoint.Endpoint {
 	endpointer := sd.NewEndpointer(ins, factory, logger)
 	balancer := lb.NewRoundRobin(endpointer)
 
-	return lb.RetryWithCallback(3*time.Second, balancer, func(n int, received error) (keepTrying bool, replacement error) {
+	return lb.RetryWithCallback(time.Duration(retryTimeout)*time.Second, balancer, func(n int, received error) (bool, error) {
 		if err := encodeError(received); err != nil {
 			return false, err
 		}
-		return n < 3, nil
+		return n < retryMax, nil
 	})
 }
 
