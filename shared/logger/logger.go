@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"github.com/kum0/blog-svr/utils"
 	"io"
 	"os"
 	"path/filepath"
@@ -16,7 +17,7 @@ func NewLogger(path string) (log.Logger, *os.File) {
 		panic(err)
 	}
 
-	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := utils.OpenFileSafety(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0660)
 	if err != nil {
 		panic(err)
 	}

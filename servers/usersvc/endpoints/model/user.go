@@ -45,6 +45,5 @@ func (u *User) VerifyPassword(pwd string) bool {
 	if pwd == "" || u.Password == "" {
 		return false
 	}
-	fmt.Println(u.Pwd2Md5(pwd, u.Salt()))
 	return u.Pwd2Md5(pwd, u.Salt()) == u.Password
 }

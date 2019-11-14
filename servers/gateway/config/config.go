@@ -7,7 +7,7 @@ import (
 
 type config struct {
 	ServiceName string `env:"SERVICE_NAME=gateway-svc"`
-	LogPath     string `env:"LOG_PATH=./gateway.log"`
+	LogPath     string `env:"LOG_PATH=./log/gateway.log"`
 	HttpPort    string `env:"HTTP_PORT=4001"`
 	GrpcPort    string `env:"GRPC_PORT=4002"`
 	ZipkinAddr  string `env:"ZIPKIN_ADDR=http://localhost:9411/api/v2/spans"`

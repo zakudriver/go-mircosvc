@@ -107,7 +107,7 @@ func (svc *UserService) SendCode(_ context.Context) (*SendCodeResponse, error) {
 		n--
 		if c != nil {
 			close(ch)
-			return nil, c
+			return nil, common.ArgsErr(c)
 		}
 		if n == 0 {
 			close(ch)
@@ -123,7 +123,7 @@ func (svc *UserService) Register(ctx context.Context, req RegisterRequest) error
 
 	code, err := redis.Int(conn.Do("GET", req.CodeID))
 	if err != nil {
-		return err
+		return common.ArgsErr(err)
 	}
 
 	if code == int(req.CodeID) {

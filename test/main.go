@@ -1,16 +1,12 @@
 package main
 
-import (
-	"fmt"
-	"time"
-)
-
 type A struct {
 	a int
 }
 
 func main() {
-	fmt.Println(int(time.Now().Unix()))
+	// _, err := os.Create("./log/test..go")
+	// fmt.Println(err)
 }
 
 func ss() *A {
