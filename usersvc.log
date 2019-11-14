@@ -1,5 +1,0 @@
-ts=2019-11-13T14:41:27.89656Z caller=registrar.go:77 key=/usersvclocalhost:5002 value=localhost:5002 action=register
-level=info ts=2019-11-13T14:41:27.896966Z caller=main.go:90 protocol=GRPC protocol=GRPC exposed=5002
-level=error ts=2019-11-13T14:41:34.792483Z caller=logger.go:18 method=Login transport_error="rpc error: code = InvalidArgument desc = [Username] should be between [6] and [10] chars long" took=77.786µs
-level=info ts=2019-11-13T14:44:04.867905Z caller=main.go:78 serviceName=user-svc terminated=interrupt
-ts=2019-11-13T14:44:04.871501Z caller=registrar.go:77 key=/usersvclocalhost:5002 value=localhost:5002 action=register
