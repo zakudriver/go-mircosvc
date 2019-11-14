@@ -19,6 +19,7 @@ type IUserService interface {
 	Login(context.Context, LoginRequest) (*LoginResponse, error)
 	SendCode(context.Context) (*SendCodeResponse, error)
 	Register(context.Context, RegisterRequest) error
+	UserList(context.Context, UserListRequest) (*UserListResponse, error)
 }
 
 func NewUserService(db *sql.DB, redis *redis.Pool, email *email.Email) IUserService {
@@ -142,4 +143,10 @@ func (svc *UserService) Register(ctx context.Context, req RegisterRequest) error
 	}
 
 	return nil
+}
+
+func (svc *UserService) UserList(ctx context.Context, req UserListRequest) (*UserListResponse, error) {
+	us := new(UserListResponse)
+	us.Data = []*UserResponse{{}, {}}
+	return us, nil
 }

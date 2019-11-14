@@ -3,13 +3,11 @@ package transport
 import (
 	"context"
 	"errors"
-	"github.com/kum0/blog-svr/common"
-	"google.golang.org/grpc/status"
-
 	"github.com/go-kit/kit/log"
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
 	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 	kitGrpcTransport "github.com/go-kit/kit/transport/grpc"
+	"github.com/kum0/blog-svr/common"
 	userPb "github.com/kum0/blog-svr/pb/user"
 	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	"github.com/opentracing/opentracing-go"
@@ -52,6 +50,13 @@ func MakeGRPCServer(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipki
 			append(options, kitGrpcTransport.ServerBefore(kitOpentracing.GRPCToContext(otTracer, "Register",
 				logger)))...,
 		),
+		userList: kitGrpcTransport.NewServer(
+			eps.UserListEP,
+			decodeGRPCUserListRequest,
+			encodeGRPCUserListResponse,
+			append(options, kitGrpcTransport.ServerBefore(kitOpentracing.GRPCToContext(otTracer, "UserList",
+				logger)))...,
+		),
 	}
 }
 
@@ -60,6 +65,7 @@ type grpcServer struct {
 	login    kitGrpcTransport.Handler `json:""`
 	sendCode kitGrpcTransport.Handler `json:""`
 	register kitGrpcTransport.Handler `json:""`
+	userList kitGrpcTransport.Handler `json:""`
 }
 
 func (gs *grpcServer) GetUser(ctx context.Context, req *userPb.GetUserRequest) (*userPb.GetUserReply, error) {
@@ -109,17 +115,15 @@ func (gs *grpcServer) Register(ctx context.Context, req *userPb.RegisterRequest)
 	return new(userPb.RegisterReply), nil
 }
 
-func grpcEncodeError(err error) error {
-	if err == nil {
-		return nil
+func (gs *grpcServer) UserList(ctx context.Context, req *userPb.UserListRequest) (*userPb.UserListReply, error) {
+	_, rp, err := gs.userList.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
-	st, ok := status.FromError(err)
-	if ok {
-		return status.Error(st.Code(), st.Message())
-		// return errors.New(st.Message())
+	rep, ok := rp.(*userPb.UserListReply)
+	if !ok {
+		return nil, errors.New("*userPb.UserListReply")
 	}
-
-	// return status.Error(codes.Internal, "internal server error")
-	return err
+	return rep, nil
 }

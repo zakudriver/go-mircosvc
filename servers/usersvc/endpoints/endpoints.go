@@ -23,6 +23,7 @@ type Endponits struct {
 	LoginEP    endpoint.Endpoint
 	SendCodeEP endpoint.Endpoint
 	RegisterEP endpoint.Endpoint
+	UserListEP endpoint.Endpoint
 }
 
 func (e *Endponits) GetUser(ctx context.Context, uid string) (*GetUserResponse, error) {
@@ -58,6 +59,14 @@ func (e *Endponits) Register(ctx context.Context, request RegisterRequest) error
 	return nil
 }
 
+func (e *Endponits) UserList(ctx context.Context, request UserListRequest) (*UserListResponse, error) {
+	res, err := e.UserListEP(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*UserListResponse), nil
+}
+
 func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.Tracer, zipkinTracer *zipkin.Tracer) *Endponits {
 	var middlewares []endpoint.Middleware
 	{
@@ -75,9 +84,11 @@ func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.T
 		LoginEP:    makeEndpoint(MakeLoginEndpoint(svc), "Login", logger, otTracer, zipkinTracer, middlewares),
 		SendCodeEP: makeEndpoint(MakeSendCodeEndpoint(svc), "SendCode", logger, otTracer, zipkinTracer, middlewares),
 		RegisterEP: makeEndpoint(MakeRegisterEndpoint(svc), "Register", logger, otTracer, zipkinTracer, middlewares),
+		UserListEP: makeEndpoint(MakeUserListEndpoint(svc), "UseList", logger, otTracer, zipkinTracer, middlewares),
 	}
 }
 
+// GetUser
 func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(string)
@@ -91,6 +102,7 @@ func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
 	}
 }
 
+// Login
 func MakeLoginEndpoint(svc IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(*LoginRequest)
@@ -104,6 +116,7 @@ func MakeLoginEndpoint(svc IUserService) endpoint.Endpoint {
 	}
 }
 
+// SendCode
 func MakeSendCodeEndpoint(svc IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		res, err := svc.SendCode(ctx)
@@ -112,6 +125,7 @@ func MakeSendCodeEndpoint(svc IUserService) endpoint.Endpoint {
 	}
 }
 
+// Register
 func MakeRegisterEndpoint(svc IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(*RegisterRequest)
@@ -122,6 +136,20 @@ func MakeRegisterEndpoint(svc IUserService) endpoint.Endpoint {
 		err := svc.Register(ctx, *req)
 
 		return common.Response{Msg: "注册成功"}, err
+	}
+}
+
+// UserList
+func MakeUserListEndpoint(svc IUserService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req, ok := request.(*UserListRequest)
+		if !ok {
+			return nil, errors.New("MakeUserListEndpoint: interface conversion error")
+		}
+
+		res, err := svc.UserList(ctx, *req)
+
+		return common.Response{Data: res}, err
 	}
 }
 

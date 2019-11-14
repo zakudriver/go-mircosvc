@@ -29,7 +29,7 @@ func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipk
 	{
 		handler := kitTransport.NewServer(
 			eps.LoginEP,
-			common.DecodeCommonJsonRequest(new(endpoints.LoginRequest)),
+			common.DecodeJsonRequest(new(endpoints.LoginRequest)),
 			common.EncodeResponse,
 			append(opts, kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Login", logger)))...,
 		)
@@ -50,12 +50,23 @@ func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipk
 	{
 		handler := kitTransport.NewServer(
 			eps.RegisterEP,
-			common.DecodeCommonJsonRequest(new(endpoints.RegisterRequest)),
+			common.DecodeJsonRequest(new(endpoints.RegisterRequest)),
 			common.EncodeResponse,
 			append(opts,
 				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Register", logger)))...,
 		)
 		m.Handle("/register", handler).Methods("POST")
+	}
+
+	{
+		handler := kitTransport.NewServer(
+			eps.UserListEP,
+			DecodeUserListUrlRequest,
+			common.EncodeResponse,
+			append(opts,
+				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "UserList", logger)))...,
+		)
+		m.Handle("/user", handler).Methods("GET")
 	}
 
 	{

@@ -82,7 +82,7 @@ func MakeGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTr
 			"pb.Usersvc",
 			method,
 			encodeGRPCRegisterRequest,
-			decodeGRPCRegisterResponse,
+			common.DecodeEmpty,
 			userPb.RegisterReply{},
 			append(options, kitGrpcTransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,
 		).Endpoint()
@@ -90,11 +90,27 @@ func MakeGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTr
 		registerEndpoint = limiter(registerEndpoint)
 	}
 
+	var userListEndpoint endpoint.Endpoint
+	{
+		method := "UserList"
+		userListEndpoint = kitGrpcTransport.NewClient(
+			conn,
+			"pb.Usersvc",
+			method,
+			encodeGRPCUserListRequest,
+			decodeGRPCUserListResponse,
+			userPb.UserListReply{},
+			append(options, kitGrpcTransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,
+		).Endpoint()
+		userListEndpoint = kitOpentracing.TraceClient(otTracer, method)(userListEndpoint)
+		userListEndpoint = limiter(userListEndpoint)
+	}
+
 	return &endpoints.Endponits{
 		GetUserEP:  getUserEndpoint,
 		LoginEP:    loginEndpoint,
 		SendCodeEP: sendCodeEndpoint,
 		RegisterEP: registerEndpoint,
+		UserListEP: userListEndpoint,
 	}
 }
-

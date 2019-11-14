@@ -9,6 +9,7 @@ import (
 	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	"github.com/kum0/blog-svr/utils"
 	"net/http"
+	"strconv"
 )
 
 // GerUser
@@ -88,16 +89,43 @@ func decodeGRPCRegisterRequest(_ context.Context, grpcReq interface{}) (interfac
 	return &endpoints.RegisterRequest{Username: req.Username, Password: req.Password, CodeID: req.CodeID}, nil
 }
 
-func decodeGRPCRegisterResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
-	// rp, ok := grpcReply.(*userPb.RegisterReply)
-	// if !ok {
-	// 	return nil, errors.New("decodeGRPCRegisterResponse: interface conversion error")
-	// }
-	//
-	// r := new(endpoints.RegisterResponse)
-	// if err := utils.StructCopy(rp, r); err != nil {
-	// 	return nil, err
-	// }
-	// return r, nil
-	return nil, nil
+// UserList
+func DecodeUserListUrlRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	q := r.URL.Query()
+	page, err := strconv.ParseInt(q.Get("page"), 10, 0)
+	if err != nil {
+		return nil, err
+	}
+	size, err := strconv.ParseInt(q.Get("size"), 10, 0)
+	if err != nil {
+		return nil, err
+	}
+	return &endpoints.UserListRequest{Page: int32(page), Size: int32(size)}, nil
+}
+
+func decodeGRPCUserListResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	rp, ok := grpcReply.(*userPb.UserListReply)
+	if !ok {
+		return nil, errors.New("decodeGRPCUserListResponse: interface conversion error")
+	}
+
+	d := make([]*endpoints.UserResponse, 0)
+	for _, v := range rp.Data {
+		user := new(endpoints.UserResponse)
+		if err := utils.StructCopy(v, user); err != nil {
+			return nil, err
+		}
+		d = append(d, user)
+
+	}
+
+	return &endpoints.UserListResponse{Count: int(rp.Count), Data: d}, nil
+}
+
+func decodeGRPCUserListRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req, ok := grpcReq.(*userPb.UserListRequest)
+	if !ok {
+		return nil, errors.New("decodeGRPCUserListRequest: interface conversion error")
+	}
+	return &endpoints.UserListRequest{Page: req.Page, Size: req.Size}, nil
 }

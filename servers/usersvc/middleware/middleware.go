@@ -94,3 +94,11 @@ func (pm *prometheusMiddleware) Register(ctx context.Context, req endpoints.Regi
 	err = pm.service.Register(ctx, req)
 	return
 }
+
+func (pm *prometheusMiddleware) UserList(ctx context.Context, req endpoints.UserListRequest) (res *endpoints.
+UserListResponse, err error) {
+	defer pm.timeDiff("Register", time.Now(), err)
+
+	res, err = pm.service.UserList(ctx, req)
+	return
+}

@@ -16,7 +16,7 @@ func DecodeEmptyHttpRequest(_ context.Context, r *http.Request) (request interfa
 	return nil, nil
 }
 
-func DecodeCommonJsonRequest(reqPtr interface{}) kitTransport.DecodeRequestFunc {
+func DecodeJsonRequest(reqPtr interface{}) kitTransport.DecodeRequestFunc {
 	return func(_ context.Context, r *http.Request) (interface{}, error) {
 		if err := json.NewDecoder(r.Body).Decode(reqPtr); err != nil {
 			return nil, err

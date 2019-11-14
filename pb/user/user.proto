@@ -15,8 +15,12 @@ service Usersvc {
 
     rpc Register (RegisterRequest) returns (RegisterReply) {
     }
+
+    rpc UserList (UserListRequest) returns (UserListReply) {
+    }
 }
 
+// GetUser
 message GetUserRequest {
     string uid = 1;
 }
@@ -25,6 +29,7 @@ message GetUserReply {
     string uid = 1;
 }
 
+// Login
 message LoginRequest {
     string username = 1;
     string password = 2;
@@ -39,6 +44,7 @@ message LoginReply {
     string createdTime = 6;
 }
 
+//SendCode
 message SendCodeRequest {
 }
 
@@ -46,6 +52,7 @@ message SendCodeReply {
     string codeID = 1;
 }
 
+// Register
 message RegisterRequest {
     string username = 1;
     string password = 2;
@@ -53,4 +60,24 @@ message RegisterRequest {
 }
 
 message RegisterReply {
+}
+
+// UserList
+message UserListRequest {
+    int32 page = 1;
+    int32 size = 2;
+}
+
+message UserListReply {
+    int64 count = 1;
+    repeated UserReply data = 2;
+}
+
+message UserReply {
+    int32 id = 1;
+    string username = 2;
+    string avatar = 3;
+    int32 roleID = 4;
+    string recentTime = 5;
+    string createdTime = 6;
 }

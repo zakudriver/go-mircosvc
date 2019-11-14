@@ -51,6 +51,10 @@ func MakeHandler(
 			factory := usersvcFactory(usersvcEndpoints.MakeSendCodeEndpoint, tracer, zipkinTracer, logger)
 			endpoints.SendCodeEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
 		}
+		{
+			factory := usersvcFactory(usersvcEndpoints.MakeUserListEndpoint, tracer, zipkinTracer, logger)
+			endpoints.UserListEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
+		}
 		r.PathPrefix("/usersvc").Handler(http.StripPrefix("/usersvc", usersvcTransport.MakeHTTPHandler(endpoints, tracer,
 			zipkinTracer, logger)))
 	}

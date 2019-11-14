@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func NewRand(size int) (rnum int) {
+func NewRand(size int) int {
 	numeric := [10]byte{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 	r := len(numeric)
 	rand.Seed(time.Now().UnixNano())
@@ -18,6 +18,6 @@ func NewRand(size int) (rnum int) {
 		fmt.Fprintf(&sb, "%d", numeric[rand.Intn(r)])
 	}
 
-	rnum, _ = strconv.Atoi(sb.String())
-	return
+	rnum, _ := strconv.Atoi(sb.String())
+	return rnum
 }
