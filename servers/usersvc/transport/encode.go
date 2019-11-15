@@ -7,7 +7,6 @@ import (
 	"github.com/kum0/blog-svr/common"
 	userPb "github.com/kum0/blog-svr/pb/user"
 	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
-	"github.com/kum0/blog-svr/utils"
 	"net/http"
 )
 
@@ -69,16 +68,16 @@ func encodeGRPCUserListResponse(_ context.Context, response interface{}) (interf
 		return nil, errors.New("encodeGRPCUserListResponse: interface conversion error")
 	}
 
-	data := res.Data.(*endpoints.UserListResponse)
+	data := res.Data.(*userPb.UserListResponse)
 
-	us := make([]*userPb.UserReply, 0)
-	for _, v := range data.Data {
-		u := new(userPb.UserReply)
-		if err := utils.StructCopy(v, u); err != nil {
-			return nil, err
-		}
-		us = append(us, u)
-	}
+	// us := make([]*userPb.UserResponse, 0)
+	// for _, v := range data.Data {
+	// 	u := new(userPb.UserResponse)
+	// 	if err := utils.StructCopy(v, u); err != nil {
+	// 		return nil, err
+	// 	}
+	// 	us = append(us, u)
+	// }
 
-	return &userPb.UserListReply{Count: int64(data.Count), Data: us}, nil
+	return data, nil
 }

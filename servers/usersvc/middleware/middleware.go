@@ -9,6 +9,8 @@ import (
 	kitPrometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	"github.com/prometheus/client_golang/prometheus"
+
+	userPb "github.com/kum0/blog-svr/pb/user"
 )
 
 type ServiceMiddleware func(servicer endpoints.IUserService) endpoints.IUserService
@@ -57,7 +59,7 @@ type prometheusMiddleware struct {
 	service        endpoints.IUserService
 }
 
-func (pm *prometheusMiddleware) GetUser(ctx context.Context, req string) (res *endpoints.GetUserResponse, err error) {
+func (pm *prometheusMiddleware) GetUser(ctx context.Context, req string) (res *userPb.GetUserResponse, err error) {
 	defer func(begin time.Time) {
 		lvs := []string{"method", "get_user", "error", fmt.Sprint(err != nil)}
 		pm.requestCount.With(lvs...).Add(1)
@@ -74,14 +76,14 @@ func (pm *prometheusMiddleware) timeDiff(method string, begin time.Time, err err
 	pm.requestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
 }
 
-func (pm *prometheusMiddleware) Login(ctx context.Context, req endpoints.LoginRequest) (res *endpoints.LoginResponse, err error) {
+func (pm *prometheusMiddleware) Login(ctx context.Context, req endpoints.LoginRequest) (res *userPb.LoginResponse, err error) {
 	defer pm.timeDiff("Login", time.Now(), err)
 
 	res, err = pm.service.Login(ctx, req)
 	return
 }
 
-func (pm *prometheusMiddleware) SendCode(ctx context.Context) (res *endpoints.SendCodeResponse, err error) {
+func (pm *prometheusMiddleware) SendCode(ctx context.Context) (res *userPb.SendCodeResponse, err error) {
 	defer pm.timeDiff("SendCode", time.Now(), err)
 
 	res, err = pm.service.SendCode(ctx)
@@ -95,7 +97,7 @@ func (pm *prometheusMiddleware) Register(ctx context.Context, req endpoints.Regi
 	return
 }
 
-func (pm *prometheusMiddleware) UserList(ctx context.Context, req endpoints.UserListRequest) (res *endpoints.
+func (pm *prometheusMiddleware) UserList(ctx context.Context, req endpoints.UserListRequest) (res *userPb.
 UserListResponse, err error) {
 	defer pm.timeDiff("Register", time.Now(), err)
 

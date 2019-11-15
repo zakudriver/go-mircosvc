@@ -25,21 +25,21 @@ func MakeGRPCServer(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipki
 		getUser: kitGrpcTransport.NewServer(
 			eps.GetUserEP,
 			decodeGRPCGetUserRequest,
-			common.EncodeGRPCResponse(new(userPb.GetUserReply)),
+			common.EncodeGRPCResponse(new(userPb.GetUserResponse)),
 			append(options, kitGrpcTransport.ServerBefore(kitOpentracing.GRPCToContext(otTracer, "GetUser",
 				logger)))...,
 		),
 		login: kitGrpcTransport.NewServer(
 			eps.LoginEP,
 			decodeGRPCLoginRequest,
-			common.EncodeGRPCResponse(new(userPb.LoginReply)),
+			common.EncodeGRPCResponse(new(userPb.LoginResponse)),
 			append(options, kitGrpcTransport.ServerBefore(kitOpentracing.GRPCToContext(otTracer, "Login",
 				logger)))...,
 		),
 		sendCode: kitGrpcTransport.NewServer(
 			eps.SendCodeEP,
 			common.DecodeEmpty,
-			common.EncodeGRPCResponse(new(userPb.SendCodeReply)),
+			common.EncodeGRPCResponse(new(userPb.SendCodeResponse)),
 			append(options, kitGrpcTransport.ServerBefore(kitOpentracing.GRPCToContext(otTracer, "SendCode",
 				logger)))...,
 		),
@@ -68,62 +68,62 @@ type grpcServer struct {
 	userList kitGrpcTransport.Handler `json:""`
 }
 
-func (gs *grpcServer) GetUser(ctx context.Context, req *userPb.GetUserRequest) (*userPb.GetUserReply, error) {
+func (gs *grpcServer) GetUser(ctx context.Context, req *userPb.GetUserRequest) (*userPb.GetUserResponse, error) {
 	_, rp, err := gs.getUser.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	rep, ok := rp.(*userPb.GetUserReply)
+	rep, ok := rp.(*userPb.GetUserResponse)
 	if !ok {
-		return nil, errors.New("*userPb.GetUserReply")
+		return nil, errors.New("*userPb.GetUserResponse")
 	}
-	return &userPb.GetUserReply{Uid: rep.Uid}, nil
+	return &userPb.GetUserResponse{Uid: rep.Uid}, nil
 }
 
-func (gs *grpcServer) Login(ctx context.Context, req *userPb.LoginRequest) (*userPb.LoginReply, error) {
+func (gs *grpcServer) Login(ctx context.Context, req *userPb.LoginRequest) (*userPb.LoginResponse, error) {
 	_, rp, err := gs.login.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	rep, ok := rp.(*userPb.LoginReply)
+	rep, ok := rp.(*userPb.LoginResponse)
 	if !ok {
-		return nil, errors.New("*userPb.LoginReply")
+		return nil, errors.New("*userPb.LoginResponse")
 	}
 	return rep, nil
 }
 
-func (gs *grpcServer) SendCode(ctx context.Context, req *userPb.SendCodeRequest) (*userPb.SendCodeReply, error) {
+func (gs *grpcServer) SendCode(ctx context.Context, req *userPb.SendCodeRequest) (*userPb.SendCodeResponse, error) {
 	_, rp, err := gs.sendCode.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	rep, ok := rp.(*userPb.SendCodeReply)
+	rep, ok := rp.(*userPb.SendCodeResponse)
 	if !ok {
-		return nil, errors.New("*userPb.SendCodeReply")
+		return nil, errors.New("*userPb.SendCodeResponse")
 	}
 	return rep, nil
 }
 
-func (gs *grpcServer) Register(ctx context.Context, req *userPb.RegisterRequest) (*userPb.RegisterReply, error) {
+func (gs *grpcServer) Register(ctx context.Context, req *userPb.RegisterRequest) (*userPb.RegisterResponse, error) {
 	_, _, err := gs.register.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return new(userPb.RegisterReply), nil
+	return new(userPb.RegisterResponse), nil
 }
 
-func (gs *grpcServer) UserList(ctx context.Context, req *userPb.UserListRequest) (*userPb.UserListReply, error) {
+func (gs *grpcServer) UserList(ctx context.Context, req *userPb.UserListRequest) (*userPb.UserListResponse, error) {
 	_, rp, err := gs.userList.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	rep, ok := rp.(*userPb.UserListReply)
+	rep, ok := rp.(*userPb.UserListResponse)
 	if !ok {
-		return nil, errors.New("*userPb.UserListReply")
+		return nil, errors.New("*userPb.UserListResponse")
 	}
 	return rep, nil
 }

@@ -12,14 +12,16 @@ import (
 	"github.com/kum0/blog-svr/shared/validator"
 	"github.com/kum0/blog-svr/utils"
 	"strings"
+
+	userPb "github.com/kum0/blog-svr/pb/user"
 )
 
 type IUserService interface {
-	GetUser(context.Context, string) (*GetUserResponse, error)
-	Login(context.Context, LoginRequest) (*LoginResponse, error)
-	SendCode(context.Context) (*SendCodeResponse, error)
+	GetUser(context.Context, string) (*userPb.GetUserResponse, error)
+	Login(context.Context, LoginRequest) (*userPb.LoginResponse, error)
+	SendCode(context.Context) (*userPb.SendCodeResponse, error)
 	Register(context.Context, RegisterRequest) error
-	UserList(context.Context, UserListRequest) (*UserListResponse, error)
+	UserList(context.Context, UserListRequest) (*userPb.UserListResponse, error)
 }
 
 func NewUserService(db *sql.DB, redis *redis.Pool, email *email.Email) IUserService {
@@ -40,11 +42,11 @@ type UserService struct {
 	validator *validator.Validator
 }
 
-func (svc *UserService) GetUser(_ context.Context, uid string) (*GetUserResponse, error) {
-	return &GetUserResponse{strings.ToUpper(uid)}, nil
+func (svc *UserService) GetUser(_ context.Context, uid string) (*userPb.GetUserResponse, error) {
+	return &userPb.GetUserResponse{Uid: strings.ToUpper(uid)}, nil
 }
 
-func (svc *UserService) Login(_ context.Context, req LoginRequest) (*LoginResponse, error) {
+func (svc *UserService) Login(_ context.Context, req LoginRequest) (*userPb.LoginResponse, error) {
 	if err := svc.validator.LazyValidate(req); err != nil {
 		return nil, common.ArgsErr(err)
 	}
@@ -61,7 +63,8 @@ func (svc *UserService) Login(_ context.Context, req LoginRequest) (*LoginRespon
 	}
 
 	if user.VerifyPassword(req.Password) {
-		res := new(LoginResponse)
+		// res := new(LoginResponse)
+		res := new(userPb.LoginResponse)
 		if err := utils.StructCopy(user, res); err != nil {
 			return nil, common.ArgsErr(err)
 		}
@@ -70,7 +73,7 @@ func (svc *UserService) Login(_ context.Context, req LoginRequest) (*LoginRespon
 	return nil, common.ArgsErr("密码错误")
 }
 
-func (svc *UserService) SendCode(_ context.Context) (*SendCodeResponse, error) {
+func (svc *UserService) SendCode(_ context.Context) (*userPb.SendCodeResponse, error) {
 	uuid, err := utils.NewUUID()
 	if err != nil {
 		return nil, err
@@ -115,7 +118,7 @@ func (svc *UserService) SendCode(_ context.Context) (*SendCodeResponse, error) {
 		}
 	}
 
-	return &SendCodeResponse{uuid.String()}, nil
+	return &userPb.SendCodeResponse{CodeID: uuid.String()}, nil
 }
 
 func (svc *UserService) Register(ctx context.Context, req RegisterRequest) error {
@@ -145,8 +148,9 @@ func (svc *UserService) Register(ctx context.Context, req RegisterRequest) error
 	return nil
 }
 
-func (svc *UserService) UserList(ctx context.Context, req UserListRequest) (*UserListResponse, error) {
-	us := new(UserListResponse)
-	us.Data = []*UserResponse{{}, {}}
+func (svc *UserService) UserList(ctx context.Context, req UserListRequest) (*userPb.UserListResponse, error) {
+	us := new(userPb.UserListResponse)
+	us.Count = 1
+	us.Data = []*userPb.UserResponse{{Id: 11}, {}}
 	return us, nil
 }

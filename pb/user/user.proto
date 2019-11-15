@@ -4,19 +4,19 @@ package pb;
 
 service Usersvc {
 
-    rpc GetUser (GetUserRequest) returns (GetUserReply) {
+    rpc GetUser (GetUserRequest) returns (GetUserResponse) {
     }
 
-    rpc Login (LoginRequest) returns (LoginReply) {
+    rpc Login (LoginRequest) returns (LoginResponse) {
     }
 
-    rpc SendCode (SendCodeRequest) returns (SendCodeReply) {
+    rpc SendCode (SendCodeRequest) returns (SendCodeResponse) {
     }
 
-    rpc Register (RegisterRequest) returns (RegisterReply) {
+    rpc Register (RegisterRequest) returns (RegisterResponse) {
     }
 
-    rpc UserList (UserListRequest) returns (UserListReply) {
+    rpc UserList (UserListRequest) returns (UserListResponse) {
     }
 }
 
@@ -25,7 +25,7 @@ message GetUserRequest {
     string uid = 1;
 }
 
-message GetUserReply {
+message GetUserResponse {
     string uid = 1;
 }
 
@@ -35,7 +35,7 @@ message LoginRequest {
     string password = 2;
 }
 
-message LoginReply {
+message LoginResponse {
     int32 id = 1;
     string username = 2;
     string avatar = 3;
@@ -48,7 +48,7 @@ message LoginReply {
 message SendCodeRequest {
 }
 
-message SendCodeReply {
+message SendCodeResponse {
     string codeID = 1;
 }
 
@@ -59,7 +59,7 @@ message RegisterRequest {
     int32 codeID = 3;
 }
 
-message RegisterReply {
+message RegisterResponse {
 }
 
 // UserList
@@ -68,12 +68,12 @@ message UserListRequest {
     int32 size = 2;
 }
 
-message UserListReply {
+message UserListResponse {
     int64 count = 1;
-    repeated UserReply data = 2;
+    repeated UserResponse data = 2;
 }
 
-message UserReply {
+message UserResponse {
     int32 id = 1;
     string username = 2;
     string avatar = 3;

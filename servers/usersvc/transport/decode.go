@@ -30,13 +30,13 @@ func decodeGRPCGetUserRequest(_ context.Context, grpcReq interface{}) (interface
 	return r.Uid, nil
 }
 
-func decodeGRPCGetUserResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
-	rp, ok := grpcReply.(*userPb.GetUserReply)
+func decodeGRPCGetUserResponse(_ context.Context, grpcResponse interface{}) (interface{}, error) {
+	rp, ok := grpcResponse.(*userPb.GetUserResponse)
 	if !ok {
 		return nil, errors.New("decodeGRPCGetUserResponse: interface conversion error")
 	}
 
-	r := new(endpoints.GetUserResponse)
+	r := new(userPb.GetUserResponse)
 	if err := utils.StructCopy(rp, r); err != nil {
 		return nil, err
 	}
@@ -52,32 +52,33 @@ func decodeGRPCLoginRequest(_ context.Context, grpcReq interface{}) (interface{}
 	return &endpoints.LoginRequest{Username: req.Username, Password: req.Password}, nil
 }
 
-func decodeGRPCLoginResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
-	rp, ok := grpcReply.(*userPb.LoginReply)
+func decodeGRPCLoginResponse(_ context.Context, grpcResponse interface{}) (interface{}, error) {
+	rp, ok := grpcResponse.(*userPb.LoginResponse)
 	if !ok {
 		return nil, errors.New("decodeGRPCLoginResponse: interface conversion error")
 	}
 
-	r := new(endpoints.LoginResponse)
-	if err := utils.StructCopy(rp, r); err != nil {
-		return nil, err
-	}
+	// r := new(endpoints.LoginResponse)
+	// r := new(userPb.LoginResponse)
+	// if err := utils.StructCopy(rp, r); err != nil {
+	// 	return nil, err
+	// }
 
-	return r, nil
+	return rp, nil
 }
 
 // SendCode
-func decodeGRPCSendCodeResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
-	rp, ok := grpcReply.(*userPb.SendCodeReply)
+func decodeGRPCSendCodeResponse(_ context.Context, grpcResponse interface{}) (interface{}, error) {
+	rp, ok := grpcResponse.(*userPb.SendCodeResponse)
 	if !ok {
 		return nil, errors.New("decodeGRPCSendCodeResponse: interface conversion error")
 	}
 
-	r := new(endpoints.SendCodeResponse)
-	if err := utils.StructCopy(rp, r); err != nil {
-		return nil, err
-	}
-	return r, nil
+	// r := new(userPb.SendCodeResponse)
+	// if err := utils.StructCopy(rp, r); err != nil {
+	// 	return nil, err
+	// }
+	return rp, nil
 }
 
 // Register
@@ -103,23 +104,23 @@ func DecodeUserListUrlRequest(_ context.Context, r *http.Request) (interface{}, 
 	return &endpoints.UserListRequest{Page: int32(page), Size: int32(size)}, nil
 }
 
-func decodeGRPCUserListResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
-	rp, ok := grpcReply.(*userPb.UserListReply)
+func decodeGRPCUserListResponse(_ context.Context, grpcResponse interface{}) (interface{}, error) {
+	rp, ok := grpcResponse.(*userPb.UserListResponse)
 	if !ok {
 		return nil, errors.New("decodeGRPCUserListResponse: interface conversion error")
 	}
 
-	d := make([]*endpoints.UserResponse, 0)
-	for _, v := range rp.Data {
-		user := new(endpoints.UserResponse)
-		if err := utils.StructCopy(v, user); err != nil {
-			return nil, err
-		}
-		d = append(d, user)
+	// d := make([]*userPb.UserResponse, 0)
+	// for _, v := range rp.Data {
+	// 	user := new(userPb.UserResponse)
+	// 	if err := utils.StructCopy(v, user); err != nil {
+	// 		return nil, err
+	// 	}
+	// 	d = append(d, user)
+	//
+	// }
 
-	}
-
-	return &endpoints.UserListResponse{Count: int(rp.Count), Data: d}, nil
+	return rp, nil
 }
 
 func decodeGRPCUserListRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {

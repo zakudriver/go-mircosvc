@@ -35,7 +35,7 @@ func MakeGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTr
 			method,
 			encodeGRPCGetUserRequest,
 			decodeGRPCGetUserResponse,
-			userPb.GetUserReply{},
+			userPb.GetUserResponse{},
 			append(options, kitGrpcTransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,
 		).Endpoint()
 		getUserEndpoint = limiter(getUserEndpoint)
@@ -51,7 +51,7 @@ func MakeGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTr
 			method,
 			encodeGRPCLoginRequest,
 			decodeGRPCLoginResponse,
-			userPb.LoginReply{},
+			userPb.LoginResponse{},
 			append(options, kitGrpcTransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,
 		).Endpoint()
 		loginEndpoint = kitOpentracing.TraceClient(otTracer, method)(loginEndpoint)
@@ -67,7 +67,7 @@ func MakeGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTr
 			method,
 			common.EncodeEmpty,
 			decodeGRPCSendCodeResponse,
-			userPb.SendCodeReply{},
+			userPb.SendCodeResponse{},
 			append(options, kitGrpcTransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,
 		).Endpoint()
 		sendCodeEndpoint = kitOpentracing.TraceClient(otTracer, method)(sendCodeEndpoint)
@@ -83,7 +83,7 @@ func MakeGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTr
 			method,
 			encodeGRPCRegisterRequest,
 			common.DecodeEmpty,
-			userPb.RegisterReply{},
+			userPb.RegisterResponse{},
 			append(options, kitGrpcTransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,
 		).Endpoint()
 		registerEndpoint = kitOpentracing.TraceClient(otTracer, method)(registerEndpoint)
@@ -99,7 +99,7 @@ func MakeGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTr
 			method,
 			encodeGRPCUserListRequest,
 			decodeGRPCUserListResponse,
-			userPb.UserListReply{},
+			userPb.UserListResponse{},
 			append(options, kitGrpcTransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,
 		).Endpoint()
 		userListEndpoint = kitOpentracing.TraceClient(otTracer, method)(userListEndpoint)

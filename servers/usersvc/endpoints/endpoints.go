@@ -8,11 +8,12 @@ import (
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/tracing/opentracing"
+	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
 	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 	"github.com/kum0/blog-svr/common"
+	userPb "github.com/kum0/blog-svr/pb/user"
 	"github.com/kum0/blog-svr/shared/middleware"
-	stdopentracing "github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
 	"github.com/sony/gobreaker"
 	"golang.org/x/time/rate"
@@ -26,29 +27,29 @@ type Endponits struct {
 	UserListEP endpoint.Endpoint
 }
 
-func (e *Endponits) GetUser(ctx context.Context, uid string) (*GetUserResponse, error) {
+func (e *Endponits) GetUser(ctx context.Context, uid string) (*userPb.GetUserResponse, error) {
 	res, err := e.GetUserEP(ctx, uid)
 	if err != nil {
 		return nil, err
 	}
 
-	return res.(*GetUserResponse), nil
+	return res.(*userPb.GetUserResponse), nil
 }
 
-func (e *Endponits) Login(ctx context.Context, request LoginRequest) (*LoginResponse, error) {
+func (e *Endponits) Login(ctx context.Context, request LoginRequest) (*userPb.LoginResponse, error) {
 	res, err := e.LoginEP(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-	return res.(*LoginResponse), nil
+	return res.(*userPb.LoginResponse), nil
 }
 
-func (e *Endponits) SendCode(ctx context.Context) (*SendCodeResponse, error) {
+func (e *Endponits) SendCode(ctx context.Context) (*userPb.SendCodeResponse, error) {
 	res, err := e.SendCodeEP(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
-	return res.(*SendCodeResponse), nil
+	return res.(*userPb.SendCodeResponse), nil
 }
 
 func (e *Endponits) Register(ctx context.Context, request RegisterRequest) error {
@@ -59,15 +60,15 @@ func (e *Endponits) Register(ctx context.Context, request RegisterRequest) error
 	return nil
 }
 
-func (e *Endponits) UserList(ctx context.Context, request UserListRequest) (*UserListResponse, error) {
+func (e *Endponits) UserList(ctx context.Context, request UserListRequest) (*userPb.UserListResponse, error) {
 	res, err := e.UserListEP(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-	return res.(*UserListResponse), nil
+	return res.(*userPb.UserListResponse), nil
 }
 
-func NewEndpoints(svc IUserService, logger log.Logger, otTracer stdopentracing.Tracer, zipkinTracer *zipkin.Tracer) *Endponits {
+func NewEndpoints(svc IUserService, logger log.Logger, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer) *Endponits {
 	var middlewares []endpoint.Middleware
 	{
 		limiter := rate.NewLimiter(rate.Every(time.Second*1), 10)
@@ -157,14 +158,14 @@ func makeEndpoint(
 	ep endpoint.Endpoint,
 	method string,
 	logger log.Logger,
-	otTracer stdopentracing.Tracer,
+	otTracer opentracing.Tracer,
 	zipkinTracer *zipkin.Tracer,
 	middlewares []endpoint.Middleware,
 ) endpoint.Endpoint {
 
 	mids := append(
 		middlewares,
-		opentracing.TraceServer(otTracer, method),
+		kitOpentracing.TraceServer(otTracer, method),
 		kitZipkin.TraceEndpoint(zipkinTracer, method),
 		middleware.LoggingMiddleware(log.With(logger, "method", method)),
 	)

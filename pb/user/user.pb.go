@@ -64,39 +64,39 @@ func (m *GetUserRequest) GetUid() string {
 	return ""
 }
 
-type GetUserReply struct {
+type GetUserResponse struct {
 	Uid                  string   `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetUserReply) Reset()         { *m = GetUserReply{} }
-func (m *GetUserReply) String() string { return proto.CompactTextString(m) }
-func (*GetUserReply) ProtoMessage()    {}
-func (*GetUserReply) Descriptor() ([]byte, []int) {
+func (m *GetUserResponse) Reset()         { *m = GetUserResponse{} }
+func (m *GetUserResponse) String() string { return proto.CompactTextString(m) }
+func (*GetUserResponse) ProtoMessage()    {}
+func (*GetUserResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_116e343673f7ffaf, []int{1}
 }
 
-func (m *GetUserReply) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GetUserReply.Unmarshal(m, b)
+func (m *GetUserResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetUserResponse.Unmarshal(m, b)
 }
-func (m *GetUserReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GetUserReply.Marshal(b, m, deterministic)
+func (m *GetUserResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetUserResponse.Marshal(b, m, deterministic)
 }
-func (m *GetUserReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetUserReply.Merge(m, src)
+func (m *GetUserResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetUserResponse.Merge(m, src)
 }
-func (m *GetUserReply) XXX_Size() int {
-	return xxx_messageInfo_GetUserReply.Size(m)
+func (m *GetUserResponse) XXX_Size() int {
+	return xxx_messageInfo_GetUserResponse.Size(m)
 }
-func (m *GetUserReply) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetUserReply.DiscardUnknown(m)
+func (m *GetUserResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetUserResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GetUserReply proto.InternalMessageInfo
+var xxx_messageInfo_GetUserResponse proto.InternalMessageInfo
 
-func (m *GetUserReply) GetUid() string {
+func (m *GetUserResponse) GetUid() string {
 	if m != nil {
 		return m.Uid
 	}
@@ -151,7 +151,7 @@ func (m *LoginRequest) GetPassword() string {
 	return ""
 }
 
-type LoginReply struct {
+type LoginResponse struct {
 	Id                   int32    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Username             string   `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	Avatar               string   `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`
@@ -163,67 +163,67 @@ type LoginReply struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *LoginReply) Reset()         { *m = LoginReply{} }
-func (m *LoginReply) String() string { return proto.CompactTextString(m) }
-func (*LoginReply) ProtoMessage()    {}
-func (*LoginReply) Descriptor() ([]byte, []int) {
+func (m *LoginResponse) Reset()         { *m = LoginResponse{} }
+func (m *LoginResponse) String() string { return proto.CompactTextString(m) }
+func (*LoginResponse) ProtoMessage()    {}
+func (*LoginResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_116e343673f7ffaf, []int{3}
 }
 
-func (m *LoginReply) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_LoginReply.Unmarshal(m, b)
+func (m *LoginResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_LoginResponse.Unmarshal(m, b)
 }
-func (m *LoginReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_LoginReply.Marshal(b, m, deterministic)
+func (m *LoginResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_LoginResponse.Marshal(b, m, deterministic)
 }
-func (m *LoginReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_LoginReply.Merge(m, src)
+func (m *LoginResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LoginResponse.Merge(m, src)
 }
-func (m *LoginReply) XXX_Size() int {
-	return xxx_messageInfo_LoginReply.Size(m)
+func (m *LoginResponse) XXX_Size() int {
+	return xxx_messageInfo_LoginResponse.Size(m)
 }
-func (m *LoginReply) XXX_DiscardUnknown() {
-	xxx_messageInfo_LoginReply.DiscardUnknown(m)
+func (m *LoginResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_LoginResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_LoginReply proto.InternalMessageInfo
+var xxx_messageInfo_LoginResponse proto.InternalMessageInfo
 
-func (m *LoginReply) GetId() int32 {
+func (m *LoginResponse) GetId() int32 {
 	if m != nil {
 		return m.Id
 	}
 	return 0
 }
 
-func (m *LoginReply) GetUsername() string {
+func (m *LoginResponse) GetUsername() string {
 	if m != nil {
 		return m.Username
 	}
 	return ""
 }
 
-func (m *LoginReply) GetAvatar() string {
+func (m *LoginResponse) GetAvatar() string {
 	if m != nil {
 		return m.Avatar
 	}
 	return ""
 }
 
-func (m *LoginReply) GetRoleID() int32 {
+func (m *LoginResponse) GetRoleID() int32 {
 	if m != nil {
 		return m.RoleID
 	}
 	return 0
 }
 
-func (m *LoginReply) GetRecentTime() string {
+func (m *LoginResponse) GetRecentTime() string {
 	if m != nil {
 		return m.RecentTime
 	}
 	return ""
 }
 
-func (m *LoginReply) GetCreatedTime() string {
+func (m *LoginResponse) GetCreatedTime() string {
 	if m != nil {
 		return m.CreatedTime
 	}
@@ -262,39 +262,39 @@ func (m *SendCodeRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_SendCodeRequest proto.InternalMessageInfo
 
-type SendCodeReply struct {
+type SendCodeResponse struct {
 	CodeID               string   `protobuf:"bytes,1,opt,name=codeID,proto3" json:"codeID,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SendCodeReply) Reset()         { *m = SendCodeReply{} }
-func (m *SendCodeReply) String() string { return proto.CompactTextString(m) }
-func (*SendCodeReply) ProtoMessage()    {}
-func (*SendCodeReply) Descriptor() ([]byte, []int) {
+func (m *SendCodeResponse) Reset()         { *m = SendCodeResponse{} }
+func (m *SendCodeResponse) String() string { return proto.CompactTextString(m) }
+func (*SendCodeResponse) ProtoMessage()    {}
+func (*SendCodeResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_116e343673f7ffaf, []int{5}
 }
 
-func (m *SendCodeReply) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_SendCodeReply.Unmarshal(m, b)
+func (m *SendCodeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SendCodeResponse.Unmarshal(m, b)
 }
-func (m *SendCodeReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_SendCodeReply.Marshal(b, m, deterministic)
+func (m *SendCodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SendCodeResponse.Marshal(b, m, deterministic)
 }
-func (m *SendCodeReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SendCodeReply.Merge(m, src)
+func (m *SendCodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SendCodeResponse.Merge(m, src)
 }
-func (m *SendCodeReply) XXX_Size() int {
-	return xxx_messageInfo_SendCodeReply.Size(m)
+func (m *SendCodeResponse) XXX_Size() int {
+	return xxx_messageInfo_SendCodeResponse.Size(m)
 }
-func (m *SendCodeReply) XXX_DiscardUnknown() {
-	xxx_messageInfo_SendCodeReply.DiscardUnknown(m)
+func (m *SendCodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_SendCodeResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_SendCodeReply proto.InternalMessageInfo
+var xxx_messageInfo_SendCodeResponse proto.InternalMessageInfo
 
-func (m *SendCodeReply) GetCodeID() string {
+func (m *SendCodeResponse) GetCodeID() string {
 	if m != nil {
 		return m.CodeID
 	}
@@ -357,36 +357,36 @@ func (m *RegisterRequest) GetCodeID() int32 {
 	return 0
 }
 
-type RegisterReply struct {
+type RegisterResponse struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *RegisterReply) Reset()         { *m = RegisterReply{} }
-func (m *RegisterReply) String() string { return proto.CompactTextString(m) }
-func (*RegisterReply) ProtoMessage()    {}
-func (*RegisterReply) Descriptor() ([]byte, []int) {
+func (m *RegisterResponse) Reset()         { *m = RegisterResponse{} }
+func (m *RegisterResponse) String() string { return proto.CompactTextString(m) }
+func (*RegisterResponse) ProtoMessage()    {}
+func (*RegisterResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_116e343673f7ffaf, []int{7}
 }
 
-func (m *RegisterReply) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_RegisterReply.Unmarshal(m, b)
+func (m *RegisterResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RegisterResponse.Unmarshal(m, b)
 }
-func (m *RegisterReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_RegisterReply.Marshal(b, m, deterministic)
+func (m *RegisterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RegisterResponse.Marshal(b, m, deterministic)
 }
-func (m *RegisterReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RegisterReply.Merge(m, src)
+func (m *RegisterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RegisterResponse.Merge(m, src)
 }
-func (m *RegisterReply) XXX_Size() int {
-	return xxx_messageInfo_RegisterReply.Size(m)
+func (m *RegisterResponse) XXX_Size() int {
+	return xxx_messageInfo_RegisterResponse.Size(m)
 }
-func (m *RegisterReply) XXX_DiscardUnknown() {
-	xxx_messageInfo_RegisterReply.DiscardUnknown(m)
+func (m *RegisterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RegisterResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_RegisterReply proto.InternalMessageInfo
+var xxx_messageInfo_RegisterResponse proto.InternalMessageInfo
 
 // UserList
 type UserListRequest struct {
@@ -436,54 +436,54 @@ func (m *UserListRequest) GetSize() int32 {
 	return 0
 }
 
-type UserListReply struct {
-	Count                int64        `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
-	Data                 []*UserReply `protobuf:"bytes,2,rep,name=data,proto3" json:"data,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
-	XXX_unrecognized     []byte       `json:"-"`
-	XXX_sizecache        int32        `json:"-"`
+type UserListResponse struct {
+	Count                int64           `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	Data                 []*UserResponse `protobuf:"bytes,2,rep,name=data,proto3" json:"data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
+	XXX_unrecognized     []byte          `json:"-"`
+	XXX_sizecache        int32           `json:"-"`
 }
 
-func (m *UserListReply) Reset()         { *m = UserListReply{} }
-func (m *UserListReply) String() string { return proto.CompactTextString(m) }
-func (*UserListReply) ProtoMessage()    {}
-func (*UserListReply) Descriptor() ([]byte, []int) {
+func (m *UserListResponse) Reset()         { *m = UserListResponse{} }
+func (m *UserListResponse) String() string { return proto.CompactTextString(m) }
+func (*UserListResponse) ProtoMessage()    {}
+func (*UserListResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_116e343673f7ffaf, []int{9}
 }
 
-func (m *UserListReply) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_UserListReply.Unmarshal(m, b)
+func (m *UserListResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UserListResponse.Unmarshal(m, b)
 }
-func (m *UserListReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_UserListReply.Marshal(b, m, deterministic)
+func (m *UserListResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UserListResponse.Marshal(b, m, deterministic)
 }
-func (m *UserListReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UserListReply.Merge(m, src)
+func (m *UserListResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserListResponse.Merge(m, src)
 }
-func (m *UserListReply) XXX_Size() int {
-	return xxx_messageInfo_UserListReply.Size(m)
+func (m *UserListResponse) XXX_Size() int {
+	return xxx_messageInfo_UserListResponse.Size(m)
 }
-func (m *UserListReply) XXX_DiscardUnknown() {
-	xxx_messageInfo_UserListReply.DiscardUnknown(m)
+func (m *UserListResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserListResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_UserListReply proto.InternalMessageInfo
+var xxx_messageInfo_UserListResponse proto.InternalMessageInfo
 
-func (m *UserListReply) GetCount() int64 {
+func (m *UserListResponse) GetCount() int64 {
 	if m != nil {
 		return m.Count
 	}
 	return 0
 }
 
-func (m *UserListReply) GetData() []*UserReply {
+func (m *UserListResponse) GetData() []*UserResponse {
 	if m != nil {
 		return m.Data
 	}
 	return nil
 }
 
-type UserReply struct {
+type UserResponse struct {
 	Id                   int32    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Username             string   `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	Avatar               string   `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`
@@ -495,67 +495,67 @@ type UserReply struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *UserReply) Reset()         { *m = UserReply{} }
-func (m *UserReply) String() string { return proto.CompactTextString(m) }
-func (*UserReply) ProtoMessage()    {}
-func (*UserReply) Descriptor() ([]byte, []int) {
+func (m *UserResponse) Reset()         { *m = UserResponse{} }
+func (m *UserResponse) String() string { return proto.CompactTextString(m) }
+func (*UserResponse) ProtoMessage()    {}
+func (*UserResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_116e343673f7ffaf, []int{10}
 }
 
-func (m *UserReply) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_UserReply.Unmarshal(m, b)
+func (m *UserResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UserResponse.Unmarshal(m, b)
 }
-func (m *UserReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_UserReply.Marshal(b, m, deterministic)
+func (m *UserResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UserResponse.Marshal(b, m, deterministic)
 }
-func (m *UserReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UserReply.Merge(m, src)
+func (m *UserResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserResponse.Merge(m, src)
 }
-func (m *UserReply) XXX_Size() int {
-	return xxx_messageInfo_UserReply.Size(m)
+func (m *UserResponse) XXX_Size() int {
+	return xxx_messageInfo_UserResponse.Size(m)
 }
-func (m *UserReply) XXX_DiscardUnknown() {
-	xxx_messageInfo_UserReply.DiscardUnknown(m)
+func (m *UserResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_UserReply proto.InternalMessageInfo
+var xxx_messageInfo_UserResponse proto.InternalMessageInfo
 
-func (m *UserReply) GetId() int32 {
+func (m *UserResponse) GetId() int32 {
 	if m != nil {
 		return m.Id
 	}
 	return 0
 }
 
-func (m *UserReply) GetUsername() string {
+func (m *UserResponse) GetUsername() string {
 	if m != nil {
 		return m.Username
 	}
 	return ""
 }
 
-func (m *UserReply) GetAvatar() string {
+func (m *UserResponse) GetAvatar() string {
 	if m != nil {
 		return m.Avatar
 	}
 	return ""
 }
 
-func (m *UserReply) GetRoleID() int32 {
+func (m *UserResponse) GetRoleID() int32 {
 	if m != nil {
 		return m.RoleID
 	}
 	return 0
 }
 
-func (m *UserReply) GetRecentTime() string {
+func (m *UserResponse) GetRecentTime() string {
 	if m != nil {
 		return m.RecentTime
 	}
 	return ""
 }
 
-func (m *UserReply) GetCreatedTime() string {
+func (m *UserResponse) GetCreatedTime() string {
 	if m != nil {
 		return m.CreatedTime
 	}
@@ -564,50 +564,50 @@ func (m *UserReply) GetCreatedTime() string {
 
 func init() {
 	proto.RegisterType((*GetUserRequest)(nil), "pb.GetUserRequest")
-	proto.RegisterType((*GetUserReply)(nil), "pb.GetUserReply")
+	proto.RegisterType((*GetUserResponse)(nil), "pb.GetUserResponse")
 	proto.RegisterType((*LoginRequest)(nil), "pb.LoginRequest")
-	proto.RegisterType((*LoginReply)(nil), "pb.LoginReply")
+	proto.RegisterType((*LoginResponse)(nil), "pb.LoginResponse")
 	proto.RegisterType((*SendCodeRequest)(nil), "pb.SendCodeRequest")
-	proto.RegisterType((*SendCodeReply)(nil), "pb.SendCodeReply")
+	proto.RegisterType((*SendCodeResponse)(nil), "pb.SendCodeResponse")
 	proto.RegisterType((*RegisterRequest)(nil), "pb.RegisterRequest")
-	proto.RegisterType((*RegisterReply)(nil), "pb.RegisterReply")
+	proto.RegisterType((*RegisterResponse)(nil), "pb.RegisterResponse")
 	proto.RegisterType((*UserListRequest)(nil), "pb.UserListRequest")
-	proto.RegisterType((*UserListReply)(nil), "pb.UserListReply")
-	proto.RegisterType((*UserReply)(nil), "pb.UserReply")
+	proto.RegisterType((*UserListResponse)(nil), "pb.UserListResponse")
+	proto.RegisterType((*UserResponse)(nil), "pb.UserResponse")
 }
 
 func init() { proto.RegisterFile("user.proto", fileDescriptor_116e343673f7ffaf) }
 
 var fileDescriptor_116e343673f7ffaf = []byte{
-	// 440 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x54, 0x4b, 0x6e, 0xd4, 0x40,
-	0x10, 0xcd, 0xd8, 0x63, 0x27, 0xa9, 0xc4, 0xe3, 0xa4, 0x41, 0x91, 0xe5, 0x05, 0x32, 0xbd, 0x21,
-	0x12, 0xd2, 0x48, 0x04, 0x36, 0xac, 0x41, 0x7c, 0xa4, 0xac, 0x0c, 0x1c, 0xa0, 0xc7, 0x5d, 0x1a,
-	0x59, 0x9a, 0xb8, 0x4d, 0x77, 0x3b, 0x28, 0x5c, 0x81, 0x93, 0xc0, 0x29, 0x51, 0x7f, 0xfc, 0x15,
-	0x2b, 0x56, 0xd9, 0xb9, 0x5e, 0xd5, 0xab, 0x37, 0x55, 0xf5, 0x7a, 0x00, 0x3a, 0x85, 0x72, 0xdb,
-	0x4a, 0xa1, 0x05, 0x09, 0xda, 0x1d, 0xa5, 0xb0, 0xf9, 0x88, 0xfa, 0x9b, 0x42, 0x59, 0xe2, 0xf7,
-	0x0e, 0x95, 0x26, 0x17, 0x10, 0x76, 0x35, 0xcf, 0x56, 0xc5, 0xea, 0xfa, 0xb4, 0x34, 0x9f, 0xb4,
-	0x80, 0xf3, 0xa1, 0xa6, 0x3d, 0x3c, 0xfc, 0xa3, 0xe2, 0x03, 0x9c, 0xdf, 0x8a, 0x7d, 0xdd, 0xf4,
-	0x3d, 0x72, 0x38, 0x31, 0x3a, 0x0d, 0xbb, 0x43, 0x5f, 0x36, 0xc4, 0x26, 0xd7, 0x32, 0xa5, 0x7e,
-	0x08, 0xc9, 0xb3, 0xc0, 0xe5, 0xfa, 0x98, 0xfe, 0x59, 0x01, 0xf8, 0x46, 0x46, 0x68, 0x03, 0x81,
-	0xd7, 0x89, 0xca, 0xa0, 0xe6, 0xb3, 0xb6, 0xc1, 0xa2, 0xed, 0x15, 0xc4, 0xec, 0x9e, 0x69, 0x26,
-	0xb3, 0xd0, 0x66, 0x7c, 0x64, 0x70, 0x29, 0x0e, 0xf8, 0xf9, 0x7d, 0xb6, 0xb6, 0x7d, 0x7c, 0x44,
-	0x9e, 0x01, 0x48, 0xac, 0xb0, 0xd1, 0x5f, 0xeb, 0x3b, 0xcc, 0x22, 0xcb, 0x99, 0x20, 0xa4, 0x80,
-	0xb3, 0x4a, 0x22, 0xd3, 0xc8, 0x6d, 0x41, 0x6c, 0x0b, 0xa6, 0x10, 0xbd, 0x84, 0xf4, 0x0b, 0x36,
-	0xfc, 0x9d, 0xe0, 0xe8, 0xe7, 0xa6, 0x2f, 0x20, 0x19, 0x21, 0x33, 0xc1, 0x15, 0xc4, 0x95, 0xe0,
-	0x46, 0xdd, 0xad, 0xc1, 0x47, 0x94, 0x41, 0x5a, 0xe2, 0xbe, 0x56, 0x7a, 0xdc, 0xfb, 0x7f, 0xee,
-	0x6c, 0x22, 0x11, 0xba, 0x01, 0xbd, 0x44, 0x0a, 0xc9, 0x28, 0xd1, 0x1e, 0x1e, 0xe8, 0x5b, 0x48,
-	0xcd, 0x0d, 0x6f, 0x6b, 0xa5, 0x7b, 0x4d, 0x02, 0xeb, 0x96, 0xed, 0xd1, 0xaf, 0xd8, 0x7e, 0x1b,
-	0x4c, 0xd5, 0x3f, 0xdd, 0x82, 0xa3, 0xd2, 0x7e, 0xd3, 0x4f, 0x90, 0x8c, 0x54, 0x33, 0xd7, 0x53,
-	0x88, 0x2a, 0xd1, 0x35, 0xda, 0x32, 0xc3, 0xd2, 0x05, 0xe4, 0x39, 0xac, 0x39, 0xd3, 0x2c, 0x0b,
-	0x8a, 0xf0, 0xfa, 0xec, 0x26, 0xd9, 0xb6, 0xbb, 0xed, 0xe0, 0x9a, 0xd2, 0xa6, 0xe8, 0xef, 0x15,
-	0x9c, 0x8e, 0x4e, 0x7a, 0xd4, 0x07, 0xbe, 0xf9, 0x15, 0xc0, 0xb1, 0xf9, 0xad, 0xea, 0xbe, 0x22,
-	0xaf, 0xe0, 0xd8, 0xbf, 0x01, 0x42, 0xcc, 0x5c, 0xf3, 0x47, 0x93, 0x5f, 0xcc, 0x30, 0xb3, 0xed,
-	0x23, 0xf2, 0x12, 0x22, 0xeb, 0x65, 0x62, 0x93, 0xd3, 0xf7, 0x91, 0x6f, 0x26, 0x88, 0x2b, 0x7e,
-	0x03, 0x27, 0xbd, 0x73, 0xc8, 0x13, 0x93, 0x5d, 0x58, 0x2b, 0xbf, 0x9c, 0x83, 0x03, 0xab, 0xbf,
-	0xb1, 0x63, 0x2d, 0x4c, 0xe5, 0x58, 0x73, 0x1b, 0x58, 0x56, 0x7f, 0x4d, 0xc7, 0x5a, 0xd8, 0xc2,
-	0xb1, 0x66, 0x07, 0xa7, 0x47, 0xbb, 0xd8, 0xfe, 0x69, 0xbc, 0xfe, 0x1b, 0x00, 0x00, 0xff, 0xff,
-	0x62, 0x4d, 0x84, 0x92, 0x42, 0x04, 0x00, 0x00,
+	// 443 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x54, 0xcd, 0x6e, 0xd4, 0x30,
+	0x10, 0x6e, 0x92, 0x4d, 0x5a, 0xa6, 0xa5, 0x49, 0x4d, 0x55, 0x45, 0x39, 0xa0, 0x95, 0xe1, 0x50,
+	0x71, 0xc8, 0x61, 0x41, 0x42, 0x9c, 0x41, 0x20, 0xa4, 0x15, 0x87, 0x00, 0x0f, 0xe0, 0x8d, 0x47,
+	0xab, 0x48, 0x6c, 0x1c, 0x6c, 0x67, 0x91, 0x78, 0x14, 0x9e, 0x01, 0xde, 0x11, 0xf9, 0x27, 0x9b,
+	0x1f, 0x38, 0x71, 0xe2, 0xe6, 0xf9, 0x66, 0xbe, 0x19, 0xcf, 0xcc, 0x67, 0x03, 0xf4, 0x0a, 0x65,
+	0xd9, 0x49, 0xa1, 0x05, 0x09, 0xbb, 0x1d, 0xa5, 0x70, 0xfd, 0x0e, 0xf5, 0x67, 0x85, 0xb2, 0xc2,
+	0xaf, 0x3d, 0x2a, 0x4d, 0x32, 0x88, 0xfa, 0x86, 0xe7, 0xc1, 0x3a, 0xb8, 0x7f, 0x50, 0x99, 0x23,
+	0x7d, 0x02, 0xe9, 0x29, 0x46, 0x75, 0xa2, 0x55, 0xf8, 0x97, 0xa0, 0xb7, 0x70, 0xb5, 0x15, 0xfb,
+	0xa6, 0x1d, 0xd2, 0x14, 0x70, 0x61, 0x4a, 0xb5, 0xec, 0x80, 0x3e, 0xec, 0x64, 0x1b, 0x5f, 0xc7,
+	0x94, 0xfa, 0x26, 0x24, 0xcf, 0x43, 0xe7, 0x1b, 0x6c, 0xfa, 0x2b, 0x80, 0x87, 0x3e, 0x91, 0xaf,
+	0x75, 0x0d, 0xa1, 0x2f, 0x15, 0x57, 0x61, 0xc3, 0x67, 0x99, 0xc3, 0x45, 0xe6, 0x3b, 0x48, 0xd8,
+	0x91, 0x69, 0x26, 0xf3, 0xc8, 0x7a, 0xbc, 0x65, 0x70, 0x29, 0xbe, 0xe0, 0xfb, 0x37, 0xf9, 0xca,
+	0xe6, 0xf1, 0x16, 0x79, 0x0c, 0x20, 0xb1, 0xc6, 0x56, 0x7f, 0x6a, 0x0e, 0x98, 0xc7, 0x96, 0x33,
+	0x41, 0xc8, 0x1a, 0x2e, 0x6b, 0x89, 0x4c, 0x23, 0xb7, 0x01, 0x89, 0x0d, 0x98, 0x42, 0xf4, 0x06,
+	0xd2, 0x8f, 0xd8, 0xf2, 0xd7, 0x82, 0xa3, 0x6f, 0x9d, 0x3e, 0x83, 0x6c, 0x84, 0x7c, 0x13, 0x77,
+	0x90, 0xd4, 0x82, 0x9b, 0x0b, 0xb8, 0x61, 0x78, 0x8b, 0x32, 0x48, 0x2b, 0xdc, 0x37, 0x4a, 0x8f,
+	0x0b, 0xf8, 0xc7, 0xc9, 0x4d, 0x4a, 0x44, 0xae, 0x47, 0x5f, 0x82, 0x40, 0x36, 0x96, 0x70, 0xd7,
+	0xa1, 0xaf, 0x20, 0x35, 0xfb, 0xdc, 0x36, 0x4a, 0x0f, 0x65, 0x09, 0xac, 0x3a, 0xb6, 0x47, 0x3f,
+	0x68, 0x7b, 0x36, 0x98, 0x6a, 0xbe, 0xbb, 0x31, 0xc7, 0x95, 0x3d, 0xd3, 0x0f, 0x90, 0x8d, 0x54,
+	0xdf, 0xdd, 0x2d, 0xc4, 0xb5, 0xe8, 0x5b, 0x6d, 0xc9, 0x51, 0xe5, 0x0c, 0xf2, 0x14, 0x56, 0x9c,
+	0x69, 0x96, 0x87, 0xeb, 0xe8, 0xfe, 0x72, 0x93, 0x95, 0xdd, 0xae, 0x9c, 0x8a, 0xa8, 0xb2, 0x5e,
+	0xfa, 0x33, 0x80, 0xab, 0x99, 0xb6, 0xfe, 0xeb, 0x7d, 0x6f, 0x7e, 0x84, 0x70, 0x6e, 0xae, 0xab,
+	0x8e, 0x35, 0x79, 0x01, 0xe7, 0xfe, 0x61, 0x10, 0x62, 0xba, 0x9b, 0xbf, 0xa4, 0xe2, 0xd1, 0x0c,
+	0xf3, 0x93, 0x3f, 0x23, 0x25, 0xc4, 0x56, 0xe0, 0xc4, 0x4e, 0x64, 0xfa, 0x68, 0x8a, 0x9b, 0x09,
+	0x72, 0x8a, 0x7f, 0x09, 0x17, 0x83, 0x9c, 0x88, 0x4d, 0xb9, 0xd0, 0x5b, 0x71, 0x3b, 0x07, 0xa7,
+	0xc4, 0x61, 0xf1, 0x8e, 0xb8, 0x50, 0x9a, 0x23, 0xfe, 0xa1, 0x0d, 0x4b, 0x1c, 0x56, 0xec, 0x88,
+	0x0b, 0xad, 0x38, 0xe2, 0x52, 0x05, 0xf4, 0x6c, 0x97, 0xd8, 0x8f, 0xe5, 0xf9, 0xef, 0x00, 0x00,
+	0x00, 0xff, 0xff, 0xf0, 0x27, 0x52, 0x56, 0x66, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -622,11 +622,11 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type UsersvcClient interface {
-	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserReply, error)
-	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginReply, error)
-	SendCode(ctx context.Context, in *SendCodeRequest, opts ...grpc.CallOption) (*SendCodeReply, error)
-	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterReply, error)
-	UserList(ctx context.Context, in *UserListRequest, opts ...grpc.CallOption) (*UserListReply, error)
+	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
+	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	SendCode(ctx context.Context, in *SendCodeRequest, opts ...grpc.CallOption) (*SendCodeResponse, error)
+	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
+	UserList(ctx context.Context, in *UserListRequest, opts ...grpc.CallOption) (*UserListResponse, error)
 }
 
 type usersvcClient struct {
@@ -637,8 +637,8 @@ func NewUsersvcClient(cc *grpc.ClientConn) UsersvcClient {
 	return &usersvcClient{cc}
 }
 
-func (c *usersvcClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserReply, error) {
-	out := new(GetUserReply)
+func (c *usersvcClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
+	out := new(GetUserResponse)
 	err := c.cc.Invoke(ctx, "/pb.Usersvc/GetUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -646,8 +646,8 @@ func (c *usersvcClient) GetUser(ctx context.Context, in *GetUserRequest, opts ..
 	return out, nil
 }
 
-func (c *usersvcClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginReply, error) {
-	out := new(LoginReply)
+func (c *usersvcClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
+	out := new(LoginResponse)
 	err := c.cc.Invoke(ctx, "/pb.Usersvc/Login", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -655,8 +655,8 @@ func (c *usersvcClient) Login(ctx context.Context, in *LoginRequest, opts ...grp
 	return out, nil
 }
 
-func (c *usersvcClient) SendCode(ctx context.Context, in *SendCodeRequest, opts ...grpc.CallOption) (*SendCodeReply, error) {
-	out := new(SendCodeReply)
+func (c *usersvcClient) SendCode(ctx context.Context, in *SendCodeRequest, opts ...grpc.CallOption) (*SendCodeResponse, error) {
+	out := new(SendCodeResponse)
 	err := c.cc.Invoke(ctx, "/pb.Usersvc/SendCode", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -664,8 +664,8 @@ func (c *usersvcClient) SendCode(ctx context.Context, in *SendCodeRequest, opts 
 	return out, nil
 }
 
-func (c *usersvcClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterReply, error) {
-	out := new(RegisterReply)
+func (c *usersvcClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
+	out := new(RegisterResponse)
 	err := c.cc.Invoke(ctx, "/pb.Usersvc/Register", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -673,8 +673,8 @@ func (c *usersvcClient) Register(ctx context.Context, in *RegisterRequest, opts 
 	return out, nil
 }
 
-func (c *usersvcClient) UserList(ctx context.Context, in *UserListRequest, opts ...grpc.CallOption) (*UserListReply, error) {
-	out := new(UserListReply)
+func (c *usersvcClient) UserList(ctx context.Context, in *UserListRequest, opts ...grpc.CallOption) (*UserListResponse, error) {
+	out := new(UserListResponse)
 	err := c.cc.Invoke(ctx, "/pb.Usersvc/UserList", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -684,30 +684,30 @@ func (c *usersvcClient) UserList(ctx context.Context, in *UserListRequest, opts 
 
 // UsersvcServer is the server API for Usersvc service.
 type UsersvcServer interface {
-	GetUser(context.Context, *GetUserRequest) (*GetUserReply, error)
-	Login(context.Context, *LoginRequest) (*LoginReply, error)
-	SendCode(context.Context, *SendCodeRequest) (*SendCodeReply, error)
-	Register(context.Context, *RegisterRequest) (*RegisterReply, error)
-	UserList(context.Context, *UserListRequest) (*UserListReply, error)
+	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
+	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	SendCode(context.Context, *SendCodeRequest) (*SendCodeResponse, error)
+	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
+	UserList(context.Context, *UserListRequest) (*UserListResponse, error)
 }
 
 // UnimplementedUsersvcServer can be embedded to have forward compatible implementations.
 type UnimplementedUsersvcServer struct {
 }
 
-func (*UnimplementedUsersvcServer) GetUser(ctx context.Context, req *GetUserRequest) (*GetUserReply, error) {
+func (*UnimplementedUsersvcServer) GetUser(ctx context.Context, req *GetUserRequest) (*GetUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
-func (*UnimplementedUsersvcServer) Login(ctx context.Context, req *LoginRequest) (*LoginReply, error) {
+func (*UnimplementedUsersvcServer) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (*UnimplementedUsersvcServer) SendCode(ctx context.Context, req *SendCodeRequest) (*SendCodeReply, error) {
+func (*UnimplementedUsersvcServer) SendCode(ctx context.Context, req *SendCodeRequest) (*SendCodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendCode not implemented")
 }
-func (*UnimplementedUsersvcServer) Register(ctx context.Context, req *RegisterRequest) (*RegisterReply, error) {
+func (*UnimplementedUsersvcServer) Register(ctx context.Context, req *RegisterRequest) (*RegisterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
-func (*UnimplementedUsersvcServer) UserList(ctx context.Context, req *UserListRequest) (*UserListReply, error) {
+func (*UnimplementedUsersvcServer) UserList(ctx context.Context, req *UserListRequest) (*UserListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserList not implemented")
 }
 
