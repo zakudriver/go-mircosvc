@@ -42,6 +42,7 @@ message LoginResponse {
     int32 roleID = 4;
     string recentTime = 5;
     string createdTime = 6;
+    string updatedTime = 7;
 }
 
 //SendCode
@@ -80,4 +81,5 @@ message UserResponse {
     int32 roleID = 4;
     string recentTime = 5;
     string createdTime = 6;
+    string updatedTime = 7;
 }

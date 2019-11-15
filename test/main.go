@@ -1,5 +1,10 @@
 package main
 
+import (
+	"fmt"
+	"time"
+)
+
 type A struct {
 	a int
 }
@@ -9,10 +14,7 @@ type B struct {
 }
 
 func main() {
-	a := A{a: 1}
-	b := B{}
-
-	a = b
+	fmt.Println(time.Now().String())
 }
 
 func ss() *A {

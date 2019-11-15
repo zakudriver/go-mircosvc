@@ -6,14 +6,13 @@ import (
 	"fmt"
 	"github.com/gomodule/redigo/redis"
 	"github.com/kum0/blog-svr/common"
+	userPb "github.com/kum0/blog-svr/pb/user"
 	"github.com/kum0/blog-svr/servers/usersvc/endpoints/model"
 	"github.com/kum0/blog-svr/shared/email"
 	"github.com/kum0/blog-svr/shared/session"
 	"github.com/kum0/blog-svr/shared/validator"
 	"github.com/kum0/blog-svr/utils"
 	"strings"
-
-	userPb "github.com/kum0/blog-svr/pb/user"
 )
 
 type IUserService interface {
@@ -52,24 +51,29 @@ func (svc *UserService) Login(_ context.Context, req LoginRequest) (*userPb.Logi
 	}
 
 	user := new(model.User)
-	sql := fmt.Sprintf("SELECT `id`, `username`, `password`, `avatar`, `role_id`, `recent_time`, `created_time`, "+
+	s := fmt.Sprintf("SELECT `id`, `username`, `password`, `avatar`, `role_id`, `recent_time`, `created_time`, "+
 		"`updated_time` "+
 		"FROM `User` WHERE `username`='%s'",
 		req.Username)
-	err := svc.mysql.QueryRow(sql).Scan(&user.Id, &user.Username, &user.Password, &user.Avatar, &user.RoleID,
+	err := svc.mysql.QueryRow(s).Scan(&user.Id, &user.Username, &user.Password, &user.Avatar, &user.RoleID,
 		&user.RecentTime, &user.CreatedTime, &user.UpdatedTime)
 	if err != nil {
 		return nil, common.ArgsErr(fmt.Sprintf("[%s]该用户名不存在", req.Username))
 	}
 
 	if user.VerifyPassword(req.Password) {
-		// res := new(LoginResponse)
+		s := fmt.Sprintf("UPDATE `User` SET `recent_time` = sysdate() WHERE `id` = %d", user.Id)
+		if _, err := svc.mysql.Exec(s); err != nil {
+			return nil, common.ArgsErr(err)
+		}
+
 		res := new(userPb.LoginResponse)
 		if err := utils.StructCopy(user, res); err != nil {
 			return nil, common.ArgsErr(err)
 		}
 		return res, nil
 	}
+
 	return nil, common.ArgsErr("密码错误")
 }
 
@@ -149,8 +153,30 @@ func (svc *UserService) Register(ctx context.Context, req RegisterRequest) error
 }
 
 func (svc *UserService) UserList(ctx context.Context, req UserListRequest) (*userPb.UserListResponse, error) {
-	us := new(userPb.UserListResponse)
-	us.Count = 1
-	us.Data = []*userPb.UserResponse{{Id: 11}, {}}
-	return us, nil
+	s := fmt.Sprintf("SELECT `id`, `username`, `avatar`, `role_id`, `recent_time`, `created_time`, `updated_time` "+
+		"FROM `User` WHERE id >= %d LIMIT %d;", (req.Page-1)*req.Size, req.Page)
+	rs, err := svc.mysql.Query(s)
+	defer rs.Close()
+
+	if err != nil {
+		return nil, common.ArgsErr(err)
+	}
+
+	d := make([]*userPb.UserResponse, 0)
+	for rs.Next() {
+		u := new(userPb.UserResponse)
+		if err := rs.Scan(&u.Id, &u.Username, &u.Avatar, &u.RoleID, &u.RecentTime, &u.CreatedTime, &u.UpdatedTime);
+			err != nil {
+			return nil, common.ArgsErr(err)
+		}
+		d = append(d, u)
+	}
+
+	count := 0
+	r := svc.mysql.QueryRow("SELECT FOUND_ROWS() as `count`")
+	if err := r.Scan(&count); err != nil {
+		return nil, err
+	}
+
+	return &userPb.UserListResponse{Count: int64(count), Data: d}, nil
 }
