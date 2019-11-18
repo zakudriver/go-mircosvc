@@ -173,7 +173,7 @@ func (svc *UserService) UserList(ctx context.Context, req UserListRequest) (*use
 	}
 
 	count := 0
-	r := svc.mysql.QueryRow("SELECT FOUND_ROWS() as `count`")
+	r := svc.mysql.QueryRow("SELECT FOUND_ROWS() AS `count`")
 	if err := r.Scan(&count); err != nil {
 		return nil, err
 	}

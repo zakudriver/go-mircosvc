@@ -61,13 +61,13 @@ func main() {
 		svc = endpoints.NewUserService(mdb, rd, email)
 		svc = middleware.MakeServiceMiddleware(svc)
 	}
-	ep := endpoints.NewEndpoints(svc, log, tracer, zipkinTracer)
+	eps := endpoints.NewEndpoints(svc, log, tracer, zipkinTracer)
 
 	hs := health.NewServer()
 	hs.SetServingStatus(conf.ServiceName, healthgrpc.HealthCheckResponse_SERVING)
 
 	errs := make(chan error, 1)
-	go grpcServer(transport.MakeGRPCServer(ep, tracer, zipkinTracer, log), conf.GrpcPort, zipkinTracer, hs, log, errs)
+	go grpcServer(transport.MakeGRPCServer(eps, tracer, zipkinTracer, log), conf.GrpcPort, zipkinTracer, hs, log, errs)
 
 	go func() {
 		c := make(chan os.Signal)

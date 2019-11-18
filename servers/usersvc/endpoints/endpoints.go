@@ -3,8 +3,6 @@ package endpoints
 import (
 	"context"
 	"errors"
-	"time"
-
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
@@ -17,6 +15,7 @@ import (
 	"github.com/openzipkin/zipkin-go"
 	"github.com/sony/gobreaker"
 	"golang.org/x/time/rate"
+	"time"
 )
 
 type Endponits struct {
@@ -25,6 +24,7 @@ type Endponits struct {
 	SendCodeEP endpoint.Endpoint
 	RegisterEP endpoint.Endpoint
 	UserListEP endpoint.Endpoint
+	AuthEP     endpoint.Endpoint
 }
 
 func (e *Endponits) GetUser(ctx context.Context, uid string) (*userPb.GetUserResponse, error) {
@@ -69,23 +69,13 @@ func (e *Endponits) UserList(ctx context.Context, request UserListRequest) (*use
 }
 
 func NewEndpoints(svc IUserService, logger log.Logger, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer) *Endponits {
-	var middlewares []endpoint.Middleware
-	{
-		limiter := rate.NewLimiter(rate.Every(time.Second*1), 10)
-
-		middlewares = append(
-			middlewares,
-			middleware.RateLimitterMiddleware(limiter),
-			circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{})),
-		)
-	}
 
 	return &Endponits{
-		GetUserEP:  makeEndpoint(MakeGetUserEndpoint(svc), "GetUser", logger, otTracer, zipkinTracer, middlewares),
-		LoginEP:    makeEndpoint(MakeLoginEndpoint(svc), "Login", logger, otTracer, zipkinTracer, middlewares),
-		SendCodeEP: makeEndpoint(MakeSendCodeEndpoint(svc), "SendCode", logger, otTracer, zipkinTracer, middlewares),
-		RegisterEP: makeEndpoint(MakeRegisterEndpoint(svc), "Register", logger, otTracer, zipkinTracer, middlewares),
-		UserListEP: makeEndpoint(MakeUserListEndpoint(svc), "UseList", logger, otTracer, zipkinTracer, middlewares),
+		GetUserEP:  makeEndpoint(MakeGetUserEndpoint(svc), "GetUser", logger, otTracer, zipkinTracer),
+		LoginEP:    makeEndpoint(MakeLoginEndpoint(svc), "Login", logger, otTracer, zipkinTracer),
+		SendCodeEP: makeEndpoint(MakeSendCodeEndpoint(svc), "SendCode", logger, otTracer, zipkinTracer),
+		RegisterEP: makeEndpoint(MakeRegisterEndpoint(svc), "Register", logger, otTracer, zipkinTracer),
+		UserListEP: makeEndpoint(MakeUserListEndpoint(svc), "UseList", logger, otTracer, zipkinTracer),
 	}
 }
 
@@ -154,23 +144,33 @@ func MakeUserListEndpoint(svc IUserService) endpoint.Endpoint {
 	}
 }
 
+// Auth
+func MakeAuthEndpoint(svc IUserService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		return nil, nil
+	}
+}
+
 func makeEndpoint(
 	ep endpoint.Endpoint,
 	method string,
 	logger log.Logger,
 	otTracer opentracing.Tracer,
 	zipkinTracer *zipkin.Tracer,
-	middlewares []endpoint.Middleware,
+	middlewares ...endpoint.Middleware,
 ) endpoint.Endpoint {
+	limiter := rate.NewLimiter(rate.Every(time.Second*1), 10)
 
-	mids := append(
+	middlewares = append(
 		middlewares,
+		middleware.RateLimitterMiddleware(limiter),
+		circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{})),
 		kitOpentracing.TraceServer(otTracer, method),
 		kitZipkin.TraceEndpoint(zipkinTracer, method),
 		middleware.LoggingMiddleware(log.With(logger, "method", method)),
 	)
 
-	for _, m := range mids {
+	for _, m := range middlewares {
 		ep = m(ep)
 	}
 

@@ -8,11 +8,11 @@ import (
 	kitTransport "github.com/go-kit/kit/transport/http"
 )
 
-func DecodeEmpty(_ context.Context, a interface{}) (request interface{}, err error) {
+func DecodeEmpty(_ context.Context, _ interface{}) (interface{}, error) {
 	return nil, nil
 }
 
-func DecodeEmptyHttpRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+func DecodeEmptyHttpRequest(_ context.Context, _ *http.Request) (interface{}, error) {
 	return nil, nil
 }
 

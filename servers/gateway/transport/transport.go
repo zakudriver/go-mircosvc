@@ -11,6 +11,8 @@ import (
 	usersvcEndpoints "github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	usersvcTransport "github.com/kum0/blog-svr/servers/usersvc/transport"
 	sharedEtcd "github.com/kum0/blog-svr/shared/etcd"
+	"github.com/kum0/blog-svr/shared/middleware"
+	"github.com/kum0/blog-svr/shared/session"
 	"github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
 	"google.golang.org/grpc"
@@ -28,6 +30,7 @@ func MakeHandler(
 	logger log.Logger,
 	retryMax int,
 	retryTimeout int,
+	session *session.Storage,
 ) http.Handler {
 	r := mux.NewRouter()
 
@@ -37,7 +40,7 @@ func MakeHandler(
 		ins := sharedEtcd.NewInstancer("/usersvc", etcdClient, logger)
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
-			endpoints.GetUserEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
+			endpoints.GetUserEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout, middleware.CookieMiddleware(session))
 		}
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeLoginEndpoint, tracer, zipkinTracer, logger)
@@ -54,6 +57,15 @@ func MakeHandler(
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeUserListEndpoint, tracer, zipkinTracer, logger)
 			endpoints.UserListEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
+		}
+		{
+			factory := usersvcFactory(usersvcEndpoints.MakeUserListEndpoint, tracer, zipkinTracer, logger)
+			endpoints.UserListEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
+		}
+
+		{
+			factory := usersvcFactory(usersvcEndpoints.MakeAuthEndpoint, tracer, zipkinTracer, logger)
+			endpoints.AuthEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
 		}
 		r.PathPrefix("/usersvc").Handler(http.StripPrefix("/usersvc", usersvcTransport.MakeHTTPHandler(endpoints, tracer,
 			zipkinTracer, logger)))
@@ -88,16 +100,23 @@ func makeEndpoint(
 	logger log.Logger,
 	retryMax int,
 	retryTimeout int,
+	middlewares ...endpoint.Middleware,
 ) endpoint.Endpoint {
 	endpointer := sd.NewEndpointer(ins, factory, logger)
 	balancer := lb.NewRoundRobin(endpointer)
 
-	return lb.RetryWithCallback(time.Duration(retryTimeout)*time.Second, balancer, func(n int, received error) (bool, error) {
+	ep := lb.RetryWithCallback(time.Duration(retryTimeout)*time.Second, balancer, func(n int, received error) (bool,
+		error) {
 		if err := encodeError(received); err != nil {
 			return false, err
 		}
 		return n < retryMax, nil
 	})
+
+	for _, m := range middlewares {
+		ep = m(ep)
+	}
+	return ep
 }
 
 func encodeError(err error) error {

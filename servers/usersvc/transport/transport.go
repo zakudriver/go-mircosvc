@@ -21,6 +21,7 @@ func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipk
 	opts := []kitTransport.ServerOption{
 		kitTransport.ServerErrorEncoder(common.EncodeError),
 		kitZipkin.HTTPServerTrace(zipkinTracer),
+		common.CookieToContext(),
 	}
 
 	m := mux.NewRouter()
@@ -30,7 +31,7 @@ func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipk
 		handler := kitTransport.NewServer(
 			eps.LoginEP,
 			common.DecodeJsonRequest(new(endpoints.LoginRequest)),
-			common.EncodeResponse,
+			encodeResponseSetCookie,
 			append(opts, kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Login", logger)))...,
 		)
 		m.Handle("/login", handler).Methods("POST")
@@ -78,6 +79,17 @@ func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipk
 				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "GetUser", logger)))...,
 		)
 		m.Handle("/{UID}", handler).Methods("GET")
+	}
+
+	{
+		handler := kitTransport.NewServer(
+			eps.GetUserEP,
+			common.DecodeEmptyHttpRequest,
+			common.EncodeResponse,
+			append(opts,
+				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Auth", logger)))...,
+		)
+		m.Handle("/auth", handler).Methods("GET")
 	}
 
 	return m

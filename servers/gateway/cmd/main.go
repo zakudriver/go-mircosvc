@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/kum0/blog-svr/shared/db"
+	"github.com/kum0/blog-svr/shared/session"
 	"net/http"
 	"os"
 	"os/signal"
@@ -30,13 +32,17 @@ func main() {
 
 	opentracing.SetGlobalTracer(zipkinot.Wrap(zipkinTracer))
 	tracer := opentracing.GlobalTracer()
-
 	etcdClient := sharedEtcd.NewEtcd(conf.EtcdAddr)
 
-	r := transport.MakeHandler(etcdClient, tracer, zipkinTracer, log, conf.RetryMax, conf.RetryTimeout)
+	var handler http.Handler
+	{
+		redis := db.NewRedis(conf.RedisAddr, conf.RedisPassword, conf.RedisMaxIdle, conf.RedisMaxActive)
+		seeion := session.NewStorage(redis)
+		handler = transport.MakeHandler(etcdClient, tracer, zipkinTracer, log, conf.RetryMax, conf.RetryTimeout, seeion)
+	}
 
 	errs := make(chan error, 1)
-	go httpServer(log, conf.HttpPort, r, errs)
+	go httpServer(log, conf.HttpPort, handler, errs)
 
 	go func() {
 		c := make(chan os.Signal)

@@ -2,14 +2,13 @@ package config
 
 import (
 	"github.com/kum0/blog-svr/utils"
-	"strconv"
 )
 
 type config struct {
-	ServiceName string `env:"SERVICE_NAME=user-svc"`
-	LogPath     string `env:"LOG_PATH=./log/usersvc.log"`
-	GrpcPort   string `env:"GRPC_PORT=5002"`
-	ZipkinAddr string `env:"ZIPKIN_ADDR=http://localhost:9411/api/v2/spans"`
+	ServiceName  string `env:"SERVICE_NAME=user-svc"`
+	LogPath      string `env:"LOG_PATH=./log/usersvc.log"`
+	GrpcPort     string `env:"GRPC_PORT=5002"`
+	ZipkinAddr   string `env:"ZIPKIN_ADDR=http://localhost:9411/api/v2/spans"`
 	RETRYMAX     string `env:"RETRY_MAX=3"`
 	RetryMax     int
 	RETRYTIMEOUT string `env:"RETRY_TIMEOUT=30000"`
@@ -53,19 +52,11 @@ func initConfig() {
 		panic(err)
 	}
 
-	c.RetryMax = string2Int(c.RETRYMAX)
-	c.RetryTimeout = string2Int(c.RETRYTIMEOUT)
+	c.RetryMax = utils.String2Int(c.RETRYMAX)
+	c.RetryTimeout = utils.String2Int(c.RETRYTIMEOUT)
 
-	c.RedisMaxIdle = string2Int(c.REDISMAXIDLE)
-	c.RedisMaxActive = string2Int(c.REDISMAXACTIVE)
+	c.RedisMaxIdle = utils.String2Int(c.REDISMAXIDLE)
+	c.RedisMaxActive = utils.String2Int(c.REDISMAXACTIVE)
 
-	c.EmailPort = string2Int(c.EMAILPORT)
-}
-
-func string2Int(s string) int {
-	r, err := strconv.ParseInt(s, 10, 0)
-	if err != nil {
-		panic(err)
-	}
-	return int(r)
+	c.EmailPort = utils.String2Int(c.EMAILPORT)
 }

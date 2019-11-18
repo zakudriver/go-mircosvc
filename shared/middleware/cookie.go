@@ -13,7 +13,7 @@ func CookieMiddleware(st *session.Storage) endpoint.Middleware {
 			v, ok := ctx.Value(common.SessionKey).(string)
 			if !ok {
 				return common.Response{
-					Msg:  "cookie be not exists",
+					Msg:  "cookie is not exists",
 				}, nil
 			}
 

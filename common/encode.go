@@ -17,7 +17,7 @@ func EncodeError(_ context.Context, err error, w http.ResponseWriter) {
 	})
 }
 
-func EncodeEmpty(_ context.Context, a interface{}) (request interface{}, err error) {
+func EncodeEmpty(_ context.Context, _ interface{}) (interface{}, error) {
 	return nil, nil
 }
 
