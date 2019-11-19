@@ -1,22 +1,35 @@
 package main
 
-import (
-	"fmt"
-	"time"
-)
-
 type A struct {
 	a int
+}
+
+func (a *A) ToString() string {
+	return ""
+}
+
+func (a *A) ToInt() string {
+	return ""
 }
 
 type B struct {
 	a int
 }
 
-func main() {
-	fmt.Println(time.Now().String())
+type AA interface {
+	ToString() string
+	// BB
 }
 
-func ss() *A {
-	return &A{}
+type BB interface {
+	ToInt() string
+}
+
+func main() {
+	var a = &A{}
+	test(a)
+}
+
+func test(b BB) {
+	b.ToInt()
 }

@@ -88,7 +88,6 @@ func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
 		}
 
 		res, err := svc.GetUser(ctx, req)
-
 		return common.Response{Data: res}, err
 	}
 }

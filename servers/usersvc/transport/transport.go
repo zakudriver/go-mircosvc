@@ -31,7 +31,8 @@ func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipk
 		handler := kitTransport.NewServer(
 			eps.LoginEP,
 			common.DecodeJsonRequest(new(endpoints.LoginRequest)),
-			encodeResponseSetCookie,
+			// encodeResponseSetCookie,
+			common.EncodeResponse,
 			append(opts, kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Login", logger)))...,
 		)
 		m.Handle("/login", handler).Methods("POST")
@@ -41,7 +42,8 @@ func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipk
 		handler := kitTransport.NewServer(
 			eps.SendCodeEP,
 			common.DecodeEmptyHttpRequest,
-			common.EncodeResponse,
+			// common.EncodeResponse,
+			kitTransport.EncodeJSONResponse,
 			append(opts,
 				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "SendCode", logger)))...,
 		)
@@ -75,6 +77,7 @@ func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipk
 			eps.GetUserEP,
 			decodeGetUserRequest,
 			common.EncodeResponse,
+			// kitTransport.EncodeJSONResponse,
 			append(opts,
 				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "GetUser", logger)))...,
 		)
@@ -85,7 +88,8 @@ func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipk
 		handler := kitTransport.NewServer(
 			eps.GetUserEP,
 			common.DecodeEmptyHttpRequest,
-			common.EncodeResponse,
+			// common.EncodeResponse,
+			kitTransport.EncodeJSONResponse,
 			append(opts,
 				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Auth", logger)))...,
 		)

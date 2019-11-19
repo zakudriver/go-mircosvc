@@ -54,13 +54,27 @@ func main() {
 }
 
 func httpServer(lg log.Logger, port string, handler http.Handler, errs chan error) {
+	// http.Handle("/", accessControl(handler))
 	svr := &http.Server{
 		Addr:    fmt.Sprintf(":%s", port),
-		Handler: handler,
+		Handler: accessControl(handler),
 	}
 	err := svr.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		lg.Log("listen: %s\n", err)
 	}
 	errs <- err
+}
+func accessControl(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
+
+		if r.Method == "OPTIONS" {
+			return
+		}
+
+		h.ServeHTTP(w, r)
+	})
 }

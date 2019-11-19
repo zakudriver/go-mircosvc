@@ -75,6 +75,7 @@ func (svc *UserService) Login(_ context.Context, req LoginRequest) (*userPb.Logi
 	}
 
 	return nil, common.ArgsErr("密码错误")
+	// return nil, errors.New("密码错误")
 }
 
 func (svc *UserService) SendCode(_ context.Context) (*userPb.SendCodeResponse, error) {
