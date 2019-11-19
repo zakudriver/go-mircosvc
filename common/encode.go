@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
+	"net/http"
+
 	"github.com/go-kit/kit/endpoint"
 	kitTransportGrpc "github.com/go-kit/kit/transport/grpc"
 	"github.com/kum0/blog-svr/utils"
-	"net/http"
 
 	kitTransport "github.com/go-kit/kit/transport/http"
 )
@@ -16,9 +16,11 @@ import (
 func EncodeError(_ context.Context, err error, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	w.WriteHeader(http.StatusBadRequest)
+	st, e := decodeError(err)
+
+	w.WriteHeader(st)
 	json.NewEncoder(w).Encode(Response{
-		Msg: err.Error(),
+		Msg: e.Error(),
 	})
 }
 
@@ -27,25 +29,27 @@ func EncodeEmpty(_ context.Context, _ interface{}) (interface{}, error) {
 }
 
 func EncodeResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
-	fmt.Println(response)
-	if f, ok := response.(endpoint.Failer); ok {
-		fmt.Println(f.Failed().Error())
-	}
 	code := http.StatusOK
 	if sc, ok := response.(kitTransport.StatusCoder); ok {
 		code = sc.StatusCode()
 	}
 	w.WriteHeader(code)
+
 	if code == http.StatusNoContent {
 		return nil
 	}
+
+	if f, ok := response.(endpoint.Failer); ok && f.Failed() != nil {
+		return json.NewEncoder(w).Encode(Response{Msg: f.Failed().Error()})
+	}
+
 
 	return json.NewEncoder(w).Encode(response)
 }
 
 func EncodeGRPCResponse(a interface{}) kitTransportGrpc.EncodeResponseFunc {
 	return func(_ context.Context, response interface{}) (interface{}, error) {
-		res, ok := response.(Response)
+		res, ok := response.(*Response)
 		if !ok {
 			return nil, errors.New("encodeGRPCResponse: interface conversion error")
 		}

@@ -3,7 +3,10 @@ package endpoints
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/gomodule/redigo/redis"
 	"github.com/kum0/blog-svr/common"
 	userPb "github.com/kum0/blog-svr/pb/user"
@@ -12,11 +15,10 @@ import (
 	"github.com/kum0/blog-svr/shared/session"
 	"github.com/kum0/blog-svr/shared/validator"
 	"github.com/kum0/blog-svr/utils"
-	"strings"
 )
 
 type IUserService interface {
-	GetUser(context.Context, string) (*userPb.GetUserResponse, error)
+	GetUser(context.Context, string) (*common.Response, error)
 	Login(context.Context, LoginRequest) (*userPb.LoginResponse, error)
 	SendCode(context.Context) (*userPb.SendCodeResponse, error)
 	Register(context.Context, RegisterRequest) error
@@ -41,8 +43,10 @@ type UserService struct {
 	validator *validator.Validator
 }
 
-func (svc *UserService) GetUser(_ context.Context, uid string) (*userPb.GetUserResponse, error) {
-	return &userPb.GetUserResponse{Uid: strings.ToUpper(uid)}, nil
+func (svc *UserService) GetUser(_ context.Context, uid string) (*common.Response, error) {
+	// return &userPb.GetUserResponse{Uid: strings.ToUpper(uid)}, nil
+	return &common.Response{Data: &userPb.GetUserResponse{Uid: strings.ToUpper(uid)}, Err: errors.New("testt"),
+		Code: 500}, nil
 }
 
 func (svc *UserService) Login(_ context.Context, req LoginRequest) (*userPb.LoginResponse, error) {

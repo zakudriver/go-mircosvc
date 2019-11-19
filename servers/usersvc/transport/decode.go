@@ -58,12 +58,6 @@ func decodeGRPCLoginResponse(_ context.Context, grpcResponse interface{}) (inter
 		return nil, errors.New("decodeGRPCLoginResponse: interface conversion error")
 	}
 
-	// r := new(endpoints.LoginResponse)
-	// r := new(userPb.LoginResponse)
-	// if err := utils.StructCopy(rp, r); err != nil {
-	// 	return nil, err
-	// }
-
 	return rp, nil
 }
 

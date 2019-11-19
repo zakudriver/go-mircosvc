@@ -3,7 +3,6 @@ package common
 import "time"
 
 type (
-	Code int32
 	Event string
 	Literal string
 )
@@ -17,9 +16,6 @@ func (c Code) Code() int32 {
 }
 
 const (
-	OK    Code = 0
-	Error Code = 1
-
 	Message          Event = "Message"
 	SubscribeMessage Event = "SubscribeMessage"
 	AlreadyMessage   Event = "AlreadyMessage"

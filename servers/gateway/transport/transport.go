@@ -1,7 +1,10 @@
 package transport
 
 import (
-	"errors"
+	"io"
+	"net/http"
+	"time"
+
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/sd"
@@ -11,16 +14,11 @@ import (
 	usersvcEndpoints "github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	usersvcTransport "github.com/kum0/blog-svr/servers/usersvc/transport"
 	sharedEtcd "github.com/kum0/blog-svr/shared/etcd"
-	"github.com/kum0/blog-svr/shared/middleware"
 	"github.com/kum0/blog-svr/shared/session"
 	"github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"io"
-	"net/http"
-	"time"
 )
 
 func MakeHandler(
@@ -40,7 +38,7 @@ func MakeHandler(
 		ins := sharedEtcd.NewInstancer("/usersvc", etcdClient, logger)
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
-			endpoints.GetUserEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout, middleware.CookieMiddleware(session))
+			endpoints.GetUserEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
 		}
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeLoginEndpoint, tracer, zipkinTracer, logger)
@@ -107,8 +105,8 @@ func makeEndpoint(
 
 	ep := lb.RetryWithCallback(time.Duration(retryTimeout)*time.Second, balancer, func(n int, received error) (bool,
 		error) {
-		if err := encodeError(received); err != nil {
-			return false, err
+		if _, ok := status.FromError(received); ok {
+			return false, received
 		}
 		return n < retryMax, nil
 	})
@@ -117,15 +115,4 @@ func makeEndpoint(
 		ep = m(ep)
 	}
 	return ep
-}
-
-func encodeError(err error) error {
-	st, ok := status.FromError(err)
-	if ok {
-		if st.Code() == codes.InvalidArgument {
-			return errors.New(st.Message())
-		}
-	}
-
-	return nil
 }

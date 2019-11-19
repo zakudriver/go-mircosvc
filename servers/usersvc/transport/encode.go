@@ -4,21 +4,28 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
+
 	"github.com/kum0/blog-svr/common"
 	userPb "github.com/kum0/blog-svr/pb/user"
 	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
-	"net/http"
 )
 
 func encodeResponseSetCookie(_ context.Context, w http.ResponseWriter, response interface{}) error {
-	cookie := &http.Cookie{
-		Name:     common.AuthHeaderKey,
-		Value:    "",
-		Path:     "/",
-		HttpOnly: true,
-		MaxAge:   int(common.MaxAge),
+	res, ok := response.(common.Response)
+	if ok && res.StatusCode() == http.StatusOK {
+		cookie := &http.Cookie{
+			Name:     common.AuthHeaderKey,
+			Value:    "",
+			Path:     "/",
+			HttpOnly: true,
+			MaxAge:   int(common.MaxAge),
+		}
+		http.SetCookie(w, cookie)
+		return json.NewEncoder(w).Encode(response)
 	}
-	http.SetCookie(w, cookie)
+
+	w.WriteHeader(http.StatusInternalServerError)
 	return json.NewEncoder(w).Encode(response)
 }
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-kit/kit/metrics"
 	kitPrometheus "github.com/go-kit/kit/metrics/prometheus"
+	"github.com/kum0/blog-svr/common"
 	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
 	"github.com/prometheus/client_golang/prometheus"
 
@@ -52,7 +53,7 @@ func (pm *prometheusMiddleware) timeDiff(method string, begin time.Time, err err
 	pm.requestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
 }
 
-func (pm *prometheusMiddleware) GetUser(ctx context.Context, req string) (res *userPb.GetUserResponse, err error) {
+func (pm *prometheusMiddleware) GetUser(ctx context.Context, req string) (res *common.Response, err error) {
 	defer pm.timeDiff("GetUser", time.Now(), err)
 
 	res, err = pm.next.GetUser(ctx, req)

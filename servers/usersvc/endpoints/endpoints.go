@@ -3,6 +3,8 @@ package endpoints
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
@@ -15,7 +17,6 @@ import (
 	"github.com/openzipkin/zipkin-go"
 	"github.com/sony/gobreaker"
 	"golang.org/x/time/rate"
-	"time"
 )
 
 type Endponits struct {
@@ -27,13 +28,13 @@ type Endponits struct {
 	AuthEP     endpoint.Endpoint
 }
 
-func (e *Endponits) GetUser(ctx context.Context, uid string) (*userPb.GetUserResponse, error) {
+func (e *Endponits) GetUser(ctx context.Context, uid string) (*common.Response, error) {
 	res, err := e.GetUserEP(ctx, uid)
 	if err != nil {
 		return nil, err
 	}
 
-	return res.(*userPb.GetUserResponse), nil
+	return &common.Response{Data: res.(*userPb.GetUserResponse)}, nil
 }
 
 func (e *Endponits) Login(ctx context.Context, request LoginRequest) (*userPb.LoginResponse, error) {
@@ -88,7 +89,7 @@ func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
 		}
 
 		res, err := svc.GetUser(ctx, req)
-		return common.Response{Data: res}, err
+		return res, err
 	}
 }
 
