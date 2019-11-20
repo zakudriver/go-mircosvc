@@ -14,7 +14,7 @@ import (
 func encodeResponseSetCookie(_ context.Context, w http.ResponseWriter, response interface{}) error {
 	cookie := &http.Cookie{
 		Name:     common.AuthHeaderKey,
-		Value:    "",
+		Value:    "test",
 		Path:     "/",
 		HttpOnly: true,
 		MaxAge:   int(common.MaxAge),
