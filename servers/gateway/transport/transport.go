@@ -1,6 +1,8 @@
 package transport
 
 import (
+	"errors"
+	"google.golang.org/grpc/status"
 	"io"
 	"net/http"
 	"time"
@@ -18,7 +20,6 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/status"
 )
 
 func MakeHandler(
@@ -105,8 +106,8 @@ func makeEndpoint(
 
 	ep := lb.RetryWithCallback(time.Duration(retryTimeout)*time.Second, balancer, func(n int, received error) (bool,
 		error) {
-		if _, ok := status.FromError(received); ok {
-			return false, received
+		if st, ok := status.FromError(received); ok {
+			return false, errors.New(st.Message())
 		}
 		return n < retryMax, nil
 	})
@@ -114,5 +115,6 @@ func makeEndpoint(
 	for _, m := range middlewares {
 		ep = m(ep)
 	}
+
 	return ep
 }

@@ -28,13 +28,13 @@ type Endponits struct {
 	AuthEP     endpoint.Endpoint
 }
 
-func (e *Endponits) GetUser(ctx context.Context, uid string) (*common.Response, error) {
+func (e *Endponits) GetUser(ctx context.Context, uid string) (*userPb.GetUserResponse, error) {
 	res, err := e.GetUserEP(ctx, uid)
 	if err != nil {
 		return nil, err
 	}
 
-	return &common.Response{Data: res.(*userPb.GetUserResponse)}, nil
+	return res.(*userPb.GetUserResponse), nil
 }
 
 func (e *Endponits) Login(ctx context.Context, request LoginRequest) (*userPb.LoginResponse, error) {

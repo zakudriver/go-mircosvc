@@ -78,7 +78,7 @@ func (gs *grpcServer) GetUser(ctx context.Context, req *userPb.GetUserRequest) (
 	if !ok {
 		return nil, errors.New("*userPb.GetUserResponse")
 	}
-	return &userPb.GetUserResponse{Uid: rep.Uid}, nil
+	return rep, nil
 }
 
 func (gs *grpcServer) Login(ctx context.Context, req *userPb.LoginRequest) (*userPb.LoginResponse, error) {

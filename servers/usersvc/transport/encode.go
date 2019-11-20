@@ -12,20 +12,15 @@ import (
 )
 
 func encodeResponseSetCookie(_ context.Context, w http.ResponseWriter, response interface{}) error {
-	res, ok := response.(common.Response)
-	if ok && res.StatusCode() == http.StatusOK {
-		cookie := &http.Cookie{
-			Name:     common.AuthHeaderKey,
-			Value:    "",
-			Path:     "/",
-			HttpOnly: true,
-			MaxAge:   int(common.MaxAge),
-		}
-		http.SetCookie(w, cookie)
-		return json.NewEncoder(w).Encode(response)
+	cookie := &http.Cookie{
+		Name:     common.AuthHeaderKey,
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		MaxAge:   int(common.MaxAge),
 	}
+	http.SetCookie(w, cookie)
 
-	w.WriteHeader(http.StatusInternalServerError)
 	return json.NewEncoder(w).Encode(response)
 }
 

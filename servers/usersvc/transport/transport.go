@@ -19,9 +19,9 @@ import (
 func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
 	logger log.Logger) http.Handler {
 	opts := []kitTransport.ServerOption{
-		kitTransport.ServerErrorEncoder(common.EncodeError),
 		kitZipkin.HTTPServerTrace(zipkinTracer),
 		common.CookieToContext(),
+		kitTransport.ServerErrorEncoder(common.EncodeError),
 	}
 
 	m := mux.NewRouter()
