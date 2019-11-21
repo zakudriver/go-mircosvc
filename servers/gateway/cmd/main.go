@@ -54,7 +54,6 @@ func main() {
 }
 
 func httpServer(lg log.Logger, port string, handler http.Handler, errs chan error) {
-	// http.Handle("/", accessControl(handler))
 	svr := &http.Server{
 		Addr:    fmt.Sprintf(":%s", port),
 		Handler: accessControl(handler),
