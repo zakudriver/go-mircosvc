@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/kum0/blog-svr/common"
-	"github.com/kum0/blog-svr/shared/session"
+	"github.com/kum0/go-mircosvc/common"
+	"github.com/kum0/go-mircosvc/shared/session"
 )
 
 func CookieMiddleware(st *session.Storage) endpoint.Middleware {

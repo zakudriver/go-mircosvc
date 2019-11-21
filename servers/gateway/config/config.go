@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/kum0/blog-svr/utils"
+	"github.com/kum0/go-mircosvc/utils"
 )
 
 type config struct {

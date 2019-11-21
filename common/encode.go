@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 	kitTransportGrpc "github.com/go-kit/kit/transport/grpc"
-	"github.com/kum0/blog-svr/utils"
+	"github.com/kum0/go-mircosvc/utils"
 )
 
 func EncodeError(_ context.Context, err error, w http.ResponseWriter) {

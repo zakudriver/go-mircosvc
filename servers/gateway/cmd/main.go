@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/kum0/blog-svr/shared/db"
-	"github.com/kum0/blog-svr/shared/session"
+	"github.com/kum0/go-mircosvc/shared/db"
+	"github.com/kum0/go-mircosvc/shared/session"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,11 +13,11 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	"github.com/kum0/blog-svr/servers/gateway/config"
-	"github.com/kum0/blog-svr/servers/gateway/transport"
-	sharedEtcd "github.com/kum0/blog-svr/shared/etcd"
-	"github.com/kum0/blog-svr/shared/logger"
-	sharedZipkin "github.com/kum0/blog-svr/shared/zipkin"
+	"github.com/kum0/go-mircosvc/servers/gateway/config"
+	"github.com/kum0/go-mircosvc/servers/gateway/transport"
+	sharedEtcd "github.com/kum0/go-mircosvc/shared/etcd"
+	"github.com/kum0/go-mircosvc/shared/logger"
+	sharedZipkin "github.com/kum0/go-mircosvc/shared/zipkin"
 	zipkinot "github.com/openzipkin-contrib/zipkin-go-opentracing"
 )
 

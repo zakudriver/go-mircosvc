@@ -1,4 +1,4 @@
-module github.com/kum0/blog-svr
+module github.com/kum0/go-mircosvc
 
 go 1.12
 

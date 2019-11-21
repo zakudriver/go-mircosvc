@@ -6,9 +6,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/kum0/blog-svr/common"
-	userPb "github.com/kum0/blog-svr/pb/user"
-	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
+	"github.com/kum0/go-mircosvc/common"
+	userPb "github.com/kum0/go-mircosvc/pb/user"
+	"github.com/kum0/go-mircosvc/servers/usersvc/endpoints"
 )
 
 func encodeResponseSetCookie(_ context.Context, w http.ResponseWriter, response interface{}) error {

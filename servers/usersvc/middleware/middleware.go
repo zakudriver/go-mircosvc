@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
+	"github.com/kum0/go-mircosvc/servers/usersvc/endpoints"
 )
 
 type ServiceMiddleware func(endpoints.IUserService) endpoints.IUserService

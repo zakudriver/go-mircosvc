@@ -7,10 +7,10 @@ import (
 
 	"github.com/go-kit/kit/metrics"
 	kitPrometheus "github.com/go-kit/kit/metrics/prometheus"
-	"github.com/kum0/blog-svr/servers/usersvc/endpoints"
+	"github.com/kum0/go-mircosvc/servers/usersvc/endpoints"
 	"github.com/prometheus/client_golang/prometheus"
 
-	userPb "github.com/kum0/blog-svr/pb/user"
+	userPb "github.com/kum0/go-mircosvc/pb/user"
 )
 
 var (

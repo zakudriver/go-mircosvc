@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/kum0/blog-svr/common"
+	"github.com/kum0/go-mircosvc/common"
 	"github.com/gomodule/redigo/redis"
 )
 

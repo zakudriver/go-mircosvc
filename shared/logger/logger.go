@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"github.com/kum0/blog-svr/utils"
+	"github.com/kum0/go-mircosvc/utils"
 	"io"
 	"os"
 	"path/filepath"

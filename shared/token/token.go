@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	// "github.com/kum0/blog-svr/db/redis"
+	// "github.com/kum0/go-mircosvc/db/redis"
 	"github.com/dgrijalva/jwt-go"
 )
 
