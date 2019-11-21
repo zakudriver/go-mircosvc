@@ -42,7 +42,7 @@ func main() {
 	}
 
 	errs := make(chan error, 1)
-	go httpServer(log, conf.HttpPort, handler, errs)
+	go httpServer(log, conf.HttpPort, accessControl(handler, conf.Origin), errs)
 
 	go func() {
 		c := make(chan os.Signal)
@@ -56,7 +56,7 @@ func main() {
 func httpServer(lg log.Logger, port string, handler http.Handler, errs chan error) {
 	svr := &http.Server{
 		Addr:    fmt.Sprintf(":%s", port),
-		Handler: accessControl(handler),
+		Handler: handler,
 	}
 	err := svr.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
@@ -64,9 +64,14 @@ func httpServer(lg log.Logger, port string, handler http.Handler, errs chan erro
 	}
 	errs <- err
 }
-func accessControl(h http.Handler) http.Handler {
+
+func accessControl(h http.Handler, origin string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+		if origin == "*" {
+			origin = r.Header.Get("Origin")
+		}
+
+		w.Header().Set("Access-Control-Allow-Origin", origin)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")

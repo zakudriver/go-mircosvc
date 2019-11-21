@@ -22,6 +22,8 @@ type config struct {
 	RedisMaxIdle   int
 	REDISMAXACTIVE string `env:"REDIS_MAXACTIVE=30"`
 	RedisMaxActive int
+
+	Origin string `env:"ANY_ORIGIN=*"`
 }
 
 var c *config

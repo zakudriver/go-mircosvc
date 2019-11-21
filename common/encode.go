@@ -51,7 +51,6 @@ func EncodeGRPCResponse(a interface{}) kitTransportGrpc.EncodeResponseFunc {
 			return nil, errors.New("encodeGRPCResponse: interface conversion error")
 		}
 
-		// fmt.Println(response)
 		if err := utils.StructCopy(res.Data, a); err != nil {
 			return nil, err
 		}
