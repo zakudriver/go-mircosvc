@@ -8,9 +8,9 @@ type (
 )
 
 const (
-	Message          Event = "Message"
-	SubscribeMessage Event = "SubscribeMessage"
-	AlreadyMessage   Event = "AlreadyMessage"
+	// Message          Event = "Message"
+	// SubscribeMessage Event = "SubscribeMessage"
+	// AlreadyMessage   Event = "AlreadyMessage"
 
 	// CodeExpiration = 10 * 60
 

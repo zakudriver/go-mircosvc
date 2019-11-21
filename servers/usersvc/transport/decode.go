@@ -7,7 +7,6 @@ import (
 	"github.com/kum0/go-mircosvc/common"
 	userPb "github.com/kum0/go-mircosvc/pb/user"
 	"github.com/kum0/go-mircosvc/servers/usersvc/endpoints"
-	"github.com/kum0/go-mircosvc/utils"
 	"net/http"
 	"strconv"
 )
@@ -36,11 +35,11 @@ func decodeGRPCGetUserResponse(_ context.Context, grpcResponse interface{}) (int
 		return nil, errors.New("decodeGRPCGetUserResponse: interface conversion error")
 	}
 
-	r := new(userPb.GetUserResponse)
-	if err := utils.StructCopy(rp, r); err != nil {
-		return nil, err
-	}
-	return r, nil
+	// r := new(userPb.GetUserResponse)
+	// if err := utils.StructCopy(rp, r); err != nil {
+	// 	return nil, err
+	// }
+	return rp, nil
 }
 
 // Login

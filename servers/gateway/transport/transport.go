@@ -2,6 +2,7 @@ package transport
 
 import (
 	"errors"
+	"github.com/kum0/go-mircosvc/shared/middleware"
 	"google.golang.org/grpc/status"
 	"io"
 	"net/http"
@@ -39,7 +40,9 @@ func MakeHandler(
 		ins := sharedEtcd.NewInstancer("/usersvc", etcdClient, logger)
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
-			endpoints.GetUserEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
+			endpoints.GetUserEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout,
+				middleware.CookieMiddleware(session),
+			)
 		}
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeLoginEndpoint, tracer, zipkinTracer, logger)

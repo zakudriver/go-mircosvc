@@ -43,7 +43,7 @@ type UserService struct {
 }
 
 func (svc *UserService) GetUser(_ context.Context, uid string) (*userPb.GetUserResponse, error) {
-	return &userPb.GetUserResponse{Uid: strings.ToUpper(uid)}, common.NewError(500, "test")
+	return &userPb.GetUserResponse{Uid: strings.ToUpper(uid)}, nil
 }
 
 func (svc *UserService) Login(_ context.Context, req LoginRequest) (*userPb.LoginResponse, error) {

@@ -18,10 +18,10 @@ type Response struct {
 	Header http.Header `json:"-"`
 }
 
-func (r *Response) Failed() error {
+func (r Response) Failed() error {
 	return r.Err
 }
 
-func (r *Response) Headers() http.Header {
+func (r Response) Headers() http.Header {
 	return r.Header
 }

@@ -6,20 +6,28 @@ import (
 	"errors"
 	"net/http"
 
+	kitTransport "github.com/go-kit/kit/transport/http"
 	"github.com/kum0/go-mircosvc/common"
 	userPb "github.com/kum0/go-mircosvc/pb/user"
 	"github.com/kum0/go-mircosvc/servers/usersvc/endpoints"
 )
 
 func encodeResponseSetCookie(_ context.Context, w http.ResponseWriter, response interface{}) error {
-	cookie := &http.Cookie{
-		Name:     common.AuthHeaderKey,
-		Value:    "test",
-		Path:     "/",
-		HttpOnly: true,
-		MaxAge:   int(common.MaxAge),
+	if headerer, ok := response.(kitTransport.Headerer); ok {
+		for k, values := range headerer.Headers() {
+			for _, v := range values {
+				w.Header().Add(k, v)
+			}
+		}
 	}
-	http.SetCookie(w, cookie)
+	// cookie := &http.Cookie{
+	// 	Name:     common.AuthHeaderKey,
+	// 	Value:    "test",
+	// 	Path:     "/",
+	// 	HttpOnly: true,
+	// 	MaxAge:   int(common.MaxAge),
+	// }
+	// http.SetCookie(w, cookie)
 
 	return json.NewEncoder(w).Encode(response)
 }

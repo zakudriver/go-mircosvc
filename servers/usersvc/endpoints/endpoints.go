@@ -3,6 +3,7 @@ package endpoints
 import (
 	"context"
 	"errors"
+	"net/http"
 	"time"
 
 	"github.com/go-kit/kit/circuitbreaker"
@@ -89,7 +90,15 @@ func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
 		}
 
 		res, err := svc.GetUser(ctx, req)
-		return res, err
+
+		cookie := &http.Cookie{
+			Name:     common.AuthHeaderKey,
+			Value:    "test",
+			Path:     "/",
+			// HttpOnly: true,
+			MaxAge:   int(common.MaxAge),
+		}
+		return common.Response{Data: res, Header: map[string][]string{"Set-Cookie": {cookie.String()}}}, err
 	}
 }
 
@@ -103,7 +112,14 @@ func MakeLoginEndpoint(svc IUserService) endpoint.Endpoint {
 
 		res, err := svc.Login(ctx, *req)
 
-		return common.Response{Data: res, Msg: "登陆成功"}, err
+		cookie := &http.Cookie{
+			Name:     common.AuthHeaderKey,
+			Value:    "test",
+			Path:     "/",
+			HttpOnly: false,
+			MaxAge:   int(common.MaxAge),
+		}
+		return common.Response{Data: res, Msg: "登陆成功", Header: map[string][]string{"Set-Cookie": {cookie.String()}},}, err
 	}
 }
 
