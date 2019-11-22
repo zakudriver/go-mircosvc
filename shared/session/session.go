@@ -10,9 +10,9 @@ import (
 )
 
 type Sessioner interface {
-	Set(key, value string)      // 设置Session值
-	Get(key string) interface{} // 获取Session值
-	Del(key string)             // 删除Session值
+	Set(key, value string) // 设置Session值
+	Get(key string) string // 获取Session值
+	Del(key string)        // 删除Session值
 }
 
 type Session struct {
@@ -31,12 +31,12 @@ func (s *Session) Set(key, value string) {
 	s.Data[key] = value
 }
 
-func (s *Session) Get(key string) interface{} {
+func (s *Session) Get(key string) string {
 	if v, ok := s.Data[key]; ok {
 		return v
 	}
 
-	return nil
+	return ""
 }
 
 func (s *Session) Del(key string) {
