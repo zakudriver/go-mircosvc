@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/kum0/go-mircosvc/utils"
+)
 
 type A struct {
 	a int
@@ -28,12 +31,8 @@ type BB interface {
 }
 
 func main() {
-	var a = &A{}
-	var b interface{} = a
-	_, ok := b.(BB)
-	fmt.Println(ok)
-	_, no := b.(BB)
-	fmt.Println(no)
+	a, _ := utils.NewUUID()
+	fmt.Println(a)
 }
 
 func test(b BB) {

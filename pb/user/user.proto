@@ -43,6 +43,7 @@ message LoginResponse {
     string recentTime = 5;
     string createdTime = 6;
     string updatedTime = 7;
+    string cookie = 8;
 }
 
 //SendCode

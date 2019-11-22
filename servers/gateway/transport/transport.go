@@ -30,7 +30,7 @@ func MakeHandler(
 	logger log.Logger,
 	retryMax int,
 	retryTimeout int,
-	session *session.Storage,
+	sessionStorage *session.Storage,
 ) http.Handler {
 	r := mux.NewRouter()
 
@@ -41,7 +41,7 @@ func MakeHandler(
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
 			endpoints.GetUserEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout,
-				middleware.CookieMiddleware(session),
+				middleware.CookieMiddleware(sessionStorage),
 			)
 		}
 		{

@@ -2,36 +2,29 @@ package session
 
 import (
 	"encoding/json"
+	"net/http"
 	"sync"
 	"time"
 
-	"github.com/kum0/go-mircosvc/common"
 	"github.com/gomodule/redigo/redis"
 )
 
 type Sessioner interface {
-	Set(key string, value interface{}) // 设置Session
-	Get(key string) interface{}        // 获取Session
-	Del(key string)                    // 删除Session
-	Sid() string                       // 当前Session ID
-}
-
-func NewSession() *Session {
-	return &Session{
-		MaxAge: int64(common.MaxAge),
-		Data:   make(map[string]interface{}),
-	}
+	Set(key, value string)      // 设置Session值
+	Get(key string) interface{} // 获取Session值
+	Del(key string)             // 删除Session值
 }
 
 type Session struct {
-	SID              string                 // 唯一标示
-	lock             sync.Mutex             // 一把互斥锁
-	LastAccessedTime time.Time              // 最后访问时间
-	MaxAge           int64                  // 超时时间
-	Data             map[string]interface{} // 主数据
+	SID          string
+	CookieName   string
+	lock         sync.Mutex
+	AccessedTime time.Time // 最后访问时间
+	MaxAge       int       // 超时时间
+	Data         map[string]string
 }
 
-func (s *Session) Set(key string, value interface{}) {
+func (s *Session) Set(key, value string) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
@@ -52,20 +45,17 @@ func (s *Session) Del(key string) {
 	}
 }
 
-func (s *Session) Sid() string {
-	return s.SID
-}
-
 type Storager interface {
-	// SessionInit(sid string) (Session, error)
-	SetSession(session *Session) error
-	ReadSession(sid string) (*Session, error)
-	DestroySession(sid string) error
-	ExistsSession(sid string) bool
-	// GCSession(maxLifeTime int64)
+	NewCookie(session *Session) *http.Cookie
+	NewSession(sid, cookieName string, maxAge int) *Session
+	Save(session *Session) error
+	Read(sid string) (*Session, error)
+	Destroy(sid string) error
+	Exists(sid string) bool
+	Update(sid, t string) error
 }
 
-func NewStorage(pool *redis.Pool) *Storage {
+func NewStorage(pool *redis.Pool) Storager {
 	return &Storage{
 		pool: pool,
 	}
@@ -76,7 +66,27 @@ type Storage struct {
 	pool *redis.Pool
 }
 
-func (st *Storage) SetSession(session *Session) error {
+func (st *Storage) NewSession(sid, cookieName string, maxAge int) *Session {
+	return &Session{
+		SID:          sid,
+		CookieName:   cookieName,
+		MaxAge:       maxAge,
+		AccessedTime: time.Now(),
+		Data:         make(map[string]string),
+	}
+}
+
+func (st *Storage) NewCookie(session *Session) *http.Cookie {
+	return &http.Cookie{
+		Name:     session.CookieName,
+		Value:    session.SID,
+		Path:     "/",
+		HttpOnly: true,
+		MaxAge:   session.MaxAge,
+	}
+}
+
+func (st *Storage) Save(session *Session) error {
 	st.lock.Lock()
 	defer st.lock.Unlock()
 
@@ -94,7 +104,7 @@ func (st *Storage) SetSession(session *Session) error {
 	return nil
 }
 
-func (st *Storage) ReadSession(sid string) (*Session, error) {
+func (st *Storage) Read(sid string) (*Session, error) {
 	st.lock.Lock()
 	defer st.lock.Unlock()
 
@@ -114,7 +124,7 @@ func (st *Storage) ReadSession(sid string) (*Session, error) {
 	return se, nil
 }
 
-func (st *Storage) DestroySession(sid string) error {
+func (st *Storage) Destroy(sid string) error {
 	st.lock.Lock()
 	st.lock.Unlock()
 
@@ -122,14 +132,10 @@ func (st *Storage) DestroySession(sid string) error {
 	defer conn.Close()
 
 	_, err := conn.Do("DEL", sid)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
-func (st *Storage) ExistsSession(sid string) bool {
+func (st *Storage) Exists(sid string) bool {
 	st.lock.Lock()
 	defer st.lock.Unlock()
 
@@ -142,4 +148,15 @@ func (st *Storage) ExistsSession(sid string) bool {
 	}
 
 	return is
+}
+
+func (st *Storage) Update(sid string, t string) error {
+	st.lock.Lock()
+	defer st.lock.Unlock()
+
+	conn := st.pool.Get()
+	defer conn.Close()
+
+	_, err := conn.Do("EXPIRE", sid, t)
+	return err
 }

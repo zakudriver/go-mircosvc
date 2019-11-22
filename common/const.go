@@ -15,7 +15,7 @@ const (
 	// CodeExpiration = 10 * 60
 
 	SessionKey    = "SessionKey"
-	AuthHeaderKey = "Authorization"
+	CookieName    = "Authorization"
 	ServerAuthKey = "Bearer"
 
 	MaxAge = 24 * time.Hour / time.Second

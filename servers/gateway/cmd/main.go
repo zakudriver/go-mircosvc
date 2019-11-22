@@ -37,8 +37,8 @@ func main() {
 	var handler http.Handler
 	{
 		redis := db.NewRedis(conf.RedisAddr, conf.RedisPassword, conf.RedisMaxIdle, conf.RedisMaxActive)
-		seeion := session.NewStorage(redis)
-		handler = transport.MakeHandler(etcdClient, tracer, zipkinTracer, log, conf.RetryMax, conf.RetryTimeout, seeion)
+		sessionStorage := session.NewStorage(redis)
+		handler = transport.MakeHandler(etcdClient, tracer, zipkinTracer, log, conf.RetryMax, conf.RetryTimeout, sessionStorage)
 	}
 
 	errs := make(chan error, 1)

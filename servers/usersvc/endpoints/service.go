@@ -29,17 +29,17 @@ func NewUserService(db *sql.DB, redis *redis.Pool, email *email.Email) IUserServ
 		db,
 		redis,
 		email,
-		session.NewSession(),
 		validator.NewValidator(),
+		session.NewStorage(redis),
 	}
 }
 
 type UserService struct {
-	mysql     *sql.DB
-	redis     *redis.Pool
-	email     *email.Email
-	session   *session.Session
-	validator *validator.Validator
+	mysql          *sql.DB
+	redis          *redis.Pool
+	email          *email.Email
+	validator      *validator.Validator
+	sessionStorage session.Storager
 }
 
 func (svc *UserService) GetUser(_ context.Context, uid string) (*userPb.GetUserResponse, error) {
@@ -72,6 +72,23 @@ func (svc *UserService) Login(_ context.Context, req LoginRequest) (*userPb.Logi
 		if err := utils.StructCopy(user, res); err != nil {
 			return nil, err
 		}
+
+		{
+			sid, err := utils.NewUUID()
+			if err != nil {
+				return nil, err
+			}
+			se := svc.sessionStorage.NewSession(sid.String(), common.CookieName, int(common.MaxAge))
+			{
+				se.Set("userID", string(res.Id))
+				if err := svc.sessionStorage.Save(se); err != nil {
+					return nil, err
+				}
+			}
+			cookie := svc.sessionStorage.NewCookie(se)
+			res.Cookie = cookie.String()
+		}
+
 		return res, nil
 	}
 

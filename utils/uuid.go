@@ -3,7 +3,6 @@ package utils
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"io"
 )
 
 const Size = 16
@@ -27,10 +26,11 @@ func (u UUID) String() string {
 }
 
 // 生成uuid
-func NewUUID() (UUID, error) {
-	u := UUID{}
-	if _, err := io.ReadFull(rand.Reader, u[:]); err != nil {
-		return UUID{}, err
+func NewUUID() (*UUID, error) {
+	u := &UUID{}
+
+	if _, err := rand.Read(u[:]); err != nil {
+		return nil, err
 	}
 
 	u[6] = (u[6] & 0x0f) | (4 << 4)
