@@ -1,7 +1,9 @@
 package transport
 
 import (
+	"context"
 	"errors"
+	"github.com/kum0/go-mircosvc/common"
 	"github.com/kum0/go-mircosvc/shared/middleware"
 	"google.golang.org/grpc/status"
 	"io"
@@ -21,6 +23,9 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/openzipkin/zipkin-go"
 	"google.golang.org/grpc"
+
+	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
+	kitTransport "github.com/go-kit/kit/transport/http"
 )
 
 func MakeHandler(
@@ -30,10 +35,16 @@ func MakeHandler(
 	logger log.Logger,
 	retryMax int,
 	retryTimeout int,
-	sessionStorage *session.Storage,
+	sessionStorage session.Storager,
 ) http.Handler {
-	r := mux.NewRouter()
 
+	opts := []kitTransport.ServerOption{
+		kitTransport.ServerBefore(cookieToContext()),
+		kitZipkin.HTTPServerTrace(zipkinTracer),
+		kitTransport.ServerErrorEncoder(common.EncodeError),
+	}
+
+	r := mux.NewRouter()
 	// user endpoint
 	{
 		endpoints := new(usersvcEndpoints.Endponits)
@@ -67,10 +78,13 @@ func MakeHandler(
 
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeAuthEndpoint, tracer, zipkinTracer, logger)
-			endpoints.AuthEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
+			endpoints.AuthEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout,
+				middleware.CookieMiddleware(sessionStorage),
+			)
 		}
+
 		r.PathPrefix("/usersvc").Handler(http.StripPrefix("/usersvc", usersvcTransport.MakeHTTPHandler(endpoints, tracer,
-			zipkinTracer, logger)))
+			logger, opts)))
 	}
 
 	// article endpoint
@@ -120,4 +134,15 @@ func makeEndpoint(
 	}
 
 	return ep
+}
+
+func cookieToContext() kitTransport.RequestFunc {
+	return func(ctx context.Context, r *http.Request) context.Context {
+		c, err := r.Cookie(common.CookieName)
+		if err != nil {
+			return ctx
+		}
+
+		return context.WithValue(ctx, common.SessionKey, c.Value)
+	}
 }

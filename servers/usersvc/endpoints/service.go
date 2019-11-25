@@ -13,6 +13,7 @@ import (
 	"github.com/kum0/go-mircosvc/shared/validator"
 	"github.com/kum0/go-mircosvc/utils"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -80,7 +81,7 @@ func (svc *UserService) Login(_ context.Context, req LoginRequest) (*userPb.Logi
 			}
 			se := svc.sessionStorage.NewSession(sid.String(), common.CookieName, int(common.MaxAge))
 			{
-				se.Set("userID", string(res.Id))
+				se.Set("userID", strconv.Itoa(int(res.Id)))
 				if err := svc.sessionStorage.Save(se); err != nil {
 					return nil, err
 				}

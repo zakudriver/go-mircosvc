@@ -7,7 +7,7 @@ import (
 	"github.com/kum0/go-mircosvc/shared/session"
 )
 
-func CookieMiddleware(st *session.Storage) endpoint.Middleware {
+func CookieMiddleware(st session.Storager) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 			v, ok := ctx.Value(common.SessionKey).(string)
@@ -15,8 +15,8 @@ func CookieMiddleware(st *session.Storage) endpoint.Middleware {
 				return nil, common.NewError(401, "cookie is not exists")
 			}
 
-			if se, err := st.ReadSession(v); err == nil {
-				context.WithValue(ctx, common.AuthHeaderKey, se.Data)
+			if se, err := st.Read(v); err == nil {
+				context.WithValue(ctx, common.CookieName, se.Data)
 				return next(ctx, request)
 			}
 

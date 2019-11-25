@@ -10,20 +10,15 @@ import (
 	"github.com/kum0/go-mircosvc/common"
 	"github.com/kum0/go-mircosvc/servers/usersvc/endpoints"
 	"github.com/opentracing/opentracing-go"
-	"github.com/openzipkin/zipkin-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-
-	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
 )
 
-func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
-	logger log.Logger) http.Handler {
-	opts := []kitTransport.ServerOption{
-		kitTransport.ServerBefore(common.CookieToContext()),
-		kitZipkin.HTTPServerTrace(zipkinTracer),
-		kitTransport.ServerErrorEncoder(common.EncodeError),
-	}
-
+func MakeHTTPHandler(
+	eps *endpoints.Endponits,
+	otTracer opentracing.Tracer,
+	logger log.Logger,
+	opts []kitTransport.ServerOption,
+) http.Handler {
 	m := mux.NewRouter()
 	m.Handle("/metrics", promhttp.Handler())
 
@@ -31,7 +26,6 @@ func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipk
 		handler := kitTransport.NewServer(
 			eps.LoginEP,
 			common.DecodeJsonRequest(new(endpoints.LoginRequest)),
-			// encodeResponseSetCookie,
 			kitTransport.EncodeJSONResponse,
 			append(opts, kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Login", logger)))...,
 		)
@@ -42,7 +36,6 @@ func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipk
 		handler := kitTransport.NewServer(
 			eps.SendCodeEP,
 			common.DecodeEmptyHttpRequest,
-			// common.EncodeResponse,
 			kitTransport.EncodeJSONResponse,
 			append(opts,
 				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "SendCode", logger)))...,
@@ -54,7 +47,6 @@ func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipk
 		handler := kitTransport.NewServer(
 			eps.RegisterEP,
 			common.DecodeJsonRequest(new(endpoints.RegisterRequest)),
-			// common.EncodeResponse,
 			kitTransport.EncodeJSONResponse,
 			append(opts,
 				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Register", logger)))...,
@@ -66,7 +58,6 @@ func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipk
 		handler := kitTransport.NewServer(
 			eps.UserListEP,
 			DecodeUserListUrlRequest,
-			// common.EncodeResponse,
 			kitTransport.EncodeJSONResponse,
 			append(opts,
 				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "UserList", logger)))...,
@@ -76,10 +67,19 @@ func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipk
 
 	{
 		handler := kitTransport.NewServer(
+			eps.AuthEP,
+			common.DecodeEmptyHttpRequest,
+			kitTransport.EncodeJSONResponse,
+			append(opts,
+				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Auth", logger)))...,
+		)
+		m.Handle("/auth", handler).Methods("GET")
+	}
+
+	{
+		handler := kitTransport.NewServer(
 			eps.GetUserEP,
 			decodeGetUserRequest,
-			// common.EncodeResponse,
-			// kitTransport.EncodeJSONResponse,
 			encodeResponseSetCookie,
 			append(opts,
 				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "GetUser", logger)))...,
@@ -87,17 +87,6 @@ func MakeHTTPHandler(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipk
 		m.Handle("/{UID}", handler).Methods("GET")
 	}
 
-	{
-		handler := kitTransport.NewServer(
-			eps.GetUserEP,
-			common.DecodeEmptyHttpRequest,
-			// common.EncodeResponse,
-			kitTransport.EncodeJSONResponse,
-			append(opts,
-				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Auth", logger)))...,
-		)
-		m.Handle("/auth", handler).Methods("GET")
-	}
 
 	return m
 }

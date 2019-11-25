@@ -3,6 +3,7 @@ package session
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 
@@ -62,7 +63,7 @@ func NewStorage(pool *redis.Pool) Storager {
 }
 
 type Storage struct {
-	lock sync.Mutex // 一把互斥锁
+	lock sync.Mutex
 	pool *redis.Pool
 }
 
@@ -81,7 +82,7 @@ func (st *Storage) NewCookie(session *Session) *http.Cookie {
 		Name:     session.CookieName,
 		Value:    session.SID,
 		Path:     "/",
-		HttpOnly: true,
+		HttpOnly: false,
 		MaxAge:   session.MaxAge,
 	}
 }
@@ -97,7 +98,7 @@ func (st *Storage) Save(session *Session) error {
 	if err != nil {
 		return err
 	}
-	if _, err := conn.Do("SET", session.SID, string(jsonStr), string(session.MaxAge)); err != nil {
+	if _, err := conn.Do("SET", session.SID, string(jsonStr), "EX", strconv.Itoa(session.MaxAge)); err != nil {
 		return err
 	}
 

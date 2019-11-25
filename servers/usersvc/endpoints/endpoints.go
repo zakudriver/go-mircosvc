@@ -151,9 +151,9 @@ func MakeUserListEndpoint(svc IUserService) endpoint.Endpoint {
 }
 
 // Auth
-func MakeAuthEndpoint(svc IUserService) endpoint.Endpoint {
+func MakeAuthEndpoint(_ IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		return nil, nil
+		return common.Response{Msg: "ok"}, nil
 	}
 }
 

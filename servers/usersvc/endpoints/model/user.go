@@ -8,7 +8,7 @@ import (
 )
 
 type User struct {
-	Id          int    `map:"username"`
+	Id          int32  `map:"username"`
 	Username    string `map:"username"`
 	Password    string
 	Avatar      string    `map:"avatar"`
