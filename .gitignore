@@ -35,8 +35,6 @@ yarn-error.log
 testem.log
 /typings
 *.zip
-app
-app.exe
 /grafana_db
 /build
 /log
