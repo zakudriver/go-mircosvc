@@ -109,7 +109,7 @@ func MakeLoginEndpoint(svc IUserService) endpoint.Endpoint {
 			header["Set-Cookie"] = []string{res.Cookie}
 		}
 
-		return common.Response{Data: res, Msg: "登陆成功", Header: header}, err
+		return common.Response{Data: res, Msg: "登陆成功.", Header: header}, err
 	}
 }
 
@@ -118,7 +118,7 @@ func MakeSendCodeEndpoint(svc IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		res, err := svc.SendCode(ctx)
 
-		return common.Response{Data: res, Msg: "验证码发送成功"}, err
+		return common.Response{Data: res, Msg: "验证码发送成功."}, err
 	}
 }
 

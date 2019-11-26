@@ -73,7 +73,10 @@ func MakeHandler(
 		}
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeUserListEndpoint, tracer, zipkinTracer, logger)
-			endpoints.UserListEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
+			endpoints.UserListEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout,
+				middleware.CookieMiddleware(sessionStorage),
+				middleware.PermissionMiddleware(common.RootUser),
+			)
 		}
 
 		{

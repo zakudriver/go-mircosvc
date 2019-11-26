@@ -11,9 +11,9 @@ import (
 )
 
 type Sessioner interface {
-	Set(key, value string) // 设置Session值
-	Get(key string) string // 获取Session值
-	Del(key string)        // 删除Session值
+	Set(key string, value interface{}) // 设置Session值
+	Get(key string) interface{}        // 获取Session值
+	Del(key string)                    // 删除Session值
 }
 
 type Session struct {
@@ -22,17 +22,17 @@ type Session struct {
 	lock         sync.Mutex
 	AccessedTime time.Time // 最后访问时间
 	MaxAge       int       // 超时时间
-	Data         map[string]string
+	Data         map[string]interface{}
 }
 
-func (s *Session) Set(key, value string) {
+func (s *Session) Set(key string, value interface{}) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
 	s.Data[key] = value
 }
 
-func (s *Session) Get(key string) string {
+func (s *Session) Get(key string) interface{} {
 	if v, ok := s.Data[key]; ok {
 		return v
 	}
@@ -73,7 +73,7 @@ func (st *Storage) NewSession(sid, cookieName string, maxAge int) *Session {
 		CookieName:   cookieName,
 		MaxAge:       maxAge,
 		AccessedTime: time.Now(),
-		Data:         make(map[string]string),
+		Data:         make(map[string]interface{}),
 	}
 }
 

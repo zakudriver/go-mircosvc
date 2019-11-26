@@ -13,7 +13,6 @@ import (
 	"github.com/kum0/go-mircosvc/shared/validator"
 	"github.com/kum0/go-mircosvc/utils"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -81,7 +80,8 @@ func (svc *UserService) Login(_ context.Context, req LoginRequest) (*userPb.Logi
 			}
 			se := svc.sessionStorage.NewSession(sid.String(), common.CookieName, int(common.MaxAge))
 			{
-				se.Set("userID", strconv.Itoa(int(res.Id)))
+				se.Set(common.UIDKey, int(res.Id))
+				se.Set(common.RoleIDKey, common.RoleLevel(res.RoleID))
 				if err := svc.sessionStorage.Save(se); err != nil {
 					return nil, err
 				}
@@ -165,7 +165,7 @@ func (svc *UserService) Register(ctx context.Context, req RegisterRequest) error
 			return err
 		}
 	} else {
-		return common.NewError(http.StatusBadRequest, "验证码错误")
+		return common.NewError(http.StatusBadRequest, "验证码错误.")
 	}
 
 	return nil
