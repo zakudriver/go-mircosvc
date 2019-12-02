@@ -3,7 +3,6 @@ package transport
 import (
 	"context"
 	"errors"
-
 	"github.com/go-kit/kit/log"
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
 	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
@@ -58,6 +57,13 @@ func MakeGRPCServer(eps *endpoints.Endponits, otTracer opentracing.Tracer, zipki
 			append(options, kitGrpcTransport.ServerBefore(kitOpentracing.GRPCToContext(otTracer, "UserList",
 				logger)))...,
 		),
+		logout: kitGrpcTransport.NewServer(
+			eps.LogoutEP,
+			decodeGRPCLogoutRequest,
+			common.EncodeEmpty,
+			append(options, kitGrpcTransport.ServerBefore(kitOpentracing.GRPCToContext(otTracer, "Logout",
+				logger)))...,
+		),
 	}
 }
 
@@ -67,6 +73,7 @@ type grpcServer struct {
 	sendCode kitGrpcTransport.Handler `json:""`
 	register kitGrpcTransport.Handler `json:""`
 	userList kitGrpcTransport.Handler `json:""`
+	logout   kitGrpcTransport.Handler `json:""`
 }
 
 func (gs *grpcServer) GetUser(ctx context.Context, req *userPb.GetUserRequest) (*userPb.GetUserResponse, error) {
@@ -127,4 +134,9 @@ func (gs *grpcServer) UserList(ctx context.Context, req *userPb.UserListRequest)
 		return nil, errors.New("*userPb.UserListResponse")
 	}
 	return rep, nil
+}
+
+func (gs *grpcServer) Logout(ctx context.Context, req *userPb.LogoutRequest) (*userPb.LogoutResponse, error) {
+	_, _, err := gs.logout.ServeGRPC(ctx, req)
+	return new(userPb.LogoutResponse), err
 }

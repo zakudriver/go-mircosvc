@@ -22,6 +22,7 @@ type IUserService interface {
 	SendCode(context.Context) (*userPb.SendCodeResponse, error)
 	Register(context.Context, RegisterRequest) error
 	UserList(context.Context, UserListRequest) (*userPb.UserListResponse, error)
+	Logout(context.Context, LogoutRequest) error
 }
 
 func NewUserService(db *sql.DB, redis *redis.Pool, email *email.Email) IUserService {
@@ -198,4 +199,9 @@ func (svc *UserService) UserList(ctx context.Context, req UserListRequest) (*use
 	}
 
 	return &userPb.UserListResponse{Count: int64(count), Data: d}, nil
+}
+
+func (svc *UserService) Logout(ctx context.Context, req LogoutRequest) error {
+	fmt.Println(req.SID)
+	return nil
 }

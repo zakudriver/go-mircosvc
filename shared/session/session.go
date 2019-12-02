@@ -37,7 +37,7 @@ func (s *Session) Get(key string) interface{} {
 		return v
 	}
 
-	return ""
+	return nil
 }
 
 func (s *Session) Del(key string) {
@@ -73,7 +73,7 @@ func (st *Storage) NewSession(sid, cookieName string, maxAge int) *Session {
 		CookieName:   cookieName,
 		MaxAge:       maxAge,
 		AccessedTime: time.Now(),
-		Data:         make(map[string]interface{}),
+		Data:         map[string]interface{}{"SID": sid},
 	}
 }
 

@@ -57,7 +57,7 @@ func MakeHTTPHandler(
 	{
 		handler := kitTransport.NewServer(
 			eps.UserListEP,
-			DecodeUserListUrlRequest,
+			DecodeUserListRequest,
 			kitTransport.EncodeJSONResponse,
 			append(opts,
 				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "UserList", logger)))...,
@@ -78,6 +78,17 @@ func MakeHTTPHandler(
 
 	{
 		handler := kitTransport.NewServer(
+			eps.LogoutEP,
+			decodeLogoutRequest,
+			kitTransport.EncodeJSONResponse,
+			append(opts,
+				kitTransport.ServerBefore(kitOpentracing.HTTPToContext(otTracer, "Logout", logger)))...,
+		)
+		m.Handle("/logout", handler).Methods("GET")
+	}
+
+	{
+		handler := kitTransport.NewServer(
 			eps.GetUserEP,
 			decodeGetUserRequest,
 			encodeResponseSetCookie,
@@ -86,7 +97,6 @@ func MakeHTTPHandler(
 		)
 		m.Handle("/{UID}", handler).Methods("GET")
 	}
-
 
 	return m
 }

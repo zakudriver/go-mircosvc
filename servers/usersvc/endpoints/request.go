@@ -19,3 +19,7 @@ type UserListRequest struct {
 	Page int32 `json:"page" validator:"required||number=0|_"`
 	Size int32 `json:"size" validator:"required||number=0|_"`
 }
+
+type LogoutRequest struct {
+	SID string
+}

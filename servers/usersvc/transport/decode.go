@@ -84,7 +84,7 @@ func decodeGRPCRegisterRequest(_ context.Context, grpcReq interface{}) (interfac
 }
 
 // UserList
-func DecodeUserListUrlRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func DecodeUserListRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	q := r.URL.Query()
 	page, err := strconv.ParseInt(q.Get("page"), 10, 0)
 	if err != nil {
@@ -103,16 +103,6 @@ func decodeGRPCUserListResponse(_ context.Context, grpcResponse interface{}) (in
 		return nil, errors.New("decodeGRPCUserListResponse: interface conversion error")
 	}
 
-	// d := make([]*userPb.UserResponse, 0)
-	// for _, v := range rp.Data {
-	// 	user := new(userPb.UserResponse)
-	// 	if err := utils.StructCopy(v, user); err != nil {
-	// 		return nil, err
-	// 	}
-	// 	d = append(d, user)
-	//
-	// }
-
 	return rp, nil
 }
 
@@ -122,4 +112,23 @@ func decodeGRPCUserListRequest(_ context.Context, grpcReq interface{}) (interfac
 		return nil, errors.New("decodeGRPCUserListRequest: interface conversion error")
 	}
 	return &endpoints.UserListRequest{Page: req.Page, Size: req.Size}, nil
+}
+
+// Logout
+func decodeLogoutRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	sid, ok := ctx.Value(common.SessionKey).(string)
+	if !ok {
+		return nil, common.NewError(http.StatusUnauthorized, "cookie 不存在")
+	}
+
+	return &endpoints.LogoutRequest{sid}, nil
+}
+
+func decodeGRPCLogoutRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	rp, ok := grpcReq.(*userPb.LogoutRequest)
+	if !ok {
+		return nil, errors.New("decodeGRPCUserListResponse: interface conversion error")
+	}
+
+	return &endpoints.LogoutRequest{rp.Sid}, nil
 }

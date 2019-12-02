@@ -26,47 +26,37 @@ type Endponits struct {
 	RegisterEP endpoint.Endpoint
 	UserListEP endpoint.Endpoint
 	AuthEP     endpoint.Endpoint
+	LogoutEP   endpoint.Endpoint
 }
 
 func (e *Endponits) GetUser(ctx context.Context, uid string) (*userPb.GetUserResponse, error) {
 	res, err := e.GetUserEP(ctx, uid)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.(*userPb.GetUserResponse), nil
+	return res.(*userPb.GetUserResponse), err
 }
 
 func (e *Endponits) Login(ctx context.Context, request LoginRequest) (*userPb.LoginResponse, error) {
 	res, err := e.LoginEP(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return res.(*userPb.LoginResponse), nil
+	return res.(*userPb.LoginResponse), err
 }
 
 func (e *Endponits) SendCode(ctx context.Context) (*userPb.SendCodeResponse, error) {
 	res, err := e.SendCodeEP(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-	return res.(*userPb.SendCodeResponse), nil
+	return res.(*userPb.SendCodeResponse), err
 }
 
 func (e *Endponits) Register(ctx context.Context, request RegisterRequest) error {
 	_, err := e.RegisterEP(ctx, request)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (e *Endponits) UserList(ctx context.Context, request UserListRequest) (*userPb.UserListResponse, error) {
 	res, err := e.UserListEP(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return res.(*userPb.UserListResponse), nil
+	return res.(*userPb.UserListResponse), err
+}
+
+func (e *Endponits) Logout(ctx context.Context, req LogoutRequest) error {
+	_, err := e.LogoutEP(ctx, req)
+	return err
 }
 
 func NewEndpoints(svc IUserService, logger log.Logger, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer) *Endponits {
@@ -77,6 +67,7 @@ func NewEndpoints(svc IUserService, logger log.Logger, otTracer opentracing.Trac
 		SendCodeEP: makeEndpoint(MakeSendCodeEndpoint(svc), "SendCode", logger, otTracer, zipkinTracer),
 		RegisterEP: makeEndpoint(MakeRegisterEndpoint(svc), "Register", logger, otTracer, zipkinTracer),
 		UserListEP: makeEndpoint(MakeUserListEndpoint(svc), "UseList", logger, otTracer, zipkinTracer),
+		LogoutEP:   makeEndpoint(MakeLogoutEndpoint(svc), "Logout", logger, otTracer, zipkinTracer),
 	}
 }
 
@@ -153,7 +144,20 @@ func MakeUserListEndpoint(svc IUserService) endpoint.Endpoint {
 // Auth
 func MakeAuthEndpoint(_ IUserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		return common.Response{Msg: "ok"}, nil
+		return common.Response{Msg: "auth ok"}, nil
+	}
+}
+
+// Logout
+func MakeLogoutEndpoint(svc IUserService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req, ok := request.(*LogoutRequest)
+		if !ok {
+			return nil, errors.New("MakeLogoutEndpoint: interface conversion error")
+		}
+
+		err := svc.Logout(ctx, *req)
+		return common.Response{Msg: "logout ok"}, err
 	}
 }
 

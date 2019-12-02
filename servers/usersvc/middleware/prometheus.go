@@ -82,8 +82,15 @@ func (pm *prometheusMiddleware) Register(ctx context.Context, req endpoints.Regi
 
 func (pm *prometheusMiddleware) UserList(ctx context.Context, req endpoints.UserListRequest) (res *userPb.
 UserListResponse, err error) {
-	defer pm.timeDiff("Register", time.Now(), err)
+	defer pm.timeDiff("UserList", time.Now(), err)
 
 	res, err = pm.next.UserList(ctx, req)
+	return
+}
+
+func (pm *prometheusMiddleware) Logout(ctx context.Context, req endpoints.LogoutRequest) (err error) {
+	defer pm.timeDiff("Logout", time.Now(), err)
+
+	err = pm.next.Logout(ctx, req)
 	return
 }

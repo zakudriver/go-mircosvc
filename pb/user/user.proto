@@ -18,6 +18,9 @@ service Usersvc {
 
     rpc UserList (UserListRequest) returns (UserListResponse) {
     }
+
+    rpc Logout (LogoutRequest) returns (LogoutResponse) {
+    }
 }
 
 // GetUser
@@ -83,4 +86,12 @@ message UserResponse {
     string recentTime = 5;
     string createdTime = 6;
     string updatedTime = 7;
+}
+
+//Logout
+message LogoutRequest {
+    string sid = 1;
+}
+
+message LogoutResponse {
 }

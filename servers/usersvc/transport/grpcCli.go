@@ -106,11 +106,28 @@ func MakeGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTr
 		userListEndpoint = limiter(userListEndpoint)
 	}
 
+	var logoutEndpoint endpoint.Endpoint
+	{
+		method := "Logout"
+		logoutEndpoint = kitGrpcTransport.NewClient(
+			conn,
+			"pb.Usersvc",
+			method,
+			encodeGRPCLogoutRequest,
+			common.DecodeEmpty,
+			userPb.LogoutResponse{},
+			append(options, kitGrpcTransport.ClientBefore(kitOpentracing.ContextToGRPC(otTracer, logger)))...,
+		).Endpoint()
+		logoutEndpoint = kitOpentracing.TraceClient(otTracer, method)(logoutEndpoint)
+		logoutEndpoint = limiter(logoutEndpoint)
+	}
+
 	return &endpoints.Endponits{
 		GetUserEP:  getUserEndpoint,
 		LoginEP:    loginEndpoint,
 		SendCodeEP: sendCodeEndpoint,
 		RegisterEP: registerEndpoint,
 		UserListEP: userListEndpoint,
+		LogoutEP:   logoutEndpoint,
 	}
 }

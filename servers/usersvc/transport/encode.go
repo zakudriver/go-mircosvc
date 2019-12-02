@@ -91,3 +91,12 @@ func encodeGRPCUserListResponse(_ context.Context, response interface{}) (interf
 
 	return data, nil
 }
+
+// Logout
+func encodeGRPCLogoutRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req, ok := request.(endpoints.LogoutRequest)
+	if !ok {
+		return nil, errors.New("encodeGRPCLogoutRequest: interface conversion error")
+	}
+	return &userPb.LogoutRequest{Sid: req.SID}, nil
+}

@@ -78,10 +78,15 @@ func MakeHandler(
 				middleware.PermissionMiddleware(common.RootUser),
 			)
 		}
-
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeAuthEndpoint, tracer, zipkinTracer, logger)
 			endpoints.AuthEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout,
+				middleware.CookieMiddleware(sessionStorage),
+			)
+		}
+		{
+			factory := usersvcFactory(usersvcEndpoints.MakeLogoutEndpoint, tracer, zipkinTracer, logger)
+			endpoints.LogoutEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout,
 				middleware.CookieMiddleware(sessionStorage),
 			)
 		}
