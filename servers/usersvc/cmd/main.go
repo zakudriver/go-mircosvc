@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -98,31 +97,31 @@ func grpcServer(grpcsvc userPb.UsersvcServer, port string, zipkinTracer *zipkin.
 	errs <- server.Serve(listener)
 }
 
-func httpServer(logger log.Logger, port string, handler http.Handler, errs chan error) {
-	http.Handle("/", accessControl(handler))
-
-	p := fmt.Sprintf(":%s", port)
-	svr := &http.Server{
-		Addr:    p,
-		Handler: handler,
-	}
-	err := svr.ListenAndServe()
-	if err != nil {
-		logger.Log("listen: %s\n", err)
-	}
-	errs <- err
-}
-
-func accessControl(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
-
-		if r.Method == "OPTIONS" {
-			return
-		}
-
-		h.ServeHTTP(w, r)
-	})
-}
+// func httpServer(logger log.Logger, port string, handler http.Handler, errs chan error) {
+// 	http.Handle("/", accessControl(handler))
+//
+// 	p := fmt.Sprintf(":%s", port)
+// 	svr := &http.Server{
+// 		Addr:    p,
+// 		Handler: handler,
+// 	}
+// 	err := svr.ListenAndServe()
+// 	if err != nil {
+// 		logger.Log("listen: %s\n", err)
+// 	}
+// 	errs <- err
+// }
+//
+// func accessControl(h http.Handler) http.Handler {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 		w.Header().Set("Access-Control-Allow-Origin", "*")
+// 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+// 		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
+//
+// 		if r.Method == "OPTIONS" {
+// 			return
+// 		}
+//
+// 		h.ServeHTTP(w, r)
+// 	})
+// }
