@@ -29,19 +29,28 @@ type Endponits struct {
 	LogoutEP   endpoint.Endpoint
 }
 
-func (e *Endponits) GetUser(ctx context.Context, uid string) (*userPb.GetUserResponse, error) {
-	res, err := e.GetUserEP(ctx, uid)
-	return res.(*userPb.GetUserResponse), err
+func (e *Endponits) GetUser(ctx context.Context, uid string) (res *userPb.GetUserResponse, err error) {
+	r, err := e.GetUserEP(ctx, uid)
+	if r != nil {
+		res = r.(*userPb.GetUserResponse)
+	}
+	return
 }
 
-func (e *Endponits) Login(ctx context.Context, request LoginRequest) (*userPb.LoginResponse, error) {
-	res, err := e.LoginEP(ctx, request)
-	return res.(*userPb.LoginResponse), err
+func (e *Endponits) Login(ctx context.Context, request LoginRequest) (res *userPb.LoginResponse, err error) {
+	r, err := e.LoginEP(ctx, request)
+	if r != nil {
+		res = r.(*userPb.LoginResponse)
+	}
+	return
 }
 
-func (e *Endponits) SendCode(ctx context.Context) (*userPb.SendCodeResponse, error) {
-	res, err := e.SendCodeEP(ctx, nil)
-	return res.(*userPb.SendCodeResponse), err
+func (e *Endponits) SendCode(ctx context.Context) (res *userPb.SendCodeResponse, err error) {
+	r, err := e.SendCodeEP(ctx, nil)
+	if r != nil {
+		res = r.(*userPb.SendCodeResponse)
+	}
+	return
 }
 
 func (e *Endponits) Register(ctx context.Context, request RegisterRequest) error {
@@ -49,9 +58,12 @@ func (e *Endponits) Register(ctx context.Context, request RegisterRequest) error
 	return err
 }
 
-func (e *Endponits) UserList(ctx context.Context, request UserListRequest) (*userPb.UserListResponse, error) {
-	res, err := e.UserListEP(ctx, request)
-	return res.(*userPb.UserListResponse), err
+func (e *Endponits) UserList(ctx context.Context, request UserListRequest) (res *userPb.UserListResponse, err error) {
+	r, err := e.UserListEP(ctx, request)
+	if r != nil {
+		res = r.(*userPb.UserListResponse)
+	}
+	return
 }
 
 func (e *Endponits) Logout(ctx context.Context, req LogoutRequest) error {

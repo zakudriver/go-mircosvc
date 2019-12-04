@@ -202,6 +202,5 @@ func (svc *UserService) UserList(ctx context.Context, req UserListRequest) (*use
 }
 
 func (svc *UserService) Logout(ctx context.Context, req LogoutRequest) error {
-	fmt.Println(req.SID)
-	return nil
+	return svc.sessionStorage.Destroy(req.SID)
 }
