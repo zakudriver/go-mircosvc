@@ -1,0 +1,18 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "middleware.go",
+        "prometheus.go",
+    ],
+    importpath = "github.com/kum0/go-mircosvc/servers/usersvc/middleware",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pb/user:go_default_library",
+        "//servers/usersvc/endpoints:go_default_library",
+        "@com_github_go_kit_kit//metrics:go_default_library",
+        "@com_github_go_kit_kit//metrics/prometheus:go_default_library",
+        "@com_github_prometheus_client_golang//prometheus:go_default_library",
+    ],
+)

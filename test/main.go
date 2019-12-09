@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type A struct {
 	a int
 }
@@ -26,6 +28,7 @@ type BB interface {
 }
 
 func main() {
+	fmt.Print("OK")
 }
 
 func test(b BB) {

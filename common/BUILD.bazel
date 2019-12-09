@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "const.go",
+        "decode.go",
+        "encode.go",
+        "error.go",
+        "type.go",
+    ],
+    importpath = "github.com/kum0/go-mircosvc/common",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//utils:go_default_library",
+        "@com_github_go_kit_kit//endpoint:go_default_library",
+        "@com_github_go_kit_kit//transport/grpc:go_default_library",
+        "@com_github_go_kit_kit//transport/http:go_default_library",
+    ],
+)

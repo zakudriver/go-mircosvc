@@ -1,0 +1,33 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "endpoints.go",
+        "request.go",
+        "response.go",
+        "service.go",
+    ],
+    importpath = "github.com/kum0/go-mircosvc/servers/usersvc/endpoints",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//common:go_default_library",
+        "//pb/user:go_default_library",
+        "//servers/usersvc/endpoints/model:go_default_library",
+        "//shared/email:go_default_library",
+        "//shared/middleware:go_default_library",
+        "//shared/session:go_default_library",
+        "//shared/validator:go_default_library",
+        "//utils:go_default_library",
+        "@com_github_go_kit_kit//circuitbreaker:go_default_library",
+        "@com_github_go_kit_kit//endpoint:go_default_library",
+        "@com_github_go_kit_kit//log:go_default_library",
+        "@com_github_go_kit_kit//tracing/opentracing:go_default_library",
+        "@com_github_go_kit_kit//tracing/zipkin:go_default_library",
+        "@com_github_gomodule_redigo//redis:go_default_library",
+        "@com_github_opentracing_opentracing_go//:go_default_library",
+        "@com_github_openzipkin_zipkin_go//:go_default_library",
+        "@com_github_sony_gobreaker//:go_default_library",
+        "@org_golang_x_time//rate:go_default_library",
+    ],
+)

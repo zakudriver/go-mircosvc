@@ -1,0 +1,37 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["main.go"],
+    importpath = "github.com/kum0/go-mircosvc/servers/usersvc/cmd",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//pb/user:go_default_library",
+        "//servers/usersvc/config:go_default_library",
+        "//servers/usersvc/endpoints:go_default_library",
+        "//servers/usersvc/middleware:go_default_library",
+        "//servers/usersvc/transport:go_default_library",
+        "//shared/db:go_default_library",
+        "//shared/email:go_default_library",
+        "//shared/etcd:go_default_library",
+        "//shared/logger:go_default_library",
+        "//shared/zipkin:go_default_library",
+        "@com_github_go_kit_kit//log:go_default_library",
+        "@com_github_go_kit_kit//log/level:go_default_library",
+        "@com_github_go_kit_kit//transport/grpc:go_default_library",
+        "@com_github_opentracing_opentracing_go//:go_default_library",
+        "@com_github_openzipkin_contrib_zipkin_go_opentracing//:go_default_library",
+        "@com_github_openzipkin_zipkin_go//:go_default_library",
+        "@com_github_openzipkin_zipkin_go//middleware/grpc:go_default_library",
+        "@org_golang_google_grpc//:go_default_library",
+        "@org_golang_google_grpc//health:go_default_library",
+        "@org_golang_google_grpc//health/grpc_health_v1:go_default_library",
+        "@org_golang_google_grpc//reflection:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "cmd",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)

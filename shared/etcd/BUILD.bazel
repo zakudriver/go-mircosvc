@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["etcd.go"],
+    importpath = "github.com/kum0/go-mircosvc/shared/etcd",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_go_kit_kit//log:go_default_library",
+        "@com_github_go_kit_kit//sd/etcdv3:go_default_library",
+    ],
+)

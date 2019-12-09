@@ -1,0 +1,21 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "cookie.go",
+        "logger.go",
+        "permission.go",
+        "ratelimit.go",
+    ],
+    importpath = "github.com/kum0/go-mircosvc/shared/middleware",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//common:go_default_library",
+        "//shared/session:go_default_library",
+        "@com_github_go_kit_kit//endpoint:go_default_library",
+        "@com_github_go_kit_kit//log:go_default_library",
+        "@com_github_go_kit_kit//log/level:go_default_library",
+        "@org_golang_x_time//rate:go_default_library",
+    ],
+)
