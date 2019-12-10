@@ -5,3 +5,13 @@ gazelle(
     name = "gazelle",
     prefix = "github.com/kum0/go-mircosvc",
 )
+
+alias(
+    name = "gateway",
+    actual = "//servers/gateway/cmd:gateway",
+)
+
+alias(
+    name = "usersvc",
+    actual = "//servers/usersvc/cmd:usersvc",
+)
