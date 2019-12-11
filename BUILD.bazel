@@ -1,4 +1,5 @@
 load("@bazel_gazelle//:def.bzl", "gazelle")
+load("@io_bazel_rules_docker//container:container.bzl", "container_image", "container_pull")
 
 # gazelle:prefix github.com/kum0/go-mircosvc
 gazelle(
@@ -6,12 +7,39 @@ gazelle(
     prefix = "github.com/kum0/go-mircosvc",
 )
 
+gateway = "//servers/gateway/cmd:gateway"
+
+usersvc = "//servers/usersvc/cmd:usersvc"
+
 alias(
     name = "gateway",
-    actual = "//servers/gateway/cmd:gateway",
+    actual = gateway,
 )
 
 alias(
     name = "usersvc",
-    actual = "//servers/usersvc/cmd:usersvc",
+    actual = usersvc,
+)
+
+alias(
+    name = "usersvc_img",
+    actual = "//servers/gateway/cmd:gateway_image",
+)
+
+container_image(
+    name = "etcd",
+    base = "@etcd_docker//image",
+    ports = [
+        "2379",
+    ],
+    repository = "etcd_bazel",
+)
+
+container_image(
+    name = "zipkin",
+    base = "@zipkin_docker//image",
+    ports = [
+        "9411",
+    ],
+    repository = "zipkin_bazel",
 )

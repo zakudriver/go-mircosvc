@@ -1,7 +1,10 @@
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 def go_repositories():
     gazelle_dependencies()
+
+    protobuf_deps()
 
     go_repository(
         name = "co_honnef_go_tools",

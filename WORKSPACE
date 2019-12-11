@@ -14,15 +14,22 @@ load("//:repos.bzl", "go_repositories")
 
 go_repositories()
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+# docker
+load("@io_bazel_rules_docker//repositories:repositories.bzl", docker_rules_repositories = "repositories")
 
-git_repository(
-    name = "com_google_protobuf",
-    commit = "09745575a923640154bcf307fba8aedff47f240a",
-    remote = "https://github.com/protocolbuffers/protobuf",
-    shallow_since = "1558721209 -0700",
+docker_rules_repositories()
+
+#load("@io_bazel_rules_docker//repositories:deps.bzl", docker_rules_deps = "deps")
+#
+#docker_rules_deps()
+
+#load("//:docker.bzl", "docker_repositories")
+#
+#docker_repositories()
+
+load(
+    "@io_bazel_rules_docker//go:image.bzl",
+    go_image_repos = "repositories",
 )
 
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-
-protobuf_deps()
+go_image_repos()
