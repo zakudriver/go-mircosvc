@@ -23,23 +23,5 @@ alias(
 
 alias(
     name = "usersvc_img",
-    actual = "//servers/gateway/cmd:gateway_image",
-)
-
-container_image(
-    name = "etcd",
-    base = "@etcd_docker//image",
-    ports = [
-        "2379",
-    ],
-    repository = "etcd_bazel",
-)
-
-container_image(
-    name = "zipkin",
-    base = "@zipkin_docker//image",
-    ports = [
-        "9411",
-    ],
-    repository = "zipkin_bazel",
+    actual = "//servers/gateway/cmd:gateway_push",
 )

@@ -23,6 +23,7 @@ import (
 
 func main() {
 	conf := config.GetConfig()
+
 	log, f := logger.NewLogger(conf.LogPath)
 	defer f.Close()
 
