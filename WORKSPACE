@@ -23,10 +23,6 @@ docker_rules_repositories()
 #
 #docker_rules_deps()
 
-#load("//:docker.bzl", "docker_repositories")
-#
-#docker_repositories()
-
 load(
     "@io_bazel_rules_docker//go:image.bzl",
     go_image_repos = "repositories",

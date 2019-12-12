@@ -23,14 +23,14 @@ go_library(
 )
 
 go_binary(
-    name = "gateway",
+    name = "gateway_app",
     embed = [":go_default_library"],
     visibility = ["//visibility:public"],
 )
 
 go_image(
     name = "gateway_image",
-    binary = ":gateway",
+    binary = ":gateway_app",
 )
 
 container_push(
@@ -38,6 +38,6 @@ container_push(
     format = "Docker",
     image = ":gateway_image",
     registry = "index.docker.io",
-    repository = "zyhua1122/microsvc_gateway",
+    repository = "kum0/microsvc_gateway",
     tag = "latest",
 )
