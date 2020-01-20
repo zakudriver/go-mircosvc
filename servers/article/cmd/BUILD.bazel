@@ -5,6 +5,14 @@ go_library(
     srcs = ["main.go"],
     importpath = "github.com/kum0/go-mircosvc/servers/article/cmd",
     visibility = ["//visibility:private"],
+    deps = [
+        "//servers/article/config:go_default_library",
+        "//shared/etcd:go_default_library",
+        "//shared/logger:go_default_library",
+        "//shared/zipkin:go_default_library",
+        "@com_github_opentracing_opentracing_go//:go_default_library",
+        "@com_github_openzipkin_contrib_zipkin_go_opentracing//:go_default_library",
+    ],
 )
 
 go_binary(
