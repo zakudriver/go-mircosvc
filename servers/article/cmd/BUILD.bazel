@@ -7,6 +7,8 @@ go_library(
     visibility = ["//visibility:private"],
     deps = [
         "//servers/article/config:go_default_library",
+        "//servers/article/endpoints:go_default_library",
+        "//shared/db:go_default_library",
         "//shared/etcd:go_default_library",
         "//shared/logger:go_default_library",
         "//shared/zipkin:go_default_library",
