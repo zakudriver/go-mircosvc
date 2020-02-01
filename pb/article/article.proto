@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package pb;
+
+service Articlesvc {
+    rpc GetCategories (GetCategoriesRequest) returns (GetCategoriesResponse) {
+    }
+}
+
+// GetUser
+message GetCategoriesRequest {
+    string uid = 1;
+}
+
+message GetCategoriesResponse {
+    string uid = 1;
+}
