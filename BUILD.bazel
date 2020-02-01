@@ -21,9 +21,9 @@ alias(
     actual = "//servers/gateway/cmd:gateway_push",
 )
 
-load(":a.bzl", "build")
+# load(":test.bzl", "build")
 
-build(
-    name = "b",
-    target = ["//servers/gateway/cmd:gateway_app"],
-)
+# build(
+#     name = "b",
+#     target = ["//servers/gateway/cmd:gateway_app"],
+# )

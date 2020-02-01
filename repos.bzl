@@ -75,6 +75,7 @@ def go_repositories():
         importpath = "github.com/coreos/etcd",
         sum = "h1:8F3hqu9fGYLBifCmRCJsicFqDx/D68Rt3q1JMazcgBQ=",
         version = "v3.3.13+incompatible",
+        build_file_name = "BUILD.bazel",
     )
 
     go_repository(
@@ -705,6 +706,7 @@ def go_repositories():
         importpath = "go.etcd.io/etcd",
         sum = "h1:jCejD5EMnlGxFvcGRyEV4VGlENZc7oPQX6o0t7n3xbw=",
         version = "v3.3.13+incompatible",
+        build_file_name = "BUILD.bazel",
     )
 
     go_repository(
