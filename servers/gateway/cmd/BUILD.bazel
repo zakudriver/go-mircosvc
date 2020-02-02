@@ -23,7 +23,7 @@ go_library(
 )
 
 go_binary(
-    name = "gateway_app",
+    name = "cmd",
     embed = [":go_default_library"],
     visibility = ["//visibility:public"],
 )

@@ -7,8 +7,8 @@ gazelle(
 )
 
 alias(
-    name = "gateway_app",
-    actual = "//servers/gateway/cmd:gateway_app",
+    name = "gateway_cmd",
+    actual = "//servers/gateway/cmd:cmd",
 )
 
 alias(

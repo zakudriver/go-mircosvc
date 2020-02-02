@@ -39,6 +39,9 @@ testem.log
 /build
 /log
 
+# bazel
+/bazel-*
+
 # System Files
 .DS_Store
 Thumbs.db
