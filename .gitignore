@@ -40,7 +40,7 @@ testem.log
 /log
 
 # bazel
-/bazel-*
+bazel-*
 
 # System Files
 .DS_Store
