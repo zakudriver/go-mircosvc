@@ -10,6 +10,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//common:go_default_library",
+        "//pb/article:go_default_library",
         "//shared/middleware:go_default_library",
         "//shared/validator:go_default_library",
         "@com_github_go_kit_kit//circuitbreaker:go_default_library",

@@ -4,6 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/gomodule/redigo/redis"
 	"github.com/kum0/go-mircosvc/common"
 	userPb "github.com/kum0/go-mircosvc/pb/user"
@@ -12,11 +15,9 @@ import (
 	"github.com/kum0/go-mircosvc/shared/session"
 	"github.com/kum0/go-mircosvc/shared/validator"
 	"github.com/kum0/go-mircosvc/utils"
-	"net/http"
-	"strings"
 )
 
-type IUserService interface {
+type UserSerivcer interface {
 	GetUser(context.Context, string) (*userPb.GetUserResponse, error)
 	Login(context.Context, LoginRequest) (*userPb.LoginResponse, error)
 	SendCode(context.Context) (*userPb.SendCodeResponse, error)
@@ -25,7 +26,7 @@ type IUserService interface {
 	Logout(context.Context, LogoutRequest) error
 }
 
-func NewUserService(db *sql.DB, redis *redis.Pool, email *email.Email) IUserService {
+func NewUserService(db *sql.DB, redis *redis.Pool, email *email.Email) UserSerivcer {
 	return &UserService{
 		db,
 		redis,
@@ -185,8 +186,7 @@ func (svc *UserService) UserList(ctx context.Context, req UserListRequest) (*use
 	d := make([]*userPb.UserResponse, 0)
 	for rs.Next() {
 		u := new(userPb.UserResponse)
-		if err := rs.Scan(&u.Id, &u.Username, &u.Avatar, &u.RoleID, &u.RecentTime, &u.CreatedTime, &u.UpdatedTime);
-			err != nil {
+		if err := rs.Scan(&u.Id, &u.Username, &u.Avatar, &u.RoleID, &u.RecentTime, &u.CreatedTime, &u.UpdatedTime); err != nil {
 			return nil, err
 		}
 		d = append(d, u)

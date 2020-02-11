@@ -7,11 +7,16 @@ service Articlesvc {
     }
 }
 
-// GetUser
+// GetCategories
 message GetCategoriesRequest {
-    string uid = 1;
 }
 
 message GetCategoriesResponse {
-    string uid = 1;
+    int64 count = 1;
+    repeated CategoryResponse data = 2;
+}
+
+message CategoryResponse {
+    int32 id = 1;
+    string name = 2;
 }

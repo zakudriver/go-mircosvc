@@ -17,7 +17,7 @@ var (
 	fieldKeys = []string{"method", "error"}
 )
 
-func makePrometheusMiddleware(next endpoints.IUserService) endpoints.IUserService {
+func makePrometheusMiddleware(next endpoints.UserSerivcer) endpoints.UserSerivcer {
 	requestCount := kitPrometheus.NewCounterFrom(prometheus.CounterOpts{
 		Namespace: "usersvc_space",
 		Subsystem: "usersvc",
@@ -43,7 +43,7 @@ type prometheusMiddleware struct {
 	requestCount   metrics.Counter
 	requestLatency metrics.Histogram
 	countResult    metrics.Histogram
-	next           endpoints.IUserService
+	next           endpoints.UserSerivcer
 }
 
 func (pm *prometheusMiddleware) timeDiff(method string, begin time.Time, err error) {
@@ -81,7 +81,7 @@ func (pm *prometheusMiddleware) Register(ctx context.Context, req endpoints.Regi
 }
 
 func (pm *prometheusMiddleware) UserList(ctx context.Context, req endpoints.UserListRequest) (res *userPb.
-UserListResponse, err error) {
+	UserListResponse, err error) {
 	defer pm.timeDiff("UserList", time.Now(), err)
 
 	res, err = pm.next.UserList(ctx, req)

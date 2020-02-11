@@ -4,9 +4,9 @@ import (
 	"github.com/kum0/go-mircosvc/servers/usersvc/endpoints"
 )
 
-type ServiceMiddleware func(endpoints.IUserService) endpoints.IUserService
+type ServiceMiddleware func(endpoints.UserSerivcer) endpoints.UserSerivcer
 
-func MakeServiceMiddleware(s endpoints.IUserService) endpoints.IUserService {
+func MakeServiceMiddleware(s endpoints.UserSerivcer) endpoints.UserSerivcer {
 	mids := []ServiceMiddleware{
 		makePrometheusMiddleware,
 	}

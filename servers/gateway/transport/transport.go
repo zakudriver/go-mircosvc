@@ -3,12 +3,13 @@ package transport
 import (
 	"context"
 	"errors"
-	"github.com/kum0/go-mircosvc/common"
-	"github.com/kum0/go-mircosvc/shared/middleware"
-	"google.golang.org/grpc/status"
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/kum0/go-mircosvc/common"
+	"github.com/kum0/go-mircosvc/shared/middleware"
+	"google.golang.org/grpc/status"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
@@ -18,6 +19,9 @@ import (
 	"github.com/gorilla/mux"
 	usersvcEndpoints "github.com/kum0/go-mircosvc/servers/usersvc/endpoints"
 	usersvcTransport "github.com/kum0/go-mircosvc/servers/usersvc/transport"
+
+	articlesvcEndpoints "github.com/kum0/go-mircosvc/servers/article/endpoints"
+	articlesvcTransport "github.com/kum0/go-mircosvc/servers/article/transport"
 	sharedEtcd "github.com/kum0/go-mircosvc/shared/etcd"
 	"github.com/kum0/go-mircosvc/shared/session"
 	"github.com/opentracing/opentracing-go"
@@ -49,11 +53,10 @@ func MakeHandler(
 	{
 		endpoints := new(usersvcEndpoints.Endponits)
 		ins := sharedEtcd.NewInstancer("/usersvc", etcdClient, logger)
+
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeGetUserEndpoint, tracer, zipkinTracer, logger)
-			endpoints.GetUserEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout,
-				middleware.CookieMiddleware(sessionStorage),
-			)
+			endpoints.GetUserEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
 		}
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeLoginEndpoint, tracer, zipkinTracer, logger)
@@ -66,10 +69,6 @@ func MakeHandler(
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeSendCodeEndpoint, tracer, zipkinTracer, logger)
 			endpoints.SendCodeEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
-		}
-		{
-			factory := usersvcFactory(usersvcEndpoints.MakeUserListEndpoint, tracer, zipkinTracer, logger)
-			endpoints.UserListEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
 		}
 		{
 			factory := usersvcFactory(usersvcEndpoints.MakeUserListEndpoint, tracer, zipkinTracer, logger)
@@ -97,13 +96,23 @@ func MakeHandler(
 
 	// article endpoint
 	{
+		endpoints := new(articlesvcEndpoints.Endpoints)
+		ins := sharedEtcd.NewInstancer("/articlesvc", etcdClient, logger)
+
+		{
+			factory := articlesvcFactory(articlesvcEndpoints.MakeGetCategoriesEndpoint, tracer, zipkinTracer, logger)
+			endpoints.GetCategoriesEP = makeEndpoint(factory, ins, logger, retryMax, retryTimeout)
+
+			r.PathPrefix("/articlesvc").Handler(http.StripPrefix("/articlesvc", articlesvcTransport.MakeHTTPHandler(endpoints, tracer,
+				logger, opts)))
+		}
 	}
 
 	return r
 }
 
 func usersvcFactory(
-	makeEndpoint func(service usersvcEndpoints.IUserService) endpoint.Endpoint,
+	makeEndpoint func(service usersvcEndpoints.UserSerivcer) endpoint.Endpoint,
 	tracer opentracing.Tracer,
 	zipkinTracer *zipkin.Tracer,
 	logger log.Logger,
@@ -114,6 +123,22 @@ func usersvcFactory(
 			return nil, nil, err
 		}
 		service := usersvcTransport.MakeGRPCClient(conn, tracer, zipkinTracer, logger)
+		return makeEndpoint(service), conn, nil
+	}
+}
+
+func articlesvcFactory(
+	makeEndpoint func(service articlesvcEndpoints.ArticleServicer) endpoint.Endpoint,
+	tracer opentracing.Tracer,
+	zipkinTracer *zipkin.Tracer,
+	logger log.Logger,
+) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc.Dial(instance, grpc.WithInsecure())
+		if err != nil {
+			return nil, nil, err
+		}
+		service := articlesvcTransport.MakeGRPCClient(conn, tracer, zipkinTracer, logger)
 		return makeEndpoint(service), conn, nil
 	}
 }

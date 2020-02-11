@@ -1,8 +1,9 @@
 package transport
 
 import (
-	"github.com/kum0/go-mircosvc/common"
 	"time"
+
+	"github.com/kum0/go-mircosvc/common"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
@@ -19,7 +20,7 @@ import (
 )
 
 func MakeGRPCClient(conn *grpc.ClientConn, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer,
-	logger log.Logger) endpoints.IUserService {
+	logger log.Logger) endpoints.UserSerivcer {
 	limiter := ratelimit.NewErroringLimiter(rate.NewLimiter(rate.Every(time.Second), 100))
 
 	options := []kitGrpcTransport.ClientOption{

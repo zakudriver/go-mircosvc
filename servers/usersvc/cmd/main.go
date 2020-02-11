@@ -52,7 +52,7 @@ func main() {
 		defer register.Register()
 	}
 
-	var svc endpoints.IUserService
+	var svc endpoints.UserSerivcer
 	{
 		mdb := db.NewMysql(conf.MysqlUsername, conf.MysqlPassword, conf.MysqlAddr, conf.MysqlAuthsource)
 		rd := db.NewRedis(conf.RedisAddr, conf.RedisPassword, conf.RedisMaxIdle, conf.RedisMaxActive)

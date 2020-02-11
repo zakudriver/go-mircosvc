@@ -16,29 +16,31 @@ import (
 
 	kitOpentracing "github.com/go-kit/kit/tracing/opentracing"
 	kitZipkin "github.com/go-kit/kit/tracing/zipkin"
+	articlePb "github.com/kum0/go-mircosvc/pb/article"
 )
 
 type Endpoints struct {
 	GetCategoriesEP endpoint.Endpoint
 }
 
-func (e *Endpoints) GetCategories(ctx context.Context) (error, error) {
+func (e *Endpoints) GetCategories(ctx context.Context) (res *articlePb.GetCategoriesResponse, err error) {
 	r, err := e.GetCategoriesEP(ctx, nil)
 
 	if r != nil {
-		return nil, nil
+		res = r.(*articlePb.GetCategoriesResponse)
 	}
 
-	return err, nil
+	return
 }
 
 func NewEndpoints(svc ArticleServicer, logger log.Logger, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer) *Endpoints {
 
 	return &Endpoints{
-		GetCategoriesEP: makeEndpoint(MakeGetCategoriesEndpoint(svc), "MakeGetCategories", logger, otTracer, zipkinTracer),
+		GetCategoriesEP: makeEndpoint(MakeGetCategoriesEndpoint(svc), "GetCategories", logger, otTracer, zipkinTracer),
 	}
 }
 
+// GetCategories
 func MakeGetCategoriesEndpoint(svc ArticleServicer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		res, err := svc.GetCategories(ctx)

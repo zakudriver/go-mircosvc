@@ -5,9 +5,9 @@ import (
 )
 
 type config struct {
-	ServiceName  string `env:"SERVICE_NAME=user-svc"`
-	LogPath      string `env:"LOG_PATH=./log/usersvc.log"`
-	GrpcPort     string `env:"GRPC_PORT=5003"`
+	ServiceName  string `env:"SERVICE_NAME=article-svc"`
+	LogPath      string `env:"LOG_PATH=./log/articlesvc.log"`
+	GrpcPort     string `env:"GRPC_PORT=5005"`
 	ZipkinAddr   string `env:"ZIPKIN_ADDR=http://localhost:9411/api/v2/spans"`
 	RETRYMAX     string `env:"RETRY_MAX=3"`
 	RetryMax     int

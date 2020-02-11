@@ -21,8 +21,7 @@ alias(
     actual = "//servers/gateway/cmd:gateway_push",
 )
 
-# load(":test.bzl", "build")
-
+# load(":test.bzl", "run_tests")
 
 # build(
 #     name = "b",

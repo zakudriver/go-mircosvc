@@ -71,7 +71,7 @@ func (e *Endponits) Logout(ctx context.Context, req LogoutRequest) error {
 	return err
 }
 
-func NewEndpoints(svc IUserService, logger log.Logger, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer) *Endponits {
+func NewEndpoints(svc UserSerivcer, logger log.Logger, otTracer opentracing.Tracer, zipkinTracer *zipkin.Tracer) *Endponits {
 
 	return &Endponits{
 		GetUserEP:  makeEndpoint(MakeGetUserEndpoint(svc), "GetUser", logger, otTracer, zipkinTracer),
@@ -84,7 +84,7 @@ func NewEndpoints(svc IUserService, logger log.Logger, otTracer opentracing.Trac
 }
 
 // GetUser
-func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
+func MakeGetUserEndpoint(svc UserSerivcer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(string)
 		if !ok {
@@ -98,7 +98,7 @@ func MakeGetUserEndpoint(svc IUserService) endpoint.Endpoint {
 }
 
 // Login
-func MakeLoginEndpoint(svc IUserService) endpoint.Endpoint {
+func MakeLoginEndpoint(svc UserSerivcer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(*LoginRequest)
 		if !ok {
@@ -117,7 +117,7 @@ func MakeLoginEndpoint(svc IUserService) endpoint.Endpoint {
 }
 
 // SendCode
-func MakeSendCodeEndpoint(svc IUserService) endpoint.Endpoint {
+func MakeSendCodeEndpoint(svc UserSerivcer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		res, err := svc.SendCode(ctx)
 
@@ -126,7 +126,7 @@ func MakeSendCodeEndpoint(svc IUserService) endpoint.Endpoint {
 }
 
 // Register
-func MakeRegisterEndpoint(svc IUserService) endpoint.Endpoint {
+func MakeRegisterEndpoint(svc UserSerivcer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(*RegisterRequest)
 		if !ok {
@@ -140,7 +140,7 @@ func MakeRegisterEndpoint(svc IUserService) endpoint.Endpoint {
 }
 
 // UserList
-func MakeUserListEndpoint(svc IUserService) endpoint.Endpoint {
+func MakeUserListEndpoint(svc UserSerivcer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(*UserListRequest)
 		if !ok {
@@ -154,14 +154,14 @@ func MakeUserListEndpoint(svc IUserService) endpoint.Endpoint {
 }
 
 // Auth
-func MakeAuthEndpoint(_ IUserService) endpoint.Endpoint {
+func MakeAuthEndpoint(_ UserSerivcer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		return common.Response{Msg: "auth ok"}, nil
 	}
 }
 
 // Logout
-func MakeLogoutEndpoint(svc IUserService) endpoint.Endpoint {
+func MakeLogoutEndpoint(svc UserSerivcer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(*LogoutRequest)
 		if !ok {
